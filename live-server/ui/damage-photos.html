@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Phase 3F Damage Photos Integration</title>
+  <link rel="stylesheet" href="./phase3f.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Phase 3F Damage Photos</h1>
+    <div class="sub">Frontend integration test for damage-photo requirements, photo registration, waiver, release blocks, and damage-photo status visibility.</div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>1. Login + connection</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <button id="btnMe">Test /auth/me</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" placeholder="Supabase Auth email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnLogout">Logout</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Damage controls</h2>
+        <div class="row">
+          <button id="btnStats">Damage Stats</button>
+          <button id="btnRecords" class="primary">Load Damage Records</button>
+          <button id="btnRequirements" class="primary">Load Requirements</button>
+          <button id="btnPhotos">Load Photos</button>
+          <button id="btnReleaseBlocks">Release Blocks</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Search MAWB / HAWB / notes</label><input id="q" placeholder="Search damage records" /></div>
+          <div class="field small"><label>Records Status</label><select id="recordStatus"><option value="">All</option><option>OPEN</option><option>PHOTOS_REQUIRED</option><option>PHOTOS_COMPLETE</option><option>WAIVED</option><option>CANCELLED</option></select></div>
+          <div class="field small"><label>Req Status</label><select id="requirementStatus"><option value="">All</option><option>OPEN</option><option>COMPLETE</option><option>WAIVED</option><option>CANCELLED</option></select></div>
+          <div class="field small"><label>Limit</label><input id="limit" type="number" min="1" max="100" value="25" /></div>
+        </div>
+        <p class="help">Use this page after Phase 3E creates a damaged HAWB, or use existing damage requirements from staging smoke tests.</p>
+      </section>
+
+      <section class="card wide">
+        <h2>3. Damage dashboard</h2>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Records Loaded</div><div id="kpiRecords" class="value">0</div></div>
+          <div class="kpi"><div class="label">Requirements Loaded</div><div id="kpiRequirements" class="value">0</div></div>
+          <div class="kpi"><div class="label">Photos Loaded</div><div id="kpiPhotos" class="value">0</div></div>
+          <div class="kpi"><div class="label">Release Blocks</div><div id="kpiBlocks" class="value">0</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4. Create / ensure damage record</h2>
+        <div class="row">
+          <div class="field"><label>HAWB Inspection ID</label><input id="hawbInspectionId" placeholder="Paste HAWB inspection UUID from Warehouse Inspection" /></div>
+          <div class="field small"><label>Required Photo Count</label><input id="requiredPhotoCount" type="number" min="0" max="200" value="7" /></div>
+        </div>
+        <div class="row"><button id="btnEnsureRecord" class="blue">Ensure Damage Record</button></div>
+        <p class="help">This is useful when a damaged HAWB inspection exists but the damage requirement needs to be generated or refreshed.</p>
+      </section>
+
+      <section class="card">
+        <h2>5. Selected IDs</h2>
+        <div class="row"><div class="field"><label>Selected Damage Record ID</label><input id="selectedDamageRecordId" placeholder="Select from Records" /></div></div>
+        <div class="row"><div class="field"><label>Selected Requirement ID</label><input id="selectedRequirementId" placeholder="Select from Requirements" /></div></div>
+        <div class="row"><div class="field"><label>Selected Photo ID</label><input id="selectedPhotoId" placeholder="Select from Photos" /></div></div>
+        <div class="row">
+          <button id="btnLoadRecord">Load Damage Record</button>
+          <button id="btnLoadRequirement">Load Requirement</button>
+          <button id="btnLoadPhoto">Load Photo</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6. Attach damage photo metadata</h2>
+        <div class="row"><div class="field"><label>Existing damage photo file_record_id</label><input id="fileRecordId" placeholder="public.file_records.id in damage-photos bucket" /></div></div>
+        <div class="row">
+          <div class="field small"><label>Photo Type</label><select id="photoType"><option>GENERAL</option><option>CLOSE_UP</option><option>LABEL</option><option>BOX_SIDE</option><option>BOX_TOP</option><option>PALLET</option><option>SEAL</option><option>SENSOR</option><option>OTHER</option></select></div>
+          <div class="field"><label>Piece Identifier</label><input id="pieceIdentifier" placeholder="Box 1, pallet 2, sensor label, etc." /></div>
+        </div>
+        <div class="row"><div class="field"><label>Caption</label><input id="caption" placeholder="Photo caption" /></div></div>
+        <div class="row"><button id="btnRegisterPhoto" class="primary">Register Damage Photo</button></div>
+        <p class="help">The browser upload bridge is later. For now use an existing staging file_records.id for a damage photo, or test waiver below.</p>
+      </section>
+
+      <section class="card">
+        <h2>7. Waive / reject / void</h2>
+        <div class="row"><div class="field"><label>Reason</label><input id="actionReason" value="Frontend staging test action" /></div></div>
+        <div class="row">
+          <button id="btnWaiveRequirement" class="blue">Waive Requirement</button>
+          <button id="btnRejectPhoto">Reject Photo</button>
+          <button id="btnVoidPhoto">Void Photo</button>
+        </div>
+        <p class="help">Waiving a requirement should remove the release block. Reject/void uses a selected photo ID.</p>
+      </section>
+
+      <section class="card wide">
+        <h2>8. Damage records</h2>
+        <div class="table-wrap"><table id="recordsTable"><thead><tr><th>Status</th><th>MAWB</th><th>HAWB</th><th>Class</th><th>Required</th><th>Uploaded</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card wide">
+        <h2>9. Damage photo requirements</h2>
+        <div class="table-wrap"><table id="requirementsTable"><thead><tr><th>Status</th><th>Type</th><th>MAWB</th><th>HAWB</th><th>Required</th><th>Uploaded</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card wide">
+        <h2>10. Damage photos</h2>
+        <div class="table-wrap"><table id="photosTable"><thead><tr><th>Status</th><th>Type</th><th>File</th><th>MAWB</th><th>HAWB</th><th>Caption</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card wide">
+        <h2>11. Release blocks</h2>
+        <div class="table-wrap"><table id="blocksTable"><thead><tr><th>MAWB</th><th>HAWB</th><th>Block Type</th><th>Status</th><th>Reason / Requirement</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card wide">
+        <h2>12. Detail</h2>
+        <div class="table-wrap"><table id="detailTable"><tbody></tbody></table></div>
+      </section>
+
+      <section class="card wide">
+        <h2>Output</h2>
+        <div id="status">Ready</div>
+        <pre id="output">No test run yet.</pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./damage-photos.js"></script>
+</body>
+</html>

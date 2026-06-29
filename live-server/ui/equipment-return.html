@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3I Equipment Return</title>
+  <link rel="stylesheet" href="./phase3i.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Master — Equipment Return</h1>
+    <div class="sub">Phase 3I Frontend Integration • MAWB Equipment → Return Job → Driver Assignment → Return Confirmation → Billing Ready</div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>1. Connection + Login</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnMe">Test /auth/me</button>
+          <button id="btnLogout">Logout</button>
+        </div>
+        <p class="help">Use your staging smoke test user. Equipment Return requires backend permissions from OFFICE/ADMIN/CARGO/RECOVERY access.</p>
+      </div>
+
+      <div class="card">
+        <h2>2. Equipment Return KPIs</h2>
+        <div class="row">
+          <button id="btnStats" class="blue">Equipment Stats</button>
+          <button id="btnTypes">Load Equipment Types</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Records</div><div id="kpiRecords" class="value">—</div></div>
+          <div class="kpi"><div class="label">Pending</div><div id="kpiPending" class="value">—</div></div>
+          <div class="kpi"><div class="label">Returned</div><div id="kpiReturned" class="value">—</div></div>
+          <div class="kpi"><div class="label">Ready to Bill</div><div id="kpiReadyBill" class="value">—</div></div>
+          <div class="kpi"><div class="label">Open Jobs</div><div id="kpiOpenJobs" class="value">—</div></div>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h2>3. Cargo MAWBs / Add Equipment to MAWB</h2>
+        <div class="row">
+          <button id="btnLoadMawbs" class="blue">Load Recent Cargo MAWBs</button>
+          <div class="field small"><label>Status</label><select id="mawbStatus"><option value="RELEASED">RELEASED</option><option value="NEW">NEW</option><option value="WAREHOUSE_INSPECTION">WAREHOUSE_INSPECTION</option><option value="">Any</option></select></div>
+          <div class="field"><label>Selected MAWB ID</label><input id="selectedMawbId" /></div>
+        </div>
+        <div class="table-wrap"><table id="mawbsTable"><thead><tr><th>Status</th><th>MAWB</th><th>Pieces</th><th>Payor</th><th>Airline</th><th>ID</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+        <div class="row">
+          <div class="field small"><label>Equipment Type</label><select id="equipmentTypeKey"><option>PMC</option><option>AKE</option><option>LD7</option><option>PGA</option><option>PAG</option><option>RKN</option></select></div>
+          <div class="field"><label>Equipment Number</label><input id="equipmentNumber" placeholder="PMC12345" /></div>
+          <div class="field"><label>Airline ID optional</label><input id="equipmentAirlineId" /></div>
+          <button id="btnAddEquipment" class="primary">Add Equipment to MAWB</button>
+        </div>
+        <p class="help">Use staging/test MAWBs. Equipment numbers must be unique per MAWB; duplicates are blocked by the backend.</p>
+      </div>
+
+      <div class="card wide">
+        <h2>4. Equipment Records / Search</h2>
+        <div class="row">
+          <button id="btnRecords" class="blue">Load Records</button>
+          <button id="btnPendingRecords">Load Pending Return</button>
+          <button id="btnBillingReady">Load Billing Ready</button>
+          <div class="field small"><label>Return Status</label><select id="returnStatusFilter"><option value="">Any</option><option>PENDING_RETURN</option><option>RETURN_JOB_CREATED</option><option>RETURNED</option><option>LOST</option><option>CANCELLED</option></select></div>
+          <div class="field"><label>Search Equipment #</label><input id="searchEquipmentNumber" /></div>
+          <button id="btnSearchEquipment">Search</button>
+        </div>
+        <div class="row"><div class="field"><label>Selected Equipment Record ID</label><input id="selectedEquipmentRecordId" /></div></div>
+        <div class="table-wrap"><table id="recordsTable"><thead><tr><th>Type</th><th>Number</th><th>Return</th><th>Billing</th><th>MAWB</th><th>Airline</th><th>ID</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="card">
+        <h2>5. Drivers + Return Job</h2>
+        <div class="row">
+          <button id="btnDrivers" class="blue">Load Drivers</button>
+          <div class="field"><label>Selected Driver User ID</label><input id="selectedDriverUserId" placeholder="driver user_id or current user id" /></div>
+        </div>
+        <div class="table-wrap"><table id="driversTable"><thead><tr><th>Driver</th><th>Email</th><th>User ID</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+        <div class="row"><button id="btnCreateReturnJob" class="primary">Create Return Job from Selected Equipment</button><button id="btnAssignDriver">Assign Driver</button></div>
+        <div class="row"><div class="field"><label>Selected Return Job ID</label><input id="selectedReturnJobId" /></div></div>
+      </div>
+
+      <div class="card">
+        <h2>6. Return Jobs</h2>
+        <div class="row">
+          <button id="btnReturnJobs" class="blue">Load Return Jobs</button>
+          <button id="btnOpenReturnJobs">Open Jobs</button>
+          <button id="btnLoadReturnJob">Load Selected Job</button>
+          <div class="field small"><label>Status</label><select id="returnJobStatusFilter"><option value="">Any</option><option>PENDING</option><option>ASSIGNED</option><option>IN_PROGRESS</option><option>PARTIAL_RETURNED</option><option>RETURNED_COMPLETE</option></select></div>
+        </div>
+        <div class="table-wrap"><table id="jobsTable"><thead><tr><th>Status</th><th>Job #</th><th>Total</th><th>Returned</th><th>Driver</th><th>ID</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="card wide">
+        <h2>7. Return Items / Confirmation</h2>
+        <div class="row"><button id="btnJobItems" class="blue">Load Job Items</button><button id="btnAllItems">Load All Pending Items</button></div>
+        <div class="row"><div class="field"><label>Selected Return Item ID</label><input id="selectedReturnItemId" /></div><div class="field"><label>Scan Value</label><input id="scanValue" placeholder="Equipment number" /></div><div class="field small"><label>Condition</label><select id="returnCondition"><option>GOOD</option><option>DAMAGED</option><option>DIRTY</option><option>UNKNOWN</option></select></div></div>
+        <div class="row"><button id="btnConfirmReturn" class="green">Confirm Equipment Returned</button><button id="btnRecordDetail">Load Equipment Detail</button></div>
+        <div class="table-wrap"><table id="itemsTable"><thead><tr><th>Status</th><th>Equipment</th><th>MAWB</th><th>Condition</th><th>Item ID</th><th>Action</th></tr></thead><tbody><tr><td colspan="6">Load return items first.</td></tr></tbody></table></div>
+      </div>
+
+      <div class="card wide">
+        <h2>8. Confirmations / History / Output</h2>
+        <div class="row"><button id="btnConfirmations">Load Confirmations</button><button id="btnHistory">Load History</button></div>
+        <pre id="output">Ready.</pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./equipment-return.js"></script>
+</body>
+</html>

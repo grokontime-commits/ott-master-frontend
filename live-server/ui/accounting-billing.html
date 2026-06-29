@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3J Accounting / Billing</title>
+  <link rel="stylesheet" href="./phase3j.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>OTT Master — Accounting / Billing API Integration</h1>
+      <p>Phase 3J: billing-ready MAWBs, equipment returns, pallet exchanges, invoice preview foundation.</p>
+    </div>
+    <span id="loginBadge" class="badge">Not logged in</span>
+  </header>
+
+  <main class="layout">
+    <section class="card span-2">
+      <h2>1. Connection + Login</h2>
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+      </div>
+      <div class="grid-3">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin test email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        <div class="button-stack">
+          <button id="btnLogin">Login</button>
+          <button id="btnLogout" class="secondary">Logout</button>
+          <button id="btnMe" class="secondary">Test /auth/me</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card span-2">
+      <h2>2. Accounting dashboard</h2>
+      <div class="button-row">
+        <button id="btnStats">Accounting Stats</button>
+        <button id="btnPayors">Load Payors</button>
+        <button id="btnAirlines">Load Airlines</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><b id="kpiOpen">—</b><span>Open Accounting Items</span></div>
+        <div class="kpi"><b id="kpiMawbs">—</b><span>Billing-Ready MAWBs</span></div>
+        <div class="kpi"><b id="kpiEquipment">—</b><span>Equipment Ready</span></div>
+        <div class="kpi"><b id="kpiPallets">—</b><span>Billable Pallets</span></div>
+      </div>
+    </section>
+
+    <section class="card span-2">
+      <h2>3. Filters</h2>
+      <div class="grid-4">
+        <label>Search<input id="q" placeholder="MAWB, equipment, release, notes" /></label>
+        <label>Payor<select id="payorFilter"><option value="">All payors</option></select></label>
+        <label>Airline<select id="airlineFilter"><option value="">All airlines</option></select></label>
+        <label>Limit<input id="limit" type="number" min="1" max="200" value="50" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnLoadMawbs">Load Billing-Ready MAWBs</button>
+        <button id="btnLoadReleases">Load Release Orders</button>
+        <button id="btnLoadEquipment">Load Equipment Returns</button>
+        <button id="btnLoadPallets">Load Pallet Exchanges</button>
+      </div>
+    </section>
+
+    <section class="card span-2">
+      <h2>4. Billing-ready MAWBs</h2>
+      <div class="table-wrap"><table id="mawbsTable"><thead><tr><th>Status</th><th>MAWB</th><th>Payor</th><th>Airline</th><th>Pieces</th><th>Weight</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="8">No MAWBs loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>5. Release orders</h2>
+      <div class="table-wrap"><table id="releasesTable"><thead><tr><th>Status</th><th>Release #</th><th>MAWB</th><th>Customer Approved</th><th>Packet</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="7">No release orders loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>6. Equipment returns ready to bill</h2>
+      <div class="button-row">
+        <label class="inline-label">Equipment Type
+          <select id="equipmentTypeKey"><option value="">All</option><option>PMC</option><option>AKE</option><option>LD7</option><option>PGA</option><option>PAG</option><option>RKN</option></select>
+        </label>
+        <label class="inline-label">Billing Status
+          <select id="billingStatus"><option value="READY_TO_BILL">READY_TO_BILL</option><option value="BILLED">BILLED</option><option value="NOT_READY">NOT_READY</option><option value="NON_BILLABLE">NON_BILLABLE</option><option value="VOIDED">VOIDED</option></select>
+        </label>
+      </div>
+      <div class="table-wrap"><table id="equipmentTable"><thead><tr><th>Billing</th><th>Return</th><th>Equipment</th><th>MAWB</th><th>Airline</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="7">No equipment loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>7. Billable pallet exchanges</h2>
+      <div class="table-wrap"><table id="palletsTable"><thead><tr><th>Status</th><th>MAWB</th><th>Billable</th><th>Pallets</th><th>Release Order</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="7">No pallet exchanges loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>8. Invoice preview foundation</h2>
+      <p class="muted">Phase 3J creates a non-posted preview only. Rates and QuickBooks export are later phases.</p>
+      <div class="grid-4">
+        <label>Invoice Type<select id="invoiceType"><option>MIXED</option><option>CFS_BASE</option><option>ULD_RETURN</option><option>PALLET_EXCHANGE</option><option>ACCESSORIAL</option></select></label>
+        <label>Invoice Number<input id="invoiceNumber" /></label>
+        <label>Invoice Date<input id="invoiceDate" type="date" /></label>
+        <label>Selected Payor ID<input id="selectedPayorId" placeholder="optional" /></label>
+      </div>
+      <div class="grid-3">
+        <label>Selected MAWB IDs<textarea id="selectedMawbIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
+        <label>Selected Equipment Record IDs<textarea id="selectedEquipmentIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
+        <label>Selected Pallet Exchange IDs<textarea id="selectedPalletIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
+      </div>
+      <label>Notes<textarea id="invoiceNotes" rows="2">Phase 3J frontend invoice preview foundation.</textarea></label>
+      <div class="button-row">
+        <button id="btnCreatePreview">Create Invoice Preview</button>
+        <button id="btnClearSelections" class="secondary">Clear Selections</button>
+      </div>
+      <div id="previewBox" class="preview-box">No invoice preview yet.</div>
+    </section>
+
+    <section class="card span-2">
+      <h2>9. Mark equipment record billed</h2>
+      <p class="muted">Use this only with staging/test equipment records. It changes billing_status to BILLED.</p>
+      <div class="grid-3">
+        <label>Equipment Record ID<input id="billEquipmentRecordId" /></label>
+        <label>Invoice Number<input id="billInvoiceNumber" /></label>
+        <label>Invoice Date<input id="billInvoiceDate" type="date" /></label>
+      </div>
+      <label>Billing Notes<textarea id="billNotes" rows="2">Phase 3J frontend marked equipment return billed.</textarea></label>
+      <button id="btnMarkBilled">Mark Equipment Billed</button>
+    </section>
+
+    <section class="card span-2">
+      <h2>Output</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="./accounting-billing.js"></script>
+</body>
+</html>

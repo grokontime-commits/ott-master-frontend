@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3H Forklift Driver Board</title>
+  <link rel="stylesheet" href="./phase3h.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Master — Forklift Driver Board</h1>
+    <div class="sub">Phase 3H Frontend Integration • Ready Release Order → Forklift Job → Scan/Confirm → Pallet Exchange → Signature → Finalize</div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>1. Connection + Login</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnMe">Test /auth/me</button>
+          <button id="btnLogout">Logout</button>
+        </div>
+        <p class="help">Use your staging smoke test user. The page sends the Supabase bearer token to the backend.</p>
+      </div>
+
+      <div class="card">
+        <h2>2. Forklift KPIs</h2>
+        <div class="row">
+          <button id="btnStats" class="blue">Forklift Stats</button>
+          <button id="btnDriverBoard">Load Driver Board</button>
+          <button id="btnJobs">Load Jobs</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Jobs</div><div id="kpiJobs" class="value">—</div></div>
+          <div class="kpi"><div class="label">Open</div><div id="kpiOpen" class="value">—</div></div>
+          <div class="kpi"><div class="label">Ready</div><div id="kpiReady" class="value">—</div></div>
+          <div class="kpi"><div class="label">Completed</div><div id="kpiCompleted" class="value">—</div></div>
+          <div class="kpi"><div class="label">Confirmations</div><div id="kpiConfirmations" class="value">—</div></div>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h2>3. Ready for Forklift Release Orders</h2>
+        <div class="row">
+          <button id="btnReadyOrders" class="blue">Load READY_FOR_FORKLIFT Orders</button>
+          <button id="btnOrdersAny">Load Recent Release Orders</button>
+          <div class="field small"><label>Status filter</label><select id="releaseOrderStatus"><option value="READY_FOR_FORKLIFT">READY_FOR_FORKLIFT</option><option value="SENT_TO_FORKLIFT">SENT_TO_FORKLIFT</option><option value="">Any</option></select></div>
+        </div>
+        <div class="table-wrap"><table id="ordersTable"><thead><tr><th>Status</th><th>Release #</th><th>MAWB</th><th>HAWBs</th><th>Approval</th><th>Packet</th><th>ID</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="card">
+        <h2>4. Create / Select Forklift Job</h2>
+        <div class="row">
+          <div class="field"><label>Selected Release Order ID</label><input id="selectedReleaseOrderId" /></div>
+          <div class="field"><label>Job Number</label><input id="jobNumber" placeholder="optional" /></div>
+        </div>
+        <div class="row"><div class="field"><label>Selected Forklift Job ID</label><input id="selectedJobId" /></div></div>
+        <div class="row">
+          <button id="btnCreateJob" class="primary">Create Forklift Job</button>
+          <button id="btnLoadJob">Load Selected Job</button>
+          <button id="btnFinalizeBlocked" class="red">Test Finalize Block</button>
+        </div>
+        <p class="help">Create job only from a Release Order already READY_FOR_FORKLIFT. Existing SENT_TO_FORKLIFT orders may already have a forklift job.</p>
+      </div>
+
+      <div class="card">
+        <h2>5. Job Detail</h2>
+        <div class="row"><button id="btnLoadHawbs">Load Job HAWBs</button><button id="btnConfirmAll" class="green">Confirm All HAWBs</button></div>
+        <div class="table-wrap"><table id="jobDetailTable"><tbody><tr><td>No job loaded.</td></tr></tbody></table></div>
+      </div>
+
+      <div class="card wide">
+        <h2>6. Forklift Driver Board / Jobs</h2>
+        <div class="row">
+          <div class="field small"><label>Job status</label><select id="jobStatusFilter"><option value="">Any</option><option value="QUEUED">QUEUED</option><option value="ASSIGNED">ASSIGNED</option><option value="IN_PROGRESS">IN_PROGRESS</option><option value="CARGO_CONFIRMED">CARGO_CONFIRMED</option><option value="SIGNATURE_CAPTURED">SIGNATURE_CAPTURED</option><option value="COMPLETED">COMPLETED</option></select></div>
+          <button id="btnJobs2">Refresh Jobs</button><button id="btnOpenJobs">Open Jobs</button>
+        </div>
+        <div class="table-wrap"><table id="jobsTable"><thead><tr><th>Status</th><th>Job #</th><th>MAWB</th><th>HAWBs</th><th>Cargo</th><th>Signature</th><th>Pallet</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="card wide">
+        <h2>7. HAWB Scan / Cargo Confirmation</h2>
+        <div class="table-wrap"><table id="hawbsTable"><thead><tr><th>Confirmed</th><th>MAWB</th><th>HAWB</th><th>PCS</th><th>Line ID</th><th>Action</th></tr></thead><tbody><tr><td colspan="6">Load Job HAWBs first.</td></tr></tbody></table></div>
+        <div class="row"><div class="field"><label>Manual Scan Value</label><input id="manualScanValue" placeholder="HAWB number, MAWB number, or barcode" /></div><button id="btnManualConfirm">Manual Confirm Selected HAWB</button></div>
+        <p class="help">Driver must confirm cargo before pickup can be finalized. This simulates barcode/HAWB scan confirmation.</p>
+      </div>
+
+      <div class="card">
+        <h2>8. OTT Pallet Exchange</h2>
+        <div class="row">
+          <div class="field"><label>Exchange Status</label><select id="exchangeStatus"><option value="NO_EXCHANGE">NO_EXCHANGE</option><option value="EXCHANGED">EXCHANGED</option><option value="NOT_RETURNED_BILLABLE">NOT_RETURNED_BILLABLE</option><option value="NOT_APPLICABLE">NOT_APPLICABLE</option></select></div>
+          <div class="field small"><label>OTT Pallets Out</label><input id="ottPalletsOut" type="number" min="0" value="0" /></div>
+          <div class="field small"><label>Pallets Returned</label><input id="palletsReturned" type="number" min="0" value="0" /></div>
+          <div class="field small"><label>Billable Pallets</label><input id="billablePallets" type="number" min="0" value="0" /></div>
+        </div>
+        <div class="row"><button id="btnPalletExchange" class="primary">Record Pallet Exchange</button><button id="btnPalletExchanges">Load Pallet Exchanges</button></div>
+      </div>
+
+      <div class="card">
+        <h2>9. Pickup Signature</h2>
+        <div class="row"><div class="field"><label>Signer Name</label><input id="signerName" value="Frontend Test Pickup Driver" /></div><div class="field"><label>Signer Company</label><input id="signerCompany" value="Frontend Test Trucker" /></div></div>
+        <div class="row"><div class="field"><label>Signer Phone</label><input id="signerPhone" value="555-0100" /></div></div>
+        <p class="help"><strong>Disclaimer:</strong> By signing, the driver accepts responsibility for verifying piece count, condition, and pallet integrity before cargo leaves the warehouse.</p>
+        <div class="row"><label class="check"><input id="disclaimerAccepted" type="checkbox" checked /> Disclaimer accepted</label></div>
+        <div class="row"><button id="btnSignature" class="primary">Capture Signature</button><button id="btnFinalize" class="green">Finalize Pickup</button></div>
+      </div>
+
+      <div class="card wide">
+        <h2>10. Confirmations / Output</h2>
+        <div class="row"><button id="btnConfirmations">Load Confirmations</button></div>
+        <pre id="output">Ready.</pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./forklift-driver-board.js"></script>
+</body>
+</html>

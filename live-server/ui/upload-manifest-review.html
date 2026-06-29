@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Phase 3B Upload Center + Manifest Review</title>
+  <link rel="stylesheet" href="./phase3b.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Phase 3B Upload Center + Manifest Review</h1>
+    <div class="sub">Frontend integration test for manifest upload metadata, AI/OCR draft isolation, office approval, and Cargo Management NEW status.</div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>1. Login + connection</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <button id="btnMe">Test /auth/me</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" placeholder="Supabase Auth email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnLogout">Logout</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Payor + file metadata</h2>
+        <div class="row">
+          <button id="btnLoadPayors">Load Payors</button>
+          <button id="btnManifestStats">Manifest Stats</button>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Payor</label>
+            <select id="payorSelect"><option value="">Load payors first</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Choose local PDF / manifest file</label>
+            <input id="manifestFile" type="file" accept="application/pdf,image/*,.pdf,.txt,.csv" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Existing file_record_id from staging</label>
+            <input id="fileRecordId" placeholder="UUID from public.file_records" />
+          </div>
+        </div>
+        <div class="row">
+          <button id="btnCreateUpload" class="primary">Create Manifest Upload</button>
+          <button id="btnListUploads">List Uploads</button>
+        </div>
+        <p class="sub">Phase 3B uses existing file metadata. The browser binary upload endpoint will be connected after this workflow is verified.</p>
+      </section>
+
+      <section class="card">
+        <h2>3. AI/OCR draft session placeholder</h2>
+        <div class="row">
+          <div class="field">
+            <label>Manifest Upload ID</label>
+            <input id="manifestUploadId" placeholder="Created by upload step" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Demo MAWB</label>
+            <input id="demoMawb" />
+          </div>
+          <div class="field small">
+            <label>PCS</label>
+            <input id="demoPieces" type="number" value="10" min="1" />
+          </div>
+          <div class="field small">
+            <label>Weight KG</label>
+            <input id="demoWeight" type="number" value="1200" min="1" />
+          </div>
+        </div>
+        <div class="row">
+          <button id="btnCompleteDemoExtraction" class="primary">Start + Complete Demo Extraction</button>
+        </div>
+        <p class="sub">This saves AI/OCR output only into manifest extraction/review tables. It does not create final Cargo Management records until office approval.</p>
+      </section>
+
+      <section class="card">
+        <h2>4. Review Queue</h2>
+        <div class="row">
+          <button id="btnLoadReviewQueue">Load Review Queue</button>
+          <button id="btnLoadReviewItem">Load Selected Review Item</button>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Review Queue ID</label>
+            <input id="reviewQueueId" placeholder="Select from review queue" />
+          </div>
+        </div>
+        <div class="table-wrap"><table id="reviewQueueTable"><thead><tr><th>Status</th><th>Priority</th><th>MAWB</th><th>Created</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card">
+        <h2>5. Office Review</h2>
+        <div class="row">
+          <div class="field"><label>Extracted MAWB ID</label><input id="extractedMawbId" /></div>
+          <div class="field"><label>First Extracted HAWB ID</label><input id="extractedHawbId" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Office Review Notes</label><textarea id="reviewNotes">Phase 3B office reviewed and approved from frontend integration page.</textarea></div>
+        </div>
+        <div class="row">
+          <button id="btnSaveReviewNotes">Save Office Review Notes</button>
+          <button id="btnApproveReview" class="primary">Approve Review</button>
+          <button id="btnRejectReview" class="danger">Reject Review</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6. Cargo Management confirmation</h2>
+        <div class="row">
+          <div class="field"><label>Final MAWB ID</label><input id="finalMawbId" /></div>
+          <div class="field"><label>Search MAWB</label><input id="cargoSearch" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLoadFinalCargo" class="primary">Load Final Cargo MAWB</button>
+          <button id="btnSearchCargo">Search Cargo</button>
+        </div>
+        <p class="sub">Expected fresh approved MAWB status: <strong>NEW</strong>.</p>
+      </section>
+
+      <section class="card full">
+        <div class="output-head">
+          <h2>Output</h2>
+          <div id="status" class="status-line">Ready</div>
+        </div>
+        <pre id="output">No action run yet.</pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./upload-manifest-review.js"></script>
+</body>
+</html>

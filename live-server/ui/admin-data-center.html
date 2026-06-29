@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3L Admin Data Center</title>
+  <link rel="stylesheet" href="./phase3l.css?v=phase3l-admin-clean-003" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>OTT Master — Admin Data Center Clean Rebuild</h1>
+      <p>Phase 3L: clean admin frontend for Organizations, Payors, Airlines, Employees, Users, Roles, Permissions, and Audit Logs.</p>
+    </div>
+    <span id="loginBadge" class="badge">Not logged in</span>
+  </header>
+
+  <main class="layout">
+    <section class="card span-2">
+      <h2>1. Connection + Login</h2>
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+        <button id="btnMe" class="secondary">Test /auth/me</button>
+      </div>
+      <div class="grid-3">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin test email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        <div class="button-stack">
+          <button id="btnLogin">Login</button>
+          <button id="btnLogout" class="secondary">Logout</button>
+        </div>
+      </div>
+      <p class="hint">This Phase 3L page rebuilds the Admin Data Center flow cleanly. The Create Test Payor button only sends API contract fields: payorCode, payorName, displayName, billingEmail, phone, isActive, notes. It never sends database columns or duplicate contact-phone internal keys.</p>
+    </section>
+
+    <section class="card span-2">
+      <h2>2. Admin dashboard</h2>
+      <div class="button-row">
+        <button id="btnStats">Admin Stats</button>
+        <button id="btnOrganizations">Organizations</button>
+        <button id="btnPayors">Payors</button>
+        <button id="btnAirlines">Airlines</button>
+        <button id="btnEmployees">Employees</button>
+        <button id="btnUsers">Users</button>
+        <button id="btnRoles">Roles</button>
+        <button id="btnPermissions">Permissions</button>
+        <button id="btnAuditLogs">Audit Logs</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><b id="kpiOrganizations">—</b><span>Organizations</span></div>
+        <div class="kpi"><b id="kpiPayors">—</b><span>Payors</span></div>
+        <div class="kpi"><b id="kpiAirlines">—</b><span>Airlines</span></div>
+        <div class="kpi"><b id="kpiEmployees">—</b><span>Employees</span></div>
+        <div class="kpi"><b id="kpiUsers">—</b><span>Users</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Create / update Payor</h2>
+      <div class="grid-2">
+        <label>Payor Code<input id="payorCode" placeholder="Auto generated for test" /></label>
+        <label>Payor Name<input id="payorName" placeholder="Phase 3L Test Payor" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Display Name<input id="payorDisplayName" /></label>
+        <label>Billing Email<input id="payorBillingEmail" value="phase3l-payor@example.com" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Phone<input id="payorPhone" value="555-0100" /></label>
+        <label>Selected Payor ID<input id="selectedPayorId" /></label>
+      </div>
+      <label>Notes<textarea id="payorNotes" rows="2">Created by Phase 3L clean admin rebuild.</textarea></label>
+      <div class="payload-good">Payload guard is active: forbidden keys are blocked before the request leaves the browser.</div>
+      <div class="button-row">
+        <button id="btnCreatePayor" class="success">Create Test Payor Clean</button>
+        <button id="btnUpdatePayor" class="warning">Update Selected Payor</button>
+        <button id="btnLoadPayors" class="secondary">Reload Payors</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Payor</th><th>Code</th><th>Email</th><th>Phone</th><th>Active</th><th>Select</th></tr></thead><tbody id="payorsBody"><tr><td colspan="6">No payors loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Create / update Airline</h2>
+      <div class="grid-2">
+        <label>Airline Code<input id="airlineCode" placeholder="Auto generated for test" /></label>
+        <label>Airline Name<input id="airlineName" placeholder="Phase 3L Test Airline" /></label>
+      </div>
+      <div class="grid-2">
+        <label>MAWB Prefix<input id="airlineMawbPrefix" maxlength="3" placeholder="999" /></label>
+        <label>Phone<input id="airlinePhone" value="555-0199" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Selected Airline ID<input id="selectedAirlineId" /></label>
+        <label>Notes<input id="airlineNotes" value="Created by Phase 3L clean admin rebuild." /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnCreateAirline" class="success">Create Test Airline Clean</button>
+        <button id="btnUpdateAirline" class="warning">Update Selected Airline</button>
+        <button id="btnLoadAirlines" class="secondary">Reload Airlines</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Airline</th><th>Code</th><th>Prefix</th><th>Phone</th><th>Active</th><th>Select</th></tr></thead><tbody id="airlinesBody"><tr><td colspan="6">No airlines loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>5. Employees</h2>
+      <div class="grid-2">
+        <label>Employee Number<input id="employeeNumber" placeholder="Auto generated for test" /></label>
+        <label>Display Name<input id="employeeDisplayName" placeholder="Phase 3L Test Employee" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Email<input id="employeeEmail" value="phase3l.employee@example.com" /></label>
+        <label>Phone<input id="employeePhone" value="555-0177" /></label>
+      </div>
+      <div class="grid-3">
+        <label>Type<select id="employeeType"><option>WAREHOUSE</option><option>DRIVER</option><option>OFFICE</option><option>ACCOUNTING</option><option>ADMIN</option></select></label>
+        <label>Is Driver<select id="employeeIsDriver"><option value="false">No</option><option value="true">Yes</option></select></label>
+        <label>Is Warehouse<select id="employeeIsWarehouse"><option value="true">Yes</option><option value="false">No</option></select></label>
+      </div>
+      <label>Selected Employee ID<input id="selectedEmployeeId" /></label>
+      <div class="button-row">
+        <button id="btnCreateEmployee" class="success">Create Test Employee</button>
+        <button id="btnLoadEmployees" class="secondary">Reload Employees</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Email</th><th>Phone</th><th>Type</th><th>Driver</th><th>Select</th></tr></thead><tbody id="employeesBody"><tr><td colspan="6">No employees loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>6. Users / roles / permissions</h2>
+      <div class="grid-2">
+        <label>Selected User ID<input id="selectedUserId" /></label>
+        <label>Selected Role ID<input id="selectedRoleId" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnLoadUsers2">Reload Users</button>
+        <button id="btnLoadRoles2">Reload Roles</button>
+        <button id="btnLoadPermissions2">Reload Permissions</button>
+        <button id="btnLoadUserRoles" class="secondary">Selected User Roles</button>
+        <button id="btnLoadRolePermissions" class="secondary">Selected Role Permissions</button>
+      </div>
+      <div class="table-wrap"><table><thead id="genericHead"><tr><th>Result</th></tr></thead><tbody id="genericBody"><tr><td>No rows loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>Output</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js?v=phase3l-admin-clean-003"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="./admin-data-center.html.js?v=phase3l-admin-clean-003"></script>
+</body>
+</html>

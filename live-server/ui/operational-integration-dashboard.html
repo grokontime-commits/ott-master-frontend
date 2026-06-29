@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3N Operational Integration Dashboard</title>
+  <link rel="stylesheet" href="./phase3n.css?v=phase3n-operational-002" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>OTT Master — Operational Integration Dashboard</h1>
+      <p>Phase 3N-C: browser validation for operational API modules before connecting production UI screens.</p>
+    </div>
+    <span id="loginBadge" class="badge">Not logged in</span>
+  </header>
+
+  <main class="layout">
+    <section class="card span-2">
+      <h2>1. Connection + Login</h2>
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+        <button id="btnMe" class="secondary">Test /auth/me</button>
+        <button id="btnRunReadOnly" class="good">Run Read-Only Operational Test</button>
+        <button id="btnClear" class="secondary">Clear Output</button>
+      </div>
+      <div class="grid-3">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin test email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        <div class="button-row">
+          <button id="btnLogin">Login</button>
+          <button id="btnLogout" class="secondary">Logout</button>
+        </div>
+      </div>
+      <p class="hint">This dashboard uses the same browser token as Admin Data Center. Start with Login or keep using your existing session. The default Phase 3N-C test is read-only and does not create or update operational records.</p>
+    </section>
+
+    <section class="card span-2">
+      <h2>2. Operational module checks</h2>
+      <div class="kpi-grid">
+        <div class="kpi"><b id="kpiPass">0</b><span>Pass</span></div>
+        <div class="kpi"><b id="kpiWarn">0</b><span>Warn</span></div>
+        <div class="kpi"><b id="kpiFail">0</b><span>Fail</span></div>
+        <div class="kpi"><b id="kpiTotal">0</b><span>Total</span></div>
+        <div class="kpi"><b id="kpiToken">No</b><span>Token</span></div>
+      </div>
+      <div id="resultList" class="result-list"></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>3. Read-only module buttons</h2>
+      <div class="module-grid">
+        <div class="module-card"><h3>Manifest</h3><button data-check="manifest">Test Manifest</button><div id="statusManifest" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Cargo</h3><button data-check="cargo">Test Cargo</button><div id="statusCargo" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Recovery</h3><button data-check="recovery">Test Recovery</button><div id="statusRecovery" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>PTT</h3><button data-check="ptt">Test PTT</button><div id="statusPtt" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Warehouse</h3><button data-check="warehouse">Test Warehouse</button><div id="statusWarehouse" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Damage</h3><button data-check="damage">Test Damage</button><div id="statusDamage" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Release</h3><button data-check="release">Test Release</button><div id="statusRelease" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Forklift</h3><button data-check="forklift">Test Forklift</button><div id="statusForklift" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Equipment</h3><button data-check="equipment">Test Equipment</button><div id="statusEquipment" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Accounting</h3><button data-check="accounting">Test Accounting</button><div id="statusAccounting" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>Customer Portal</h3><button data-check="customerPortal">Test Customer Portal</button><div id="statusCustomerPortal" class="status-line">Not tested.</div></div>
+        <div class="module-card"><h3>All Read-Only</h3><button id="btnRunReadOnly2" class="good">Run All</button><div class="status-line">Recommended Phase 3N-C check.</div></div>
+      </div>
+    </section>
+
+    <section class="card span-2">
+      <h2>4. Latest payload</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js?v=phase3n-operational-002"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="./operational-integration-dashboard.html.js?v=phase3n-operational-002"></script>
+</body>
+</html>

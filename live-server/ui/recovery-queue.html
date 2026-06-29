@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Phase 3D Recovery Queue / Driver Integration</title>
+  <link rel="stylesheet" href="./phase3d.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Phase 3D Recovery Queue / Driver</h1>
+    <div class="sub">Frontend integration test for Recovery Queue jobs, driver assignment, recovery attempts, and driver status events.</div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>1. Login + connection</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <button id="btnMe">Test /auth/me</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" placeholder="Supabase Auth email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnLogout">Logout</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Recovery controls</h2>
+        <div class="row">
+          <button id="btnStats">Recovery Stats</button>
+          <button id="btnDrivers">Load Drivers</button>
+          <button id="btnJobs" class="primary">Load Jobs</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Search job / notes</label><input id="q" placeholder="Recovery job search" /></div>
+          <div class="field small"><label>Status</label><select id="statusFilter">
+            <option value="">All statuses</option>
+            <option>PENDING_RECOVERY</option>
+            <option>DRIVER_ASSIGNED</option>
+            <option>DRIVER_DISPATCHED</option>
+            <option>DRIVER_AT_AIRLINE</option>
+            <option>PENDING_BREAKDOWN</option>
+            <option>PARTIAL_RECOVERY</option>
+            <option>RECOVERED_COMPLETE</option>
+            <option>NEW_VISIT_REQUIRED</option>
+            <option>CANCELLED</option>
+          </select></div>
+          <div class="field small"><label>Limit</label><input id="limit" type="number" min="1" max="100" value="20" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Create job from NEW MAWB ID</label><input id="newMawbId" placeholder="Optional final MAWB UUID from Cargo Management" /></div>
+          <button id="btnCreateJob" class="blue">Create Job</button>
+        </div>
+        <p class="help">Use an existing Recovery Queue job or paste a final Cargo MAWB UUID with status NEW to create a new Recovery Queue job.</p>
+      </section>
+
+      <section class="card wide">
+        <h2>3. Recovery dashboard</h2>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Jobs Loaded</div><div id="kpiJobs" class="value">0</div></div>
+          <div class="kpi"><div class="label">Drivers Loaded</div><div id="kpiDrivers" class="value">0</div></div>
+          <div class="kpi"><div class="label">Selected Attempts</div><div id="kpiAttempts" class="value">0</div></div>
+          <div class="kpi"><div class="label">Driver Events</div><div id="kpiEvents" class="value">0</div></div>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>4. Recovery Queue jobs</h2>
+        <div class="table-wrap">
+          <table id="jobsTable">
+            <thead><tr><th>Status</th><th>Priority</th><th>Job #</th><th>MAWB</th><th>Driver</th><th>Created</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5. Driver assignment</h2>
+        <div class="row">
+          <div class="field"><label>Selected Recovery Job ID</label><input id="selectedJobId" placeholder="Select a job from table" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Driver</label><select id="driverSelect"><option value="">Load drivers first</option></select></div>
+        </div>
+        <div class="row">
+          <button id="btnLoadJob">Load Selected Job</button>
+          <button id="btnAssignDriver" class="primary">Assign Driver</button>
+          <button id="btnDispatch">Mark Driver Dispatched</button>
+        </div>
+        <p class="help">If PTT is required and not approved/sent, backend may block driver assignment. That is correct behavior.</p>
+      </section>
+
+      <section class="card">
+        <h2>6. Driver event + attempt</h2>
+        <div class="row">
+          <button id="btnCreateAttempt">Create/New Visit Attempt</button>
+          <div class="field"><label>Recovery Attempt ID</label><input id="attemptId" placeholder="Created or loaded from job detail" /></div>
+        </div>
+        <div class="row">
+          <div class="field small"><label>Recovered PCS</label><input id="piecesRecovered" type="number" min="0" value="1" /></div>
+          <div class="field small"><label>Short PCS</label><input id="piecesShort" type="number" min="0" value="0" /></div>
+          <div class="field small"><label>Attempt status</label><select id="attemptStatus"><option>DRIVER_AT_AIRLINE</option><option>PENDING_BREAKDOWN</option><option>PARTIAL</option><option>COMPLETED</option><option>CANCELLED</option></select></div>
+        </div>
+        <div class="row">
+          <button id="btnUpdateAttempt">Update Attempt</button>
+          <button id="btnEventAtAirline">Event: Driver At Airline</button>
+          <button id="btnEventComplete">Event: Cargo Recovered Complete</button>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>7. Selected job detail</h2>
+        <div class="table-wrap">
+          <table id="detailTable"><tbody></tbody></table>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>8. HAWBs / Attempts / Driver Events</h2>
+        <div class="table-wrap">
+          <table id="subTable"><thead><tr><th>Type</th><th>Status/Event</th><th>Reference</th><th>PCS</th><th>Notes</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>Output</h2>
+        <div id="status">Ready</div>
+        <pre id="output">No test run yet.</pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./recovery-queue.js"></script>
+</body>
+</html>

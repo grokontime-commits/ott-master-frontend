@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3K Customer Portal</title>
+  <link rel="stylesheet" href="./phase3k.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>OTT Master — Customer Portal Read-Only Integration</h1>
+      <p>Phase 3K: account assignment, customer-visible MAWB/HAWB/files, and access event logging.</p>
+    </div>
+    <span id="loginBadge" class="badge">Not logged in</span>
+  </header>
+
+  <main class="layout">
+    <section class="card span-2">
+      <h2>1. Connection + Login</h2>
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+      </div>
+      <div class="grid-3">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin or customer test email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        <div class="button-stack">
+          <button id="btnLogin">Login</button>
+          <button id="btnLogout" class="secondary">Logout</button>
+          <button id="btnMe" class="secondary">Test /auth/me</button>
+        </div>
+      </div>
+      <p class="hint">Use your OFFICE/ADMIN test user to create assignments. Use a CUSTOMER portal user later to confirm read-only view.</p>
+    </section>
+
+    <section class="card span-2">
+      <h2>2. Customer Portal dashboard</h2>
+      <div class="button-row">
+        <button id="btnStats">Customer Portal Stats</button>
+        <button id="btnPayors">Load Payors</button>
+        <button id="btnAccounts">Load Portal Accounts</button>
+        <button id="btnCargoMawbs">Load Cargo MAWBs</button>
+        <button id="btnAudit">Load Portal Audit Events</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><b id="kpiAccounts">—</b><span>Portal accounts</span></div>
+        <div class="kpi"><b id="kpiUsers">—</b><span>Portal users</span></div>
+        <div class="kpi"><b id="kpiMawbs">—</b><span>MAWB assignments</span></div>
+        <div class="kpi"><b id="kpiFiles">—</b><span>File assignments</span></div>
+        <div class="kpi"><b id="kpiEvents">—</b><span>Access events</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Create / select customer portal account</h2>
+      <div class="grid-2">
+        <label>Payor<select id="payorSelect"><option value="">Select Payor</option></select></label>
+        <label>Account Code<input id="accountCode" /></label>
+      </div>
+      <label>Account Name<input id="accountName" placeholder="Customer portal account name" /></label>
+      <div class="grid-2">
+        <label>Visibility Level<select id="visibilityLevel"><option>STANDARD</option><option>REPORTS_ONLY</option><option>CFS_FULL</option></select></label>
+        <label>Status Filter<select id="accountStatusFilter"><option value="">All</option><option>ACTIVE</option><option>SUSPENDED</option><option>INACTIVE</option></select></label>
+      </div>
+      <div class="button-row">
+        <button id="btnCreateAccount">Create Portal Account</button>
+        <button id="btnReloadAccounts" class="secondary">Reload Accounts</button>
+      </div>
+      <label>Selected Portal Account ID<input id="selectedAccountId" /></label>
+      <div class="table-wrap"><table><thead><tr><th>Account</th><th>Status</th><th>Payor</th><th>Visibility</th><th>Select</th></tr></thead><tbody id="accountsBody"><tr><td colspan="5">No accounts loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Link user + assign customer-visible cargo</h2>
+      <div class="grid-2">
+        <label>User Profile ID<input id="userProfileId" placeholder="auto from /auth/me or paste customer user profile id" /></label>
+        <label>Portal Role<select id="portalRole"><option>VIEWER</option><option>MANAGER</option></select></label>
+      </div>
+      <div class="button-row">
+        <button id="btnLinkUser">Link User to Portal</button>
+        <button id="btnLoadUsers" class="secondary">Load Account Users</button>
+      </div>
+      <div class="grid-2">
+        <label>Selected MAWB ID<input id="selectedMawbId" /></label>
+        <label>Selected HAWB ID<input id="selectedHawbId" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnAssignMawb">Assign MAWB</button>
+        <button id="btnLoadMawbDetail" class="secondary">Load MAWB Detail / HAWBs</button>
+        <button id="btnAssignHawb">Assign HAWB</button>
+      </div>
+      <div class="grid-2">
+        <label>Customer-visible file_record_id<input id="fileRecordId" placeholder="optional public file_records.id" /></label>
+        <label>File HAWB ID optional<input id="fileHawbId" /></label>
+      </div>
+      <button id="btnAssignFile">Assign File</button>
+      <div class="detail-box" id="setupDetail">No assignment result yet.</div>
+    </section>
+
+    <section class="card span-2">
+      <h2>5. Cargo source selector</h2>
+      <div class="button-row">
+        <label class="inline-label">Search / MAWB<input id="cargoQ" placeholder="MAWB or description" /></label>
+        <label class="inline-label">Status<select id="cargoStatus"><option value="">All</option><option>NEW</option><option>READY_FOR_RELEASE</option><option>RELEASED</option></select></label>
+        <button id="btnCargoSearch">Load Cargo MAWBs</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>MAWB</th><th>Status</th><th>Payor</th><th>Airline</th><th>Select</th></tr></thead><tbody id="cargoBody"><tr><td colspan="5">No cargo loaded.</td></tr></tbody></table></div>
+      <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>HAWB</th><th>Status</th><th>PCS</th><th>Weight</th><th>Select</th></tr></thead><tbody id="hawbBody"><tr><td colspan="5">Load a MAWB detail to see HAWBs.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>6. Customer read-only portal view</h2>
+      <p class="muted"><span class="read-only">READ ONLY</span> These buttons only call customer portal `/me/...` read endpoints and access-event logging.</p>
+      <div class="button-row">
+        <button id="btnMyAccounts">My Portal Accounts</button>
+        <button id="btnMyMawbs">My MAWBs</button>
+        <button id="btnMyHawbs">My HAWBs</button>
+        <button id="btnMyReleases">My Release Orders</button>
+        <button id="btnMyDamage">My Damage Records</button>
+        <button id="btnMyFiles">My Files</button>
+      </div>
+      <div class="grid-3">
+        <label>Read-only MAWB ID<input id="myMawbId" /></label>
+        <label>Read-only HAWB ID<input id="myHawbId" /></label>
+        <label>Portal Account ID for event<input id="eventPortalAccountId" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnViewMyMawb">View Selected MAWB</button>
+        <button id="btnViewMyHawb">View Selected HAWB</button>
+        <button id="btnLogViewEvent" class="secondary">Log VIEW_STATUS Event</button>
+      </div>
+      <div id="readOnlyDetail" class="detail-box">No read-only data loaded.</div>
+    </section>
+
+    <section class="card span-2">
+      <h2>7. Customer read-only results</h2>
+      <div class="tabs">
+        <button class="mini secondary" data-render="myAccounts">Accounts</button>
+        <button class="mini secondary" data-render="myMawbs">MAWBs</button>
+        <button class="mini secondary" data-render="myHawbs">HAWBs</button>
+        <button class="mini secondary" data-render="myReleases">Releases</button>
+        <button class="mini secondary" data-render="myDamage">Damage</button>
+        <button class="mini secondary" data-render="myFiles">Files</button>
+      </div>
+      <div class="table-wrap"><table><thead id="readOnlyHead"><tr><th>Result</th></tr></thead><tbody id="readOnlyBody"><tr><td>No read-only rows loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>Output</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="./customer-portal.html.js"></script>
+</body>
+</html>

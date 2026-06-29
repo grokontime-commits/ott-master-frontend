@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OTT Phase 3A API Connection Test</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; background: #f7f8fa; color: #111827; }
+      .card { background: white; border: 1px solid #d1d5db; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+      button { padding: 10px 14px; border-radius: 8px; border: 1px solid #111827; cursor: pointer; margin-right: 8px; margin-top: 8px; }
+      input { padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; min-width: 280px; margin: 4px 8px 4px 0; }
+      pre { background: #111827; color: #e5e7eb; padding: 12px; border-radius: 8px; overflow: auto; }
+      .ok { color: #047857; font-weight: bold; }
+      .bad { color: #b91c1c; font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <h1>OTT Phase 3A API Connection Test</h1>
+
+    <div class="card">
+      <h2>1. Public backend checks</h2>
+      <button id="btnHealth">Test /health</button>
+      <button id="btnDbHealth">Test /health/db</button>
+      <button id="btnVersion">Test /api/v1/version</button>
+    </div>
+
+    <div class="card">
+      <h2>2. Login test</h2>
+      <input id="email" type="email" placeholder="Supabase Auth email" />
+      <input id="password" type="password" placeholder="Password" />
+      <button id="btnLogin">Login</button>
+      <button id="btnMe">Test /api/v1/auth/me</button>
+      <button id="btnLogout">Logout</button>
+    </div>
+
+    <div class="card">
+      <h2>3. Module access preview</h2>
+      <button id="btnModuleAccess">Show module access from /auth/me</button>
+    </div>
+
+    <div class="card">
+      <h2>Output</h2>
+      <div id="status">Ready</div>
+      <pre id="output">No test run yet.</pre>
+    </div>
+
+    <script src="../ott-config.js"></script>
+    <script src="../api/ott-api-client.js"></script>
+    <script src="../auth/ott-auth.js"></script>
+    <script src="../auth/ott-permissions.js"></script>
+    <script src="./ott-connection-test.js"></script>
+  </body>
+</html>

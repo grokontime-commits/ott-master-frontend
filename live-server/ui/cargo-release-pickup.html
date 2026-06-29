@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Phase 3G Cargo Release + Pickup Packet</title>
+  <link rel="stylesheet" href="./phase3g.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Master — Cargo Release + Pickup Packet</h1>
+    <div class="sub">Phase 3G Frontend Integration • Cargo Release → Customer Approval → Pickup Packet → Ready for Forklift</div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>1. Connection + Login</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnMe">Test /auth/me</button>
+          <button id="btnLogout">Logout</button>
+        </div>
+        <p class="help">Use your staging smoke test user. This page sends the Supabase bearer token to the backend.</p>
+      </div>
+
+      <div class="card">
+        <h2>2. Release KPIs</h2>
+        <div class="row">
+          <button id="btnStats" class="blue">Release Stats</button>
+          <button id="btnEligible">Load Eligible HAWBs</button>
+          <button id="btnOrders">Load Release Orders</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Orders</div><div id="kpiOrders" class="value">—</div></div>
+          <div class="kpi"><div class="label">Ready Forklift</div><div id="kpiReady" class="value">—</div></div>
+          <div class="kpi"><div class="label">Packets</div><div id="kpiPackets" class="value">—</div></div>
+          <div class="kpi"><div class="label">Unverified</div><div id="kpiUnverified" class="value">—</div></div>
+          <div class="kpi"><div class="label">Documents</div><div id="kpiDocs" class="value">—</div></div>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h2>3. Release-Eligible HAWBs</h2>
+        <div class="row">
+          <div class="field small"><label>MAWB ID filter</label><input id="filterMawbId" placeholder="optional" /></div>
+          <button id="btnEligible2">Refresh Eligible HAWBs</button>
+        </div>
+        <div class="table-wrap">
+          <table id="eligibleTable"><thead><tr><th>Status</th><th>MAWB</th><th>HAWB</th><th>PCS</th><th>Damage Clearance</th><th>HAWB ID</th><th>Action</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4. Create Release Order</h2>
+        <div class="row">
+          <div class="field"><label>Selected MAWB ID</label><input id="selectedMawbId" /></div>
+          <div class="field"><label>Selected HAWB ID</label><input id="selectedHawbId" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Release To Company</label><input id="releaseToCompany" value="Staging Test Trucker" /></div>
+          <div class="field"><label>Driver Name</label><input id="releaseDriverName" value="Frontend Test Driver" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Driver Phone</label><input id="releaseDriverPhone" value="555-0100" /></div>
+          <div class="field"><label>Truck Plate</label><input id="truckPlate" value="TEST123" /></div>
+        </div>
+        <div class="row">
+          <label class="check"><input id="approvalRequired" type="checkbox" checked /> Customer approval required</label>
+          <label class="check"><input id="packetRequired" type="checkbox" checked /> Pickup packet required</label>
+        </div>
+        <div class="row">
+          <button id="btnCreateOrder" class="primary">Create Release Order</button>
+          <button id="btnReadiness">Check Readiness</button>
+        </div>
+        <p class="help">Select an eligible HAWB first. Inspected HAWBs may release even if other HAWBs under the MAWB are still pending.</p>
+      </div>
+
+      <div class="card">
+        <h2>5. Selected Release Order</h2>
+        <div class="row">
+          <div class="field"><label>Release Order ID</label><input id="selectedOrderId" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLoadOrder">Load Selected Order</button>
+          <button id="btnCustomerApproval" class="green">Approve Customer Release</button>
+          <button id="btnCreatePacket" class="primary">Create Pickup Packet</button>
+        </div>
+        <div class="table-wrap">
+          <table id="orderDetailTable"><tbody><tr><td>No order loaded.</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h2>6. Release Orders</h2>
+        <div class="row">
+          <div class="field small"><label>Status filter</label>
+            <select id="orderStatusFilter">
+              <option value="">Any</option>
+              <option value="DRAFT">DRAFT</option>
+              <option value="CUSTOMER_APPROVAL_PENDING">CUSTOMER_APPROVAL_PENDING</option>
+              <option value="CUSTOMER_APPROVED">CUSTOMER_APPROVED</option>
+              <option value="PICKUP_PACKET_PENDING">PICKUP_PACKET_PENDING</option>
+              <option value="PICKUP_PACKET_VERIFIED">PICKUP_PACKET_VERIFIED</option>
+              <option value="READY_FOR_FORKLIFT">READY_FOR_FORKLIFT</option>
+            </select>
+          </div>
+          <button id="btnOrders2">Refresh Orders</button>
+          <button id="btnReadyOrders">Load Ready for Forklift</button>
+        </div>
+        <div class="table-wrap">
+          <table id="ordersTable"><thead><tr><th>Status</th><th>Release #</th><th>MAWB</th><th>HAWBs</th><th>Customer Approval</th><th>Packet</th><th>Action</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>7. Pickup Packet</h2>
+        <div class="row">
+          <div class="field"><label>Selected Packet ID</label><input id="selectedPacketId" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLoadPackets">Load Packets</button>
+          <button id="btnLoadPacket">Load Selected Packet</button>
+          <button id="btnVerifyPacket" class="green">Verify Packet</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Pickup document file_record_id</label><input id="pickupFileRecordId" placeholder="existing public.file_records.id" /></div>
+          <div class="field small"><label>Document Type</label>
+            <select id="documentType">
+              <option value="DELIVERY_ORDER">DELIVERY_ORDER</option>
+              <option value="RELEASE_AUTHORIZATION">RELEASE_AUTHORIZATION</option>
+              <option value="CUSTOMER_APPROVAL">CUSTOMER_APPROVAL</option>
+              <option value="EMAIL_APPROVAL">EMAIL_APPROVAL</option>
+              <option value="OTHER">OTHER</option>
+            </select>
+          </div>
+          <button id="btnAddDocument" class="primary">Add Document</button>
+        </div>
+        <p class="help">For now this uses existing file metadata from <code>public.file_records</code>. Real browser upload bridge comes later.</p>
+      </div>
+
+      <div class="card">
+        <h2>8. Pickup Documents / Readiness</h2>
+        <div class="row">
+          <button id="btnPickupDocs">Load Pickup Documents</button>
+          <button id="btnReadiness2">Refresh Readiness</button>
+        </div>
+        <div class="table-wrap">
+          <table id="documentsTable"><thead><tr><th>Status</th><th>Type</th><th>Filename</th><th>Required</th><th>ID</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h2>Output</h2>
+        <pre id="output">Ready.</pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./cargo-release-pickup.js"></script>
+</body>
+</html>

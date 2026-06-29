@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Phase 3C Cargo Management Integration</title>
+  <link rel="stylesheet" href="./phase3c.css" />
+</head>
+<body>
+  <header>
+    <h1>OTT Phase 3C Cargo Management</h1>
+    <div class="sub">Frontend integration test for Cargo MAWB list, search, HAWB detail, status history, and NEW status confirmation.</div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>1. Login + connection</h2>
+        <div class="row">
+          <button id="btnHealth">Test /health</button>
+          <button id="btnVersion">Test /api/v1/version</button>
+          <button id="btnMe">Test /auth/me</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email</label><input id="email" placeholder="Supabase Auth email" autocomplete="username" /></div>
+          <div class="field"><label>Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        </div>
+        <div class="row">
+          <button id="btnLogin" class="primary">Login</button>
+          <button id="btnLogout">Logout</button>
+          <span id="loginBadge" class="badge">Not logged in</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Cargo filters</h2>
+        <div class="row">
+          <button id="btnLoadCatalogs">Load Status / Payor / Airline</button>
+          <button id="btnLoadNew">Load NEW MAWBs</button>
+          <button id="btnLoadRecent">Load Recent MAWBs</button>
+        </div>
+        <div class="row">
+          <div class="field"><label>Search MAWB / description</label><input id="cargoSearch" placeholder="999-12345678" /></div>
+          <div class="field small"><label>Status</label><select id="statusFilter"><option value="">All statuses</option></select></div>
+          <div class="field small"><label>Limit</label><input id="limit" type="number" min="1" max="100" value="20" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Payor</label><select id="payorFilter"><option value="">All payors</option></select></div>
+          <div class="field"><label>Airline</label><select id="airlineFilter"><option value="">All airlines</option></select></div>
+        </div>
+        <div class="row">
+          <button id="btnSearchCargo" class="primary">Search Cargo</button>
+          <button id="btnClearFilters">Clear Filters</button>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>3. Cargo Dashboard</h2>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="label">Rows Loaded</div><div id="kpiRows" class="value">0</div></div>
+          <div class="kpi"><div class="label">Backend Count</div><div id="kpiCount" class="value">0</div></div>
+          <div class="kpi"><div class="label">NEW Loaded</div><div id="kpiNew" class="value">0</div></div>
+          <div class="kpi"><div class="label">Selected HAWBs</div><div id="kpiHawbs" class="value">0</div></div>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>4. Cargo MAWB list</h2>
+        <div class="table-wrap">
+          <table id="cargoTable">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>MAWB</th>
+                <th>Payor</th>
+                <th>Airline</th>
+                <th>PCS</th>
+                <th>Weight KG</th>
+                <th>LFD</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>5. MAWB Detail + HAWBs</h2>
+        <div class="row">
+          <div class="field"><label>Selected Final MAWB ID</label><input id="selectedMawbId" placeholder="Select from Cargo MAWB list" /></div>
+          <button id="btnLoadSelected" class="primary">Load Selected MAWB</button>
+          <button id="btnConfirmNew">Confirm Selected Status = NEW</button>
+        </div>
+        <div id="mawbDetail" class="detail-grid"></div>
+        <h3>HAWBs under selected MAWB</h3>
+        <div class="table-wrap">
+          <table id="hawbTable">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>HAWB</th>
+                <th>PCS</th>
+                <th>Weight KG</th>
+                <th>Shipper</th>
+                <th>Consignee</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>6. Status History</h2>
+        <div class="table-wrap">
+          <table id="historyTable">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Old Status</th>
+                <th>New Status</th>
+                <th>Action</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>Output</h2>
+        <div id="status">Ready</div>
+        <pre id="output">No test run yet.</pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="../auth/ott-permissions.js"></script>
+  <script src="./cargo-management.js"></script>
+</body>
+</html>
