@@ -1,6 +1,6 @@
 (function () {
   const config = window.OTT_CONFIG || {};
-  const API_BASE_URL = (config.API_BASE_URL || 'http://127.0.0.1:4000').replace(/\/$/, '');
+  const API_BASE_URL = (config.API_BASE_URL || 'https://ott-master-backend.onrender.com').replace(/\/$/, '');
 
   function getAccessToken() {
     return sessionStorage.getItem('ott_access_token') || '';

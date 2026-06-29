@@ -1,5 +1,5 @@
 export const frontendEnv = {
-  apiBaseUrl: (import.meta.env.VITE_OTT_API_BASE_URL || 'http://127.0.0.1:4000').replace(/\/$/, ''),
+  apiBaseUrl: (import.meta.env.VITE_OTT_API_BASE_URL || 'https://ott-master-backend.onrender.com').replace(/\/$/, ''),
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   appEnv: import.meta.env.VITE_APP_ENV || 'development'
