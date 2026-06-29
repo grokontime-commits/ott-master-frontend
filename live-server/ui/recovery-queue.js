@@ -59,6 +59,49 @@
     return job?.mawbs?.mawb_number_display || job?.mawbs?.mawb_number || job?.mawb_number_display || job?.mawb_number || job?.mawb_id || '—';
   }
 
+
+
+  function normalizeSearchText(value) {
+    return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  function mawbSearchValue() {
+    return $("mawbSearchInput")?.value?.trim() || "";
+  }
+
+  function filteredJobsForMawb() {
+    const raw = mawbSearchValue();
+    const needle = normalizeSearchText(raw);
+    if (!needle) return state.jobs;
+
+    return state.jobs.filter((job) => {
+      const mawb = normalizeSearchText(jobMawb(job));
+      const jobNumber = normalizeSearchText(job?.recovery_job_number || job?.id);
+      return mawb.includes(needle) || jobNumber.includes(needle);
+    });
+  }
+
+  function updateMawbSearchBadge(filteredCount) {
+    const badge = $("mawbSearchBadge");
+    if (!badge) return;
+
+    const raw = mawbSearchValue();
+    if (!raw) {
+      badge.className = "badge";
+      badge.textContent = "No MAWB filter";
+      return;
+    }
+
+    badge.className = filteredCount > 0 ? "badge ok" : "badge fail";
+    badge.textContent = `Showing ${filteredCount} of ${state.jobs.length}`;
+  }
+
+  function renderJobsForCurrentFilter() {
+    const filtered = filteredJobsForMawb();
+    renderJobs(filtered);
+    updateMawbSearchBadge(filtered.length);
+  }
+
   function driverName(job) {
     return job?.assigned_driver?.display_name || job?.employee_profiles?.display_name || job?.assigned_driver_employee_id || '—';
   }
@@ -109,7 +152,7 @@
         $('selectedJobId').value = button.getAttribute('data-select-job');
         const job = state.jobs.find((row) => row.id === $('selectedJobId').value);
         if (job) state.selectedJob = job;
-        renderJobs(state.jobs);
+        renderJobsForCurrentFilter();
       });
     });
     updateKpis();
@@ -188,7 +231,7 @@
     const payload = await window.OTTApi.recoveryJobs(params);
     const rows = rowsOf(payload);
     state.jobs = rows;
-    renderJobs(rows);
+    renderJobsForCurrentFilter();
     return payload;
   }
 
@@ -223,6 +266,29 @@
     }));
 
     $('btnJobs').addEventListener('click', () => run('/api/v1/recovery/jobs', () => loadJobs()));
+
+    $("btnMawbSearch").addEventListener("click", () => run("MAWB Recovery Queue search", async () => {
+      const mawb = mawbSearchValue();
+      if (mawb) $("q").value = mawb;
+      return loadJobs();
+    }));
+
+    $("btnMawbClear").addEventListener("click", () => run("Clear MAWB Recovery Queue search", async () => {
+      $("mawbSearchInput").value = "";
+      $("q").value = "";
+      return loadJobs();
+    }));
+
+    $("mawbSearchInput").addEventListener("input", () => {
+      renderJobsForCurrentFilter();
+    });
+
+    $("mawbSearchInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("btnMawbSearch").click();
+      }
+    });
 
     $('btnCreateJob').addEventListener('click', () => run('Create Recovery Queue job', async () => {
       const payload = await window.OTTApi.createRecoveryJob({

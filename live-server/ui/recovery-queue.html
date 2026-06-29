@@ -74,6 +74,15 @@
 
       <section class="card wide">
         <h2>4. Recovery Queue jobs</h2>
+        <div class="row">
+          <div class="field">
+            <label>MAWB Search</label>
+            <input id="mawbSearchInput" placeholder="Enter MAWB, example 880-31338227" />
+          </div>
+          <button id="btnMawbSearch" class="primary">Search MAWB</button>
+          <button id="btnMawbClear">Clear</button>
+          <span id="mawbSearchBadge" class="badge">No MAWB filter</span>
+        </div>
         <div class="table-wrap">
           <table id="jobsTable">
             <thead><tr><th>Status</th><th>Priority</th><th>Job #</th><th>MAWB</th><th>Driver</th><th>Created</th><th>Action</th></tr></thead>
