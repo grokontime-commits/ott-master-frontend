@@ -1,0 +1,35 @@
+OTT Master Production Checkpoint
+
+Date: 2026-06-29
+
+Backend Render URL:
+https://ott-master-backend.onrender.com
+
+Frontend Render URL:
+https://ott-master-frontend.onrender.com
+
+Frontend Dashboard URL:
+https://ott-master-frontend.onrender.com/ui/operational-integration-dashboard.html
+
+Supabase Production Project:
+https://jssqcleczwppfvoutcow.supabase.co
+
+Completed:
+- Phase 6F Backend Deploy: PASS
+- Phase 6G Frontend to Backend Connection: PASS
+- Phase 6H Production Frontend Smoke Test: PASS
+- Phase 6I Frontend Render Static Site: PASS
+- Phase 6J Production Operational Smoke Test: PASS
+- Phase 6K Production Test MAWB Workflow: PASS
+- Phase 6L Production Stabilization and Go-Live Safety Check: PASS
+
+Important fixes:
+- Correct Supabase URL is jssqcleczwppfvoutcow.
+- Backend CORS_ORIGIN uses https://ott-master-frontend.onrender.com.
+- Frontend root URL redirects to dashboard.
+- Frontend localhost backend fallbacks removed.
+- Frontend security scan completed.
+- No service role key should exist in frontend.
+
+Known improvement:
+- Recovery Queue needs a search button for MAWB lookup.
