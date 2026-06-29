@@ -1,6 +1,6 @@
 (function () {
   const $ = (id) => document.getElementById(id);
-  const state = { results: [] };
+  const state = { results: [], me: null };
 
   function escapeHtml(value) {
     return String(value ?? '')
@@ -48,6 +48,116 @@
   function isAuthExpected(error) {
     const code = error?.payload?.error?.code;
     return code === 'UNAUTHORIZED' || code === 'FORBIDDEN' || error.status === 401 || error.status === 403;
+  }
+
+
+  const MODULE_ROLE_ACCESS = {
+    manifest: ['ADMIN', 'OFFICE'],
+    cargo: ['ADMIN', 'OFFICE'],
+    recovery: ['ADMIN', 'OFFICE', 'DRIVER'],
+    ptt: ['ADMIN', 'OFFICE'],
+    warehouse: ['ADMIN', 'OFFICE', 'WAREHOUSE'],
+    damage: ['ADMIN', 'OFFICE', 'WAREHOUSE'],
+    release: ['ADMIN', 'OFFICE', 'WAREHOUSE'],
+    forklift: ['ADMIN', 'WAREHOUSE'],
+    equipment: ['ADMIN', 'OFFICE', 'DRIVER'],
+    accounting: ['ADMIN', 'ACCOUNTING'],
+    customerPortal: ['ADMIN', 'OFFICE', 'CUSTOMER']
+  };
+
+  const MODULE_NAME_TO_KEY = {
+    Manifest: 'manifest',
+    Cargo: 'cargo',
+    Recovery: 'recovery',
+    PTT: 'ptt',
+    Warehouse: 'warehouse',
+    Damage: 'damage',
+    Release: 'release',
+    Forklift: 'forklift',
+    Equipment: 'equipment',
+    Accounting: 'accounting',
+    'Customer Portal': 'customerPortal'
+  };
+
+  function currentRoles() {
+    const roles = state.me?.roles || state.me?.data?.roles || [];
+    return Array.isArray(roles) ? roles.map((role) => String(role).toUpperCase()) : [];
+  }
+
+  function canAccessModuleKey(moduleKey) {
+    if (!moduleKey) return true;
+    const roles = currentRoles();
+    if (roles.includes('ADMIN')) return true;
+    const allowedRoles = MODULE_ROLE_ACCESS[moduleKey] || [];
+    return allowedRoles.some((role) => roles.includes(role));
+  }
+
+  async function loadCurrentUserIfNeeded() {
+    if (!window.OTTApi?.getAccessToken?.()) {
+      state.me = null;
+      return null;
+    }
+
+    if (state.me) return state.me;
+
+    try {
+      const payload = await window.OTTApi.me();
+      state.me = data(payload);
+      return state.me;
+    } catch {
+      state.me = null;
+      return null;
+    }
+  }
+
+  function applyDashboardAccess() {
+    const loggedIn = Boolean(window.OTTApi?.getAccessToken?.());
+
+    document.querySelectorAll('[data-check]').forEach((btn) => {
+      const moduleKey = btn.dataset.check;
+      const allowed = loggedIn && canAccessModuleKey(moduleKey);
+      btn.disabled = !allowed;
+
+      const card = btn.closest('.module-card');
+      if (card) {
+        card.style.opacity = allowed ? '1' : '0.55';
+        card.title = allowed ? '' : (loggedIn ? 'Not authorized for this module.' : 'Login required.');
+      }
+
+      const status = card?.querySelector('.status-line');
+      if (status) {
+        if (!allowed && status.textContent === 'Not tested.') {
+          status.textContent = loggedIn ? 'Not authorized.' : 'Login required.';
+        }
+        if (allowed && (status.textContent === 'Not authorized.' || status.textContent === 'Login required.')) {
+          status.textContent = 'Not tested.';
+        }
+      }
+    });
+  }
+
+  async function ensureDashboardAccess(moduleName, statusId) {
+    const moduleKey = MODULE_NAME_TO_KEY[moduleName];
+
+    if (!window.OTTApi?.getAccessToken?.()) {
+      setStatus(statusId, 'Login required.', 'warn');
+      recordResult(moduleName, 'WARN', 'Login required.', { moduleKey });
+      setOutput(`${moduleName} Access Check`, { message: 'Login required.', moduleKey }, true);
+      applyDashboardAccess();
+      return false;
+    }
+
+    await loadCurrentUserIfNeeded();
+    applyDashboardAccess();
+
+    if (!canAccessModuleKey(moduleKey)) {
+      setStatus(statusId, 'Not authorized.', 'warn');
+      recordResult(moduleName, 'WARN', 'Not authorized.', { moduleKey, roles: currentRoles() });
+      setOutput(`${moduleName} Access Check`, { message: 'Not authorized for this module.', moduleKey, roles: currentRoles() }, true);
+      return false;
+    }
+
+    return true;
   }
 
   function summarizePayload(payload) {
@@ -211,13 +321,13 @@
 
   $('btnHealth').addEventListener('click', () => run('Health', () => window.OTTApi.health()));
   $('btnVersion').addEventListener('click', () => run('Version', () => window.OTTApi.version()));
-  $('btnMe').addEventListener('click', async () => { const result = await run('Auth Me', () => window.OTTApi.me()); setLoginBadge(); return result; });
+  $('btnMe').addEventListener('click', async () => { const result = await run('Auth Me', () => window.OTTApi.me()); state.me = data(result); setLoginBadge(); applyDashboardAccess(); return result; });
   $('btnLogin').addEventListener('click', async () => {
     const result = await run('Login', () => window.OTTAuth.loginWithPassword($('email').value.trim(), $('password').value));
     setLoginBadge();
     return result;
   });
-  $('btnLogout').addEventListener('click', () => { window.OTTAuth.logout(); setLoginBadge(); setOutput('Logout', { success: true }); });
+  $('btnLogout').addEventListener('click', () => { window.OTTAuth.logout(); state.me = null; setLoginBadge(); applyDashboardAccess(); setOutput('Logout', { success: true }); });
   $('btnRunReadOnly').addEventListener('click', runAllReadOnly);
   $('btnRunReadOnly2').addEventListener('click', runAllReadOnly);
   $('btnClear').addEventListener('click', () => { $('output').textContent = 'Ready.'; state.results = []; renderResults(); });
