@@ -230,8 +230,8 @@
         mawbId: requireValue('createMawbId', 'Create inspection MAWB ID'),
         recoveryJobId: null,
         arrivalType: $('arrivalType').value,
-        notes: 'Opened from Phase 3E frontend integration page.',
-        metadata: { phase: '3E', frontend_test: true }
+        notes: 'Opened from Warehouse Inspection.',
+        metadata: { source: 'warehouse_inspection' }
       });
       const row = dataOf(payload);
       if (row?.id) $('selectedInspectionId').value = row.id;
@@ -270,8 +270,8 @@
         damageClass: $('damageClass').value || null,
         damageLabels,
         packagingType: $('packagingType').value,
-        notes: $('hawbNotes').value.trim() || 'Marked inspected from Phase 3E frontend page.',
-        metadata: { phase: '3E', frontend_test: true }
+        notes: $('hawbNotes').value.trim() || 'Marked inspected from Warehouse Inspection.',
+        metadata: { source: 'warehouse_inspection' }
       });
       const hawbs = await window.OTTApi.warehouseInspectionHawbs(selectedInspectionId(), { limit: 100, offset: 0 });
       renderHawbs(rowsOf(hawbs));

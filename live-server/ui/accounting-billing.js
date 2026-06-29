@@ -93,7 +93,7 @@
       equipmentRecordIds: textListToIds($('selectedEquipmentIds').value),
       palletExchangeRecordIds: textListToIds($('selectedPalletIds').value),
       notes: $('invoiceNotes').value.trim() || null,
-      metadata: { frontend_test: true, phase: '3J' }
+      metadata: { source: 'accounting_billing' }
     };
     const result = await run('Create Invoice Preview', () => window.OTTApi.createInvoicePreview(body));
     if (result) {
@@ -110,7 +110,7 @@
       invoiceNumber: $('billInvoiceNumber').value.trim() || `FRONTEND-BILL-${Date.now()}`,
       invoiceDate: $('billInvoiceDate').value || null,
       notes: $('billNotes').value.trim() || null,
-      metadata: { frontend_test: true, phase: '3J' }
+      metadata: { source: 'accounting_billing' }
     };
     const result = await run('Mark Equipment Billed', () => window.OTTApi.markEquipmentRecordBilled(equipmentRecordId, body));
     if (result) await loadEquipment();

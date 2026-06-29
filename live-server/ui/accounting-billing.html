@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Phase 3J Accounting / Billing</title>
+  <title>OTT Master — Accounting / Billing</title>
   <link rel="stylesheet" href="./phase3j.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <h1>OTT Master — Accounting / Billing API Integration</h1>
-      <p>Phase 3J: billing-ready MAWBs, equipment returns, pallet exchanges, invoice preview foundation.</p>
+      <p>Billing-ready MAWBs, equipment returns, pallet exchanges, and invoice preview.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
@@ -94,7 +94,7 @@
 
     <section class="card span-2">
       <h2>8. Invoice preview foundation</h2>
-      <p class="muted">Phase 3J creates a non-posted preview only. Rates and QuickBooks export are later phases.</p>
+      <p class="muted">Creates a non-posted invoice preview for office review before posting/export.</p>
       <div class="grid-4">
         <label>Invoice Type<select id="invoiceType"><option>MIXED</option><option>CFS_BASE</option><option>ULD_RETURN</option><option>PALLET_EXCHANGE</option><option>ACCESSORIAL</option></select></label>
         <label>Invoice Number<input id="invoiceNumber" /></label>
@@ -106,7 +106,7 @@
         <label>Selected Equipment Record IDs<textarea id="selectedEquipmentIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
         <label>Selected Pallet Exchange IDs<textarea id="selectedPalletIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
       </div>
-      <label>Notes<textarea id="invoiceNotes" rows="2">Phase 3J frontend invoice preview foundation.</textarea></label>
+      <label>Notes<textarea id="invoiceNotes" rows="2">Invoice preview created from Accounting / Billing.</textarea></label>
       <div class="button-row">
         <button id="btnCreatePreview">Create Invoice Preview</button>
         <button id="btnClearSelections" class="secondary">Clear Selections</button>
@@ -122,7 +122,7 @@
         <label>Invoice Number<input id="billInvoiceNumber" /></label>
         <label>Invoice Date<input id="billInvoiceDate" type="date" /></label>
       </div>
-      <label>Billing Notes<textarea id="billNotes" rows="2">Phase 3J frontend marked equipment return billed.</textarea></label>
+      <label>Billing Notes<textarea id="billNotes" rows="2">Equipment return marked billed from Accounting / Billing.</textarea></label>
       <button id="btnMarkBilled">Mark Equipment Billed</button>
     </section>
 

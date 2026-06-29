@@ -147,7 +147,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     $('accountCode').value = `PH3K_${Date.now().toString(36).toUpperCase()}`;
-    $('accountName').value = `Phase 3K Customer Portal Test ${new Date().toISOString().slice(0,10)}`;
+    $('accountName').value = `Customer Portal Test ${new Date().toISOString().slice(0,10)}`;
     setLoginBadge();
 
     $('btnHealth').addEventListener('click', () => run('/health', () => window.OTTApi.health()));
@@ -185,8 +185,8 @@
         allowReleaseStatus: true,
         allowCustomerReports: true,
         allowReleaseDocuments: false,
-        notes: 'Created from Phase 3K frontend integration test.',
-        metadata: { phase: '3K', source: 'frontend' }
+        notes: 'Created from Customer Portal.',
+        metadata: { source: 'customer_portal' }
       };
       const p = await run('Create Portal Account', () => window.OTTApi.createCustomerPortalAccount(body));
       if (p?.data?.id || p?.id) { selectAccount(p.data?.id || p.id); $('btnAccounts').click(); }
@@ -199,7 +199,7 @@
     });
     $('btnLinkUser').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canDownloadFiles: false, notes: 'Linked from Phase 3K frontend test.', metadata: { phase: '3K' } };
+      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canDownloadFiles: false, notes: 'Linked from Customer Portal.', metadata: { source: 'customer_portal' } };
       const p = await run('Link User to Portal Account', () => window.OTTApi.linkCustomerPortalUser(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
@@ -216,19 +216,19 @@
     });
     $('btnAssignMawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canViewReleaseDocuments: false, notes: 'Assigned from Phase 3K frontend test.', metadata: { phase: '3K' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canViewReleaseDocuments: false, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign MAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalMawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
     $('btnAssignHawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, notes: 'Assigned from Phase 3K frontend test.', metadata: { phase: '3K' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign HAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalHawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
     $('btnAssignFile').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { fileRecordId: $('fileRecordId').value.trim(), mawbId: $('selectedMawbId').value.trim() || null, hawbId: $('fileHawbId').value.trim() || null, canView: true, canDownload: false, notes: 'Assigned from Phase 3K frontend test.', metadata: { phase: '3K' } };
+      const body = { fileRecordId: $('fileRecordId').value.trim(), mawbId: $('selectedMawbId').value.trim() || null, hawbId: $('fileHawbId').value.trim() || null, canView: true, canDownload: false, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign File to Customer Portal', () => window.OTTApi.assignCustomerPortalFile(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
@@ -244,7 +244,7 @@
     $('btnViewMyMawb').addEventListener('click', async () => { const p = await run('View Customer MAWB Read-Only', () => window.OTTApi.myPortalMawb($('myMawbId').value.trim())); if (p) $('readOnlyDetail').textContent = JSON.stringify(data(p), null, 2); });
     $('btnViewMyHawb').addEventListener('click', async () => { const p = await run('View Customer HAWB Read-Only', () => window.OTTApi.myPortalHawb($('myHawbId').value.trim())); if (p) $('readOnlyDetail').textContent = JSON.stringify(data(p), null, 2); });
     $('btnLogViewEvent').addEventListener('click', async () => {
-      const body = { eventType: 'VIEW_STATUS', portalAccountId: $('eventPortalAccountId').value.trim() || null, entityType: 'customer_portal_dashboard', entityRef: 'Phase 3K frontend read-only status view', mawbId: $('myMawbId').value.trim() || null, accessGranted: true, metadata: { phase: '3K', source: 'frontend' } };
+      const body = { eventType: 'VIEW_STATUS', portalAccountId: $('eventPortalAccountId').value.trim() || null, entityType: 'customer_portal_dashboard', entityRef: 'Customer Portal status view', mawbId: $('myMawbId').value.trim() || null, accessGranted: true, metadata: { source: 'customer_portal' } };
       const p = await run('Log Customer Portal VIEW_STATUS Event', () => window.OTTApi.logCustomerPortalAccess(body));
       if (p) $('readOnlyDetail').textContent = JSON.stringify(data(p), null, 2);
     });

@@ -111,7 +111,7 @@
     return {
       overallConfidence: 0.96,
       metadata: {
-        frontend_phase: '3B',
+        source: 'upload_manifest_review',
         created_from: 'upload-manifest-review.html',
         local_file: selectedFileMetadata()
       },
@@ -128,20 +128,20 @@
           totalPiecesExpected: pieces,
           totalWeightKg: weight,
           chargeableWeightKg: weight,
-          cargoDescription: 'Phase 3B frontend integration demo cargo',
+          cargoDescription: 'Manifest review cargo',
           extractionConfidence: 0.96,
           reviewStatus: 'PENDING_REVIEW',
           reviewFlags: [],
           rawExtraction: {
-            source: 'phase3b_frontend_demo',
+            source: 'upload_manifest_review',
             note: 'AI/OCR cannot save directly to final MAWB/HAWB.'
           },
           hawbs: [
             {
               extractedHawbNumber: `HWB-${suffix}-001`,
               payorId,
-              shipperName: 'Phase 3B Test Shipper',
-              consigneeName: 'Phase 3B Test Consignee',
+              shipperName: 'Test Shipper',
+              consigneeName: 'Test Consignee',
               cargoDescription: 'Frontend demo HAWB 1',
               totalPiecesExpected: Math.max(1, Math.floor(pieces / 2)),
               totalWeightKg: Math.max(1, Math.round(weight / 2)),
@@ -149,13 +149,13 @@
               extractionConfidence: 0.95,
               reviewStatus: 'PENDING_REVIEW',
               reviewFlags: [],
-              rawExtraction: { source: 'phase3b_frontend_demo' }
+              rawExtraction: { source: 'upload_manifest_review' }
             },
             {
               extractedHawbNumber: `HWB-${suffix}-002`,
               payorId,
-              shipperName: 'Phase 3B Test Shipper',
-              consigneeName: 'Phase 3B Test Consignee',
+              shipperName: 'Test Shipper',
+              consigneeName: 'Test Consignee',
               cargoDescription: 'Frontend demo HAWB 2',
               totalPiecesExpected: Math.max(1, pieces - Math.floor(pieces / 2)),
               totalWeightKg: Math.max(1, Math.round(weight / 2)),
@@ -163,7 +163,7 @@
               extractionConfidence: 0.94,
               reviewStatus: 'PENDING_REVIEW',
               reviewFlags: [],
-              rawExtraction: { source: 'phase3b_frontend_demo' }
+              rawExtraction: { source: 'upload_manifest_review' }
             }
           ]
         }
@@ -264,14 +264,14 @@
       uploadFileId,
       payorId,
       uploadReference: `UI-P3B-${Date.now()}`,
-      batchName: localFile?.name ? `Phase 3B ${localFile.name}` : `Phase 3B Upload ${new Date().toISOString()}`,
+      batchName: localFile?.name ? `${localFile.name}` : `Manifest Upload ${new Date().toISOString()}`,
       manifestType: 'AIR_CFS',
       selectedBillToPayor: false,
       originalPageCount: 1,
       fileReceivedAt: new Date().toISOString(),
-      notes: 'Created from Phase 3B frontend Upload Center integration page.',
+      notes: 'Created from Upload Center.',
       metadata: {
-        frontend_phase: '3B',
+        source: 'upload_manifest_review',
         local_file: localFile,
         browser: navigator.userAgent
       }
@@ -288,10 +288,10 @@
     const manifestUploadId = requireValue('manifestUploadId', 'Manifest Upload ID');
     const sessionPayload = await window.OTTApi.createExtractionSession({
       manifestUploadId,
-      extractionProvider: 'PHASE3B_FRONTEND_DEMO',
+      extractionProvider: 'UPLOAD_MANIFEST_REVIEW',
       extractionModel: 'UI_REFERENCE_DEMO',
       extractionVersion: 'P3B',
-      metadata: { frontend_phase: '3B' }
+      metadata: { source: 'upload_manifest_review' }
     });
     const session = dataOf(sessionPayload);
     const completedPayload = await window.OTTApi.completeExtractionSession(session.id, buildDemoExtractionPayload());
@@ -315,7 +315,7 @@
 
   $('btnSaveReviewNotes').addEventListener('click', () => run('Save Office Review Notes', async () => {
     const extractedMawbId = requireValue('extractedMawbId', 'Extracted MAWB ID');
-    const notes = $('reviewNotes').value.trim() || 'Office reviewed from Phase 3B.';
+    const notes = $('reviewNotes').value.trim() || 'Office reviewed from Upload Center.';
     const mawbPayload = await window.OTTApi.updateExtractedMawb(extractedMawbId, {
       reviewNotes: notes,
       reviewStatus: 'PENDING_REVIEW'
@@ -335,7 +335,7 @@
 
   $('btnApproveReview').addEventListener('click', () => run('Approve Review', async () => {
     const reviewQueueId = requireValue('reviewQueueId', 'Review Queue ID');
-    const notes = $('reviewNotes').value.trim() || 'Approved from Phase 3B frontend integration page.';
+    const notes = $('reviewNotes').value.trim() || 'Approved from Upload Center.';
     const payload = await window.OTTApi.approveReviewQueue(reviewQueueId, { notes });
     state.lastApproval = payload;
     const finalMawbId = findFinalMawbId(payload);
@@ -347,7 +347,7 @@
 
   $('btnRejectReview').addEventListener('click', () => run('Reject Review', async () => {
     const reviewQueueId = requireValue('reviewQueueId', 'Review Queue ID');
-    return window.OTTApi.rejectReviewQueue(reviewQueueId, { reason: 'Rejected from Phase 3B frontend test page.' });
+    return window.OTTApi.rejectReviewQueue(reviewQueueId, { reason: 'Rejected from Upload Center.' });
   }));
 
   $('btnLoadFinalCargo').addEventListener('click', () => run('Load Final Cargo MAWB', async () => {

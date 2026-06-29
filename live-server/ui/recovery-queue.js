@@ -294,8 +294,8 @@
       const payload = await window.OTTApi.createRecoveryJob({
         mawbId: requireValue('newMawbId', 'NEW MAWB ID'),
         priority: 'NORMAL',
-        notes: 'Created from Phase 3D frontend integration page.',
-        metadata: { phase: '3D', frontend_test: true }
+        notes: 'Created from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const job = dataOf(payload);
       if (job?.id) $('selectedJobId').value = job.id;
@@ -312,8 +312,8 @@
     $('btnAssignDriver').addEventListener('click', () => run('Assign Recovery Driver', async () => {
       const payload = await window.OTTApi.assignRecoveryDriver(selectedJobId(), {
         driverEmployeeId: selectedDriverId(),
-        notes: 'Assigned from Phase 3D frontend integration page.',
-        metadata: { phase: '3D', frontend_test: true }
+        notes: 'Assigned from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const detail = await window.OTTApi.recoveryJob(selectedJobId());
       renderJobDetail(dataOf(detail));
@@ -323,8 +323,8 @@
     $('btnDispatch').addEventListener('click', () => run('Mark Driver Dispatched', async () => {
       const payload = await window.OTTApi.updateRecoveryJobStatus(selectedJobId(), {
         status: 'DRIVER_DISPATCHED',
-        reason: 'Driver dispatched from Phase 3D frontend page.',
-        metadata: { phase: '3D', frontend_test: true }
+        reason: 'Driver dispatched from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const detail = await window.OTTApi.recoveryJob(selectedJobId());
       renderJobDetail(dataOf(detail));
@@ -334,8 +334,8 @@
     $('btnCreateAttempt').addEventListener('click', () => run('Create recovery attempt', async () => {
       const payload = await window.OTTApi.createRecoveryAttempt(selectedJobId(), {
         isNewVisit: true,
-        notes: 'Recovery attempt created from Phase 3D frontend page.',
-        metadata: { phase: '3D', frontend_test: true }
+        notes: 'Recovery attempt created from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const attempt = dataOf(payload);
       if (attempt?.id) $('attemptId').value = attempt.id;
@@ -350,8 +350,8 @@
         timeInAt: getNowIso(),
         piecesRecovered: Number($('piecesRecovered').value || 0),
         piecesShort: Number($('piecesShort').value || 0),
-        notes: 'Attempt updated from Phase 3D frontend page.',
-        metadata: { phase: '3D', frontend_test: true }
+        notes: 'Attempt updated from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const detail = await window.OTTApi.recoveryJob(selectedJobId());
       renderJobDetail(dataOf(detail));
@@ -364,8 +364,8 @@
         driverEmployeeId: $('driverSelect').value || null,
         eventType: 'DRIVER_AT_AIRLINE',
         eventAt: getNowIso(),
-        eventNote: 'Driver arrived at airline from Phase 3D frontend page.',
-        metadata: { phase: '3D', frontend_test: true }
+        eventNote: 'Driver arrived at airline from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const detail = await window.OTTApi.recoveryJob(selectedJobId());
       renderJobDetail(dataOf(detail));
@@ -378,8 +378,8 @@
         driverEmployeeId: $('driverSelect').value || null,
         eventType: 'CARGO_RECOVERED_COMPLETE',
         eventAt: getNowIso(),
-        eventNote: 'Cargo recovered complete from Phase 3D frontend page.',
-        metadata: { phase: '3D', frontend_test: true }
+        eventNote: 'Cargo recovered complete from Recovery Queue.',
+        metadata: { source: 'recovery_queue' }
       });
       const detail = await window.OTTApi.recoveryJob(selectedJobId());
       renderJobDetail(dataOf(detail));

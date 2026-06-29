@@ -205,8 +205,8 @@
       releaseToDriverPhone: $('releaseDriverPhone').value.trim() || null,
       truckerName: $('releaseToCompany').value.trim() || null,
       truckPlateNumber: $('truckPlate').value.trim() || null,
-      notes: 'Phase 3G frontend test release order',
-      metadata: { source: 'phase3g_frontend' },
+      notes: 'Created from Cargo Release.',
+      metadata: { source: 'cargo_release_pickup' },
       hawbIds: [hawbId]
     };
     const result = await run('Create Release Order', () => window.OTTApi.createReleaseOrder(body));
@@ -228,7 +228,7 @@
       customerContactName: 'Frontend Test Customer',
       customerContactEmail: 'customer.test@ontimetruckers.com',
       approvalReference: `PH3G-${Date.now()}`,
-      notes: 'Phase 3G frontend customer approval test'
+      notes: 'Customer approval recorded from Cargo Release.'
     };
     const result = await run('Approve Customer Release', () => window.OTTApi.recordCustomerApproval(id, body));
     if (result) await loadSelectedOrder();
@@ -238,7 +238,7 @@
   async function createPacket() {
     const id = $('selectedOrderId').value.trim();
     if (!id) return setOutput('Create Pickup Packet', { message: 'Select or create a Release Order first.' }, false);
-    const result = await run('Create Pickup Packet', () => window.OTTApi.createPickupPacket(id, { notes: 'Phase 3G frontend pickup packet test' }));
+    const result = await run('Create Pickup Packet', () => window.OTTApi.createPickupPacket(id, { notes: 'Pickup packet created from Cargo Release.' }));
     if (result) {
       const packet = data(result);
       $('selectedPacketId').value = packet.id || '';
@@ -273,8 +273,8 @@
       fileRecordId,
       documentType: $('documentType').value,
       isRequiredDocument: true,
-      notes: 'Phase 3G frontend pickup document test',
-      metadata: { source: 'phase3g_frontend' }
+      notes: 'Pickup document added from Cargo Release.',
+      metadata: { source: 'cargo_release_pickup' }
     };
     const result = await run('Add Pickup Packet Document', () => window.OTTApi.addPickupPacketDocument(packetId, body));
     if (result) await loadPickupDocs();
@@ -286,8 +286,8 @@
     if (!packetId) return setOutput('Verify Packet', { message: 'Select or create a Pickup Packet first.' }, false);
     const body = {
       verificationStatus: 'VERIFIED',
-      notes: 'Phase 3G frontend packet verification test',
-      checklist: { customer_approval_checked: true, delivery_order_checked: true, frontend_phase: '3G' }
+      notes: 'Pickup packet verified from Cargo Release.',
+      checklist: { customer_approval_checked: true, delivery_order_checked: true, source: 'cargo_release_pickup' }
     };
     const result = await run('Verify Pickup Packet', () => window.OTTApi.verifyPickupPacket(packetId, body));
     if (result) {

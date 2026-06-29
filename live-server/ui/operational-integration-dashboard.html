@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Phase 3N Operational Integration Dashboard</title>
+  <title>OTT Master — Operational Integration Dashboard</title>
   <link rel="stylesheet" href="./phase3n.css?v=phase3n-operational-002" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <h1>OTT Master — Operational Integration Dashboard</h1>
-      <p>Phase 3N-C: browser validation for operational API modules before connecting production UI screens.</p>
+      <p>Operational dashboard for validating and opening production modules.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
@@ -33,7 +33,7 @@
           <button id="btnLogout" class="secondary">Logout</button>
         </div>
       </div>
-      <p class="hint">This dashboard uses the same browser token as Admin Data Center. Start with Login or keep using your existing session. The default Phase 3N-C test is read-only and does not create or update operational records.</p>
+      <p class="hint">This dashboard uses the same browser token as Admin Data Center. Start with Login or keep using your existing session. Read-only checks do not create or update operational records.</p>
     </section>
 
     <section class="card span-2">
@@ -62,7 +62,7 @@
         <div class="module-card"><h3>Equipment</h3><button data-check="equipment">Test Equipment</button><div id="statusEquipment" class="status-line">Not tested.</div></div>
         <div class="module-card"><h3>Accounting</h3><button data-check="accounting">Test Accounting</button><div id="statusAccounting" class="status-line">Not tested.</div></div>
         <div class="module-card"><h3>Customer Portal</h3><button data-check="customerPortal">Test Customer Portal</button><div id="statusCustomerPortal" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>All Read-Only</h3><button id="btnRunReadOnly2" class="good">Run All</button><div class="status-line">Recommended Phase 3N-C check.</div></div>
+        <div class="module-card"><h3>All Read-Only</h3><button id="btnRunReadOnly2" class="good">Run All</button><div class="status-line">Recommended read-only check.</div></div>
       </div>
     </section>
 

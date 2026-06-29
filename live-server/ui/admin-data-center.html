@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Phase 3L Admin Data Center</title>
+  <title>OTT Master — Admin Data Center</title>
   <link rel="stylesheet" href="./phase3l.css?v=phase3l-admin-clean-003" />
 </head>
 <body>
   <header class="topbar">
     <div>
       <h1>OTT Master — Admin Data Center Clean Rebuild</h1>
-      <p>Phase 3L: clean admin frontend for Organizations, Payors, Airlines, Employees, Users, Roles, Permissions, and Audit Logs.</p>
+      <p>Admin Data Center for Organizations, Payors, Airlines, Employees, Users, Roles, Permissions, and Audit Logs.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
@@ -31,7 +31,7 @@
           <button id="btnLogout" class="secondary">Logout</button>
         </div>
       </div>
-      <p class="hint">This Phase 3L page rebuilds the Admin Data Center flow cleanly. The Create Test Payor button only sends API contract fields: payorCode, payorName, displayName, billingEmail, phone, isActive, notes. It never sends database columns or duplicate contact-phone internal keys.</p>
+      <p class="hint">The Create Test Payor button sends only approved API contract fields: payorCode, payorName, displayName, billingEmail, phone, isActive, and notes.</p>
     </section>
 
     <section class="card span-2">
@@ -60,17 +60,17 @@
       <h2>3. Create / update Payor</h2>
       <div class="grid-2">
         <label>Payor Code<input id="payorCode" placeholder="Auto generated for test" /></label>
-        <label>Payor Name<input id="payorName" placeholder="Phase 3L Test Payor" /></label>
+        <label>Payor Name<input id="payorName" placeholder="OTT Test Payor" /></label>
       </div>
       <div class="grid-2">
         <label>Display Name<input id="payorDisplayName" /></label>
-        <label>Billing Email<input id="payorBillingEmail" value="phase3l-payor@example.com" /></label>
+        <label>Billing Email<input id="payorBillingEmail" value="test-payor@example.com" /></label>
       </div>
       <div class="grid-2">
         <label>Phone<input id="payorPhone" value="555-0100" /></label>
         <label>Selected Payor ID<input id="selectedPayorId" /></label>
       </div>
-      <label>Notes<textarea id="payorNotes" rows="2">Created by Phase 3L clean admin rebuild.</textarea></label>
+      <label>Notes<textarea id="payorNotes" rows="2">Created from Admin Data Center.</textarea></label>
       <div class="payload-good">Payload guard is active: forbidden keys are blocked before the request leaves the browser.</div>
       <div class="button-row">
         <button id="btnCreatePayor" class="success">Create Test Payor Clean</button>
@@ -84,7 +84,7 @@
       <h2>4. Create / update Airline</h2>
       <div class="grid-2">
         <label>Airline Code<input id="airlineCode" placeholder="Auto generated for test" /></label>
-        <label>Airline Name<input id="airlineName" placeholder="Phase 3L Test Airline" /></label>
+        <label>Airline Name<input id="airlineName" placeholder="OTT Test Airline" /></label>
       </div>
       <div class="grid-2">
         <label>MAWB Prefix<input id="airlineMawbPrefix" maxlength="3" placeholder="999" /></label>
@@ -92,7 +92,7 @@
       </div>
       <div class="grid-2">
         <label>Selected Airline ID<input id="selectedAirlineId" /></label>
-        <label>Notes<input id="airlineNotes" value="Created by Phase 3L clean admin rebuild." /></label>
+        <label>Notes<input id="airlineNotes" value="Created from Admin Data Center." /></label>
       </div>
       <div class="button-row">
         <button id="btnCreateAirline" class="success">Create Test Airline Clean</button>
@@ -106,10 +106,10 @@
       <h2>5. Employees</h2>
       <div class="grid-2">
         <label>Employee Number<input id="employeeNumber" placeholder="Auto generated for test" /></label>
-        <label>Display Name<input id="employeeDisplayName" placeholder="Phase 3L Test Employee" /></label>
+        <label>Display Name<input id="employeeDisplayName" placeholder="OTT Test Employee" /></label>
       </div>
       <div class="grid-2">
-        <label>Email<input id="employeeEmail" value="phase3l.employee@example.com" /></label>
+        <label>Email<input id="employeeEmail" value="test.employee@example.com" /></label>
         <label>Phone<input id="employeePhone" value="555-0177" /></label>
       </div>
       <div class="grid-3">

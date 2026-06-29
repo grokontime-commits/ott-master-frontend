@@ -119,7 +119,7 @@
     if (!mawbId) return setOutput('Add Equipment to MAWB', { message: 'Select or enter a MAWB ID first.' }, false);
     const equipmentNumber = $('equipmentNumber').value.trim();
     if (!equipmentNumber) return setOutput('Add Equipment to MAWB', { message: 'Enter an equipment number.' }, false);
-    const body = { equipmentTypeKey: $('equipmentTypeKey').value, equipmentNumber, airlineId: $('equipmentAirlineId').value.trim() || null, notes: 'Phase 3I frontend equipment return test.' };
+    const body = { equipmentTypeKey: $('equipmentTypeKey').value, equipmentNumber, airlineId: $('equipmentAirlineId').value.trim() || null, notes: 'Created from Equipment Return.' };
     const result = await run('Add Equipment to MAWB', () => window.OTTApi.addMawbEquipment(mawbId, body));
     if (result) {
       const rec = data(result);
@@ -151,7 +151,7 @@
   async function createReturnJob() {
     const equipmentRecordId = $('selectedEquipmentRecordId').value.trim();
     if (!equipmentRecordId) return setOutput('Create Return Job', { message: 'Select an equipment record first.' }, false);
-    const body = { driverUserId: $('selectedDriverUserId').value.trim() || null, equipmentRecordIds: [equipmentRecordId], scheduledReturnAt: new Date().toISOString(), notes: 'Phase 3I frontend Equipment Return job.' };
+    const body = { driverUserId: $('selectedDriverUserId').value.trim() || null, equipmentRecordIds: [equipmentRecordId], scheduledReturnAt: new Date().toISOString(), notes: 'Equipment Return job created.' };
     const result = await run('Create Return Job', () => window.OTTApi.createEquipmentReturnJob(body));
     if (result) {
       const job = data(result);
@@ -183,7 +183,7 @@
     const driverUserId = $('selectedDriverUserId').value.trim();
     if (!jobId) return setOutput('Assign Driver', { message: 'Select a return job first.' }, false);
     if (!driverUserId) return setOutput('Assign Driver', { message: 'Select a driver user id first. Use /auth/me or Load Drivers.' }, false);
-    const body = { driverUserId, scheduledReturnAt: new Date().toISOString(), notes: 'Phase 3I frontend driver assignment.' };
+    const body = { driverUserId, scheduledReturnAt: new Date().toISOString(), notes: 'Driver assigned from Equipment Return.' };
     const result = await run('Assign Driver', () => window.OTTApi.assignEquipmentReturnDriver(jobId, body));
     if (result) await loadReturnJobs();
     return result;
@@ -203,7 +203,7 @@
   async function confirmReturn() {
     const itemId = $('selectedReturnItemId').value.trim();
     if (!itemId) return setOutput('Confirm Return', { message: 'Select a return item first.' }, false);
-    const body = { returnedByDriverUserId: $('selectedDriverUserId').value.trim() || null, returnedAt: new Date().toISOString(), returnCondition: $('returnCondition').value, scanValue: $('scanValue').value.trim() || null, notes: 'Phase 3I frontend equipment returned to airline.' };
+    const body = { returnedByDriverUserId: $('selectedDriverUserId').value.trim() || null, returnedAt: new Date().toISOString(), returnCondition: $('returnCondition').value, scanValue: $('scanValue').value.trim() || null, notes: 'Equipment returned to airline.' };
     const result = await run('Confirm Equipment Returned', () => window.OTTApi.confirmEquipmentReturn(itemId, body));
     if (result) {
       await loadReturnJobItems();

@@ -201,7 +201,7 @@
       await checks[key]();
     }
     const failed = state.results.filter((r) => r.status === 'FAIL');
-    setOutput('Phase 3N-C Read-Only Operational Summary', {
+    setOutput('Read-Only Operational Summary', {
       pass: state.results.filter((r) => r.status === 'PASS').length,
       warn: state.results.filter((r) => r.status === 'WARN').length,
       fail: failed.length,

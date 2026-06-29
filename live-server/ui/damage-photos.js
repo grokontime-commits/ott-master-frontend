@@ -271,7 +271,7 @@
     $('btnEnsureRecord').addEventListener('click', () => run('Ensure Damage Record', async () => {
       const payload = await window.OTTApi.ensureDamageRecord(requireValue('hawbInspectionId', 'HAWB Inspection ID'), {
         requiredPhotoCount: Number($('requiredPhotoCount').value || 0),
-        metadata: { phase: '3F', frontend_test: true }
+        metadata: { source: 'damage_photos' }
       });
       const row = dataOf(payload);
       if (row?.id) $('selectedDamageRecordId').value = row.id;
@@ -305,7 +305,7 @@
         photoType: $('photoType').value,
         pieceIdentifier: optValue('pieceIdentifier'),
         caption: optValue('caption'),
-        metadata: { phase: '3F', frontend_test: true }
+        metadata: { source: 'damage_photos' }
       });
       const row = dataOf(payload);
       if (row?.id) $('selectedPhotoId').value = row.id;
@@ -318,7 +318,7 @@
     $('btnWaiveRequirement').addEventListener('click', () => run('Waive Damage Requirement', async () => {
       const payload = await window.OTTApi.waiveDamageRequirement(selectedRequirementId(), {
         waiverReason: requireValue('actionReason', 'Reason'),
-        metadata: { phase: '3F', frontend_test: true }
+        metadata: { source: 'damage_photos' }
       });
       await loadRequirements(false);
       await loadRecords();
@@ -329,7 +329,7 @@
     $('btnRejectPhoto').addEventListener('click', () => run('Reject Damage Photo', async () => {
       const payload = await window.OTTApi.rejectDamagePhoto(selectedPhotoId(), {
         rejectionReason: requireValue('actionReason', 'Reason'),
-        metadata: { phase: '3F', frontend_test: true }
+        metadata: { source: 'damage_photos' }
       });
       await loadPhotos();
       await loadRequirements(false);
@@ -339,7 +339,7 @@
     $('btnVoidPhoto').addEventListener('click', () => run('Void Damage Photo', async () => {
       const payload = await window.OTTApi.voidDamagePhoto(selectedPhotoId(), {
         voidReason: requireValue('actionReason', 'Reason'),
-        metadata: { phase: '3F', frontend_test: true }
+        metadata: { source: 'damage_photos' }
       });
       await loadPhotos();
       await loadRequirements(false);

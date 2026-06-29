@@ -42,10 +42,10 @@
   function requiredPayorDefaults(code = nowCode('P3LPAYOR', 24)) {
     return {
       code,
-      name: `Phase 3L Test Payor ${code}`,
-      billingEmail: 'phase3l-payor@example.com',
+      name: `OTT Test Payor ${code}`,
+      billingEmail: 'test-payor@example.com',
       phone: '555-0100',
-      notes: 'Created by Phase 3L clean admin rebuild.'
+      notes: 'Created from Admin Data Center.'
     };
   }
 
@@ -123,10 +123,10 @@
     const code = nowCode('P3LAIR', 24);
     $('selectedAirlineId').value = '';
     $('airlineCode').value = code;
-    $('airlineName').value = `Phase 3L Test Airline ${code}`;
+    $('airlineName').value = `OTT Test Airline ${code}`;
     $('airlineMawbPrefix').value = String(Math.floor(100 + Math.random() * 899));
     $('airlinePhone').value = '555-0200';
-    $('airlineNotes').value = 'Created by Phase 3L clean admin rebuild.';
+    $('airlineNotes').value = 'Created from Admin Data Center.';
   }
 
   function buildAirlineBody() {
@@ -177,7 +177,7 @@
     const code = nowCode('EMP');
     $('selectedEmployeeId').value = '';
     $('employeeNumber').value = code;
-    $('employeeDisplayName').value = `Phase 3L Test Employee ${code}`;
+    $('employeeDisplayName').value = `OTT Test Employee ${code}`;
     $('employeeEmail').value = `${code.toLowerCase()}@example.com`;
     $('employeePhone').value = '555-0177';
     $('employeeType').value = 'WAREHOUSE';
@@ -199,7 +199,7 @@
       isDriver,
       isWarehouse,
       isActive: true,
-      notes: 'Created by Phase 3L clean admin rebuild.'
+      notes: 'Created from Admin Data Center.'
     };
     if (!body.organizationId) delete body.organizationId;
     return body;
@@ -299,5 +299,5 @@
   fillDefaultPayor();
   fillDefaultAirline();
   fillDefaultEmployee();
-  setOutput('Phase 3L Admin Data Center Ready', { apiBaseUrl: window.OTTApi?.API_BASE_URL, loggedIn: window.OTTAuth?.isLoggedIn?.() }, true);
+  setOutput('Admin Data Center Ready', { apiBaseUrl: window.OTTApi?.API_BASE_URL, loggedIn: window.OTTAuth?.isLoggedIn?.() }, true);
 })();
