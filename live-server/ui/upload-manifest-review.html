@@ -146,11 +146,12 @@
   
       <section class="card wide">
         <h2>Claude Manifest Extraction Sandbox</h2>
-        <p class="sub">Paste manifest text below to test Claude extraction. Sandbox only: this does not create or update MAWB, HAWB, billing, warehouse, or production records.</p>
+        <p class="sub">Paste manifest text below to test Claude extraction. Use Save Claude Extraction to Review Queue only after confirming the structured result. This saves only to manifest review holding tables; it does not create final MAWB, HAWB, warehouse, release, or billing records.</p>
 
         <div class="row">
           <button id="btnClaudeManifestSample" class="secondary">Load Sample Text</button>
           <button id="btnClaudeManifestTest" class="primary">Test Claude Extraction</button>
+          <button id="btnClaudeManifestSaveToReview" class="blue">Save Claude Extraction to Review Queue</button>
           <button id="btnClaudeManifestClear">Clear Claude Test</button>
         </div>
 

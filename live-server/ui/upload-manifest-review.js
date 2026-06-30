@@ -375,6 +375,7 @@
   });
 
   wireClaudeManifestSandboxPanel();
+  wireClaudeManifestSaveToReviewButton();
   setLoginBadge();
   fillDemoDefaults();
 
@@ -459,6 +460,85 @@ Equipment: PMC 12345AA`;
     return payload;
   }
 
+
+
+  async function saveClaudeManifestExtractionToReviewQueue() {
+    const manifestUploadId = requireValue('manifestUploadId', 'Manifest Upload ID');
+    const textEl = $('claudeManifestText');
+    const outputEl = $('claudeExtractionOutput');
+    const rawEl = $('claudeExtractionRaw');
+
+    const manifestText = textEl?.value?.trim() || '';
+    if (!manifestText) {
+      throw new Error('Manifest text is required before saving Claude extraction to review.');
+    }
+
+    const accessToken = window.OTTApi?.getAccessToken?.();
+    if (!accessToken) {
+      throw new Error('Login required before saving Claude extraction to review.');
+    }
+
+    const apiBaseUrl = String(window.OTTApi?.API_BASE_URL || '').replace(/\/$/, '');
+    if (!apiBaseUrl) {
+      throw new Error('OTT API base URL is not configured.');
+    }
+
+    if (outputEl) outputEl.textContent = 'Saving Claude extraction to manifest review holding tables...';
+    if (rawEl) rawEl.textContent = 'Waiting for save response...';
+
+    const response = await fetch(`${apiBaseUrl}/api/v1/ai/claude/manifest-to-review`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        manifestUploadId,
+        manifestText
+      })
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = payload?.error?.message || payload?.message || `Save Claude extraction failed with HTTP ${response.status}.`;
+      const error = new Error(message);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+
+    const data = payload?.data ?? payload;
+
+    if (outputEl) {
+      outputEl.textContent = JSON.stringify({
+        savedToReviewHolding: true,
+        manifestUploadId: data?.manifestUploadId,
+        extractionSessionId: data?.extractionSessionId,
+        insertedMawbs: data?.insertedMawbs,
+        insertedHawbs: data?.insertedHawbs,
+        reviewQueueCreatedCount: data?.reviewQueueCreatedCount,
+        warning: data?.warning || 'Saved to manifest review holding tables only. No final cargo records were created.'
+      }, null, 2);
+    }
+
+    if (rawEl) {
+      rawEl.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    const reviewPayload = await window.OTTApi.manifestReviewQueue({ status: 'PENDING_REVIEW', limit: 25, offset: 0 });
+    const rows = rowsOf(reviewPayload);
+    renderReviewQueue(rows);
+
+    return {
+      saveResult: data,
+      reviewQueue: {
+        count: rows.length,
+        rows
+      }
+    };
+  }
+
   function wireClaudeManifestSandboxPanel() {
     const btnClaudeManifestSample = $('btnClaudeManifestSample');
     if (btnClaudeManifestSample) {
@@ -481,6 +561,16 @@ Equipment: PMC 12345AA`;
     const btnClaudeManifestTest = $('btnClaudeManifestTest');
     if (btnClaudeManifestTest) {
       btnClaudeManifestTest.addEventListener('click', () => run('Claude Manifest Extraction Sandbox', testClaudeManifestExtractionSandbox));
+    }
+  }
+
+
+  function wireClaudeManifestSaveToReviewButton() {
+    const btnClaudeManifestSaveToReview = $('btnClaudeManifestSaveToReview');
+    if (btnClaudeManifestSaveToReview) {
+      btnClaudeManifestSaveToReview.addEventListener('click', () => {
+        run('Save Claude Extraction to Review Queue', saveClaudeManifestExtractionToReviewQueue);
+      });
     }
   }
 
