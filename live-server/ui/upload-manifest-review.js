@@ -374,6 +374,114 @@
     if (file) showWarn('Local file selected. Enter an existing file_record_id to save manifest metadata.', file);
   });
 
+  wireClaudeManifestSandboxPanel();
   setLoginBadge();
   fillDemoDefaults();
+
+  function claudeSampleManifestText() {
+    return `MAWB 880-31338227
+Airline: Test Airline
+Origin: LAX
+Destination: MIA
+Total Pieces: 10
+Gross Weight: 1200 KG
+Payor: OTT INTERNAL TEST
+
+HAWB ABC123
+Pieces: 5
+Weight: 600 KG
+Shipper: Test Shipper A
+Consignee: Test Consignee A
+Description: General cargo
+
+HAWB DEF456
+Pieces: 5
+Weight: 600 KG
+Shipper: Test Shipper B
+Consignee: Test Consignee B
+Description: Machinery parts
+
+Equipment: PMC 12345AA`;
+  }
+
+  async function testClaudeManifestExtractionSandbox() {
+    const textEl = $('claudeManifestText');
+    const outputEl = $('claudeExtractionOutput');
+    const rawEl = $('claudeExtractionRaw');
+
+    const manifestText = textEl?.value?.trim() || '';
+    if (!manifestText) {
+      throw new Error('Manifest text is required for Claude extraction test.');
+    }
+
+    const accessToken = window.OTTApi?.getAccessToken?.();
+    if (!accessToken) {
+      throw new Error('Login required before running Claude extraction test.');
+    }
+
+    const apiBaseUrl = String(window.OTTApi?.API_BASE_URL || '').replace(/\/$/, '');
+    if (!apiBaseUrl) {
+      throw new Error('OTT API base URL is not configured.');
+    }
+
+    if (outputEl) outputEl.textContent = 'Running Claude extraction sandbox...';
+    if (rawEl) rawEl.textContent = 'Waiting for Claude response...';
+
+    const response = await fetch(`${apiBaseUrl}/api/v1/ai/claude/manifest-extract-test`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ manifestText })
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = payload?.error?.message || payload?.message || `Claude extraction failed with HTTP ${response.status}.`;
+      const error = new Error(message);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+
+    const extraction = payload?.data?.extraction ?? payload?.data ?? payload;
+
+    if (outputEl) {
+      outputEl.textContent = JSON.stringify(extraction, null, 2);
+    }
+
+    if (rawEl) {
+      rawEl.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    return payload;
+  }
+
+  function wireClaudeManifestSandboxPanel() {
+    const btnClaudeManifestSample = $('btnClaudeManifestSample');
+    if (btnClaudeManifestSample) {
+      btnClaudeManifestSample.addEventListener('click', () => {
+        $('claudeManifestText').value = claudeSampleManifestText();
+        $('claudeExtractionOutput').textContent = 'Sample manifest text loaded. Click Test Claude Extraction.';
+        $('claudeExtractionRaw').textContent = 'No raw Claude response yet.';
+      });
+    }
+
+    const btnClaudeManifestClear = $('btnClaudeManifestClear');
+    if (btnClaudeManifestClear) {
+      btnClaudeManifestClear.addEventListener('click', () => {
+        $('claudeManifestText').value = '';
+        $('claudeExtractionOutput').textContent = 'No Claude extraction run yet.';
+        $('claudeExtractionRaw').textContent = 'No raw Claude response yet.';
+      });
+    }
+
+    const btnClaudeManifestTest = $('btnClaudeManifestTest');
+    if (btnClaudeManifestTest) {
+      btnClaudeManifestTest.addEventListener('click', () => run('Claude Manifest Extraction Sandbox', testClaudeManifestExtractionSandbox));
+    }
+  }
+
 })();
