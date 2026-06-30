@@ -1,6 +1,53 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+<!-- PHASE 7F FORCE RENDER BACKEND START -->
+<script>
+(function () {
+  var RENDER_BACKEND = "https://ott-master-backend.onrender.com";
+
+  window.OTT_API_BASE_URL = RENDER_BACKEND;
+  window.API_BASE_URL = RENDER_BACKEND;
+
+  try {
+    localStorage.setItem("OTT_API_BASE_URL", RENDER_BACKEND);
+    localStorage.setItem("API_BASE_URL", RENDER_BACKEND);
+    localStorage.setItem("ottApiBaseUrl", RENDER_BACKEND);
+    localStorage.setItem("apiBaseUrl", RENDER_BACKEND);
+  } catch (err) {
+    console.warn("[Phase 7F] Could not write API base to localStorage", err);
+  }
+
+  if (!window.__phase7fFetchBackendRewrite) {
+    window.__phase7fFetchBackendRewrite = true;
+
+    var originalFetch = window.fetch.bind(window);
+
+    window.fetch = function (input, init) {
+      try {
+        if (typeof input === "string") {
+          if (input.indexOf("http://localhost:4000") === 0) {
+            input = input.replace("http://localhost:4000", RENDER_BACKEND);
+          } else if (input.indexOf("http://127.0.0.1:4000") === 0) {
+            input = input.replace("http://127.0.0.1:4000", RENDER_BACKEND);
+          } else if (input.indexOf("/api/") === 0) {
+            input = RENDER_BACKEND + input;
+          } else if (input === "/health" || input.indexOf("/health?") === 0) {
+            input = RENDER_BACKEND + input;
+          }
+        }
+      } catch (err) {
+        console.warn("[Phase 7F] fetch rewrite skipped", err);
+      }
+
+      return originalFetch(input, init);
+    };
+  }
+})();
+</script>
+<!-- PHASE 7F FORCE RENDER BACKEND END -->
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Upload Center + Manifest Review</title>
@@ -158,6 +205,11 @@
         <div class="field">
           <label>Manifest Text for Claude Sandbox</label>
           <textarea id="claudeManifestText" rows="10" placeholder="Paste manifest text here. Example: MAWB, HAWBs, pieces, weight, airline, origin, destination, equipment."></textarea>
+
+        <button id="saveClaudeExtractionToReviewQueueBtn" type="button">
+          Save Claude Extraction to Review Queue
+        </button>
+
         </div>
 
         <div class="field">
@@ -179,5 +231,350 @@
   <script src="../auth/ott-permissions.js"></script>
   <script src="../auth/ott-page-guard.js"></script>
   <script src="./upload-manifest-review.js"></script>
+
+<script>
+// PHASE 7F CLAUDE SAVE REVIEW QUEUE WIRING START
+(function () {
+  if (window.__phase7fClaudeSaveWired) return;
+  window.__phase7fClaudeSaveWired = true;
+
+  function getEl(id) {
+    return document.getElementById(id);
+  }
+
+  function setOutput(message, raw) {
+    var output = getEl("claudeExtractionOutput");
+    var rawBox = getEl("claudeExtractionRaw");
+
+    if (output) {
+      if ("value" in output) output.value = message;
+      else output.textContent = message;
+    }
+
+    if (rawBox) {
+      var rawText = raw ? JSON.stringify(raw, null, 2) : message;
+      if ("value" in rawBox) rawBox.value = rawText;
+      else rawBox.textContent = rawText;
+    }
+  }
+
+  function getApiBase() {
+    if (window.OTT_API_BASE_URL) return window.OTT_API_BASE_URL.replace(/\/$/, "");
+    if (window.API_BASE_URL) return window.API_BASE_URL.replace(/\/$/, "");
+    if (location.hostname.includes("onrender.com")) {
+      return "https://ott-master-backend.onrender.com";
+    }
+    return "http://localhost:4000";
+  }
+
+  async function refreshQueue() {
+    var names = [
+      "loadClaudeReviewQueue",
+      "refreshClaudeReviewQueue",
+      "loadManifestReviewQueue",
+      "refreshManifestReviewQueue",
+      "loadReviewQueue",
+      "refreshReviewQueue"
+    ];
+
+    for (var i = 0; i < names.length; i++) {
+      if (typeof window[names[i]] === "function") {
+        await window[names[i]]();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  async function saveClaudeExtractionToReviewQueue() {
+    var btn = getEl("saveClaudeExtractionToReviewQueueBtn");
+    var uploadIdEl = getEl("manifestUploadId");
+    var textEl = getEl("claudeManifestText");
+
+    var manifestUploadId = uploadIdEl && uploadIdEl.value ? uploadIdEl.value.trim() : "";
+    var manifestText = textEl && textEl.value ? textEl.value.trim() : "";
+
+    if (!manifestUploadId) {
+      setOutput("FAIL: Missing manifestUploadId.");
+      return;
+    }
+
+    if (!manifestText) {
+      setOutput("FAIL: Missing Claude manifest text.");
+      return;
+    }
+
+    var oldText = btn ? btn.textContent : "";
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+      }
+
+      setOutput("Saving Claude extraction to review queue...");
+
+      var res = await fetch(getApiBase() + "/api/v1/ai/claude/manifest-to-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          manifestUploadId: manifestUploadId,
+          manifestText: manifestText
+        })
+      });
+
+      var contentType = res.headers.get("content-type") || "";
+      var data = contentType.includes("application/json") ? await res.json() : await res.text();
+
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " " + JSON.stringify(data));
+      }
+
+      setOutput(
+        "PASS: Claude extraction saved to Manifest Review Queue. Final MAWB/HAWB records were not created.",
+        data
+      );
+
+      await refreshQueue();
+    } catch (err) {
+      console.error(err);
+      setOutput("FAIL: " + (err.message || String(err)));
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText || "Save Claude Extraction to Review Queue";
+      }
+    }
+  }
+
+  function bind() {
+    var btn = getEl("saveClaudeExtractionToReviewQueueBtn");
+    if (!btn) return;
+
+    if (btn.dataset.phase7fWired === "1") return;
+
+    btn.addEventListener("click", saveClaudeExtractionToReviewQueue);
+    btn.dataset.phase7fWired = "1";
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bind);
+  } else {
+    bind();
+  }
+
+  setTimeout(bind, 300);
+})();
+// PHASE 7F CLAUDE SAVE REVIEW QUEUE WIRING END
+</script>
+
+
+<!-- PHASE 7F VISIBLE SAVE BUTTON FIX START -->
+<script>
+(function () {
+  var BUTTON_ID = "saveClaudeExtractionToReviewQueueBtn";
+
+  function getEl(id) {
+    return document.getElementById(id);
+  }
+
+  function setOutput(message, raw) {
+    var output = getEl("claudeExtractionOutput");
+    var rawBox = getEl("claudeExtractionRaw");
+
+    if (output) {
+      if ("value" in output) output.value = message;
+      else output.textContent = message;
+    }
+
+    if (rawBox) {
+      var rawText = raw ? JSON.stringify(raw, null, 2) : message;
+      if ("value" in rawBox) rawBox.value = rawText;
+      else rawBox.textContent = rawText;
+    }
+  }
+
+  function getApiBase() {
+    if (window.OTT_API_BASE_URL) return window.OTT_API_BASE_URL.replace(/\/$/, "");
+    if (window.API_BASE_URL) return window.API_BASE_URL.replace(/\/$/, "");
+
+    if (location.hostname.includes("onrender.com")) {
+      return "https://ott-master-backend.onrender.com";
+    }
+
+    return "http://localhost:4000";
+  }
+
+  async function refreshQueue() {
+    var names = [
+      "loadClaudeReviewQueue",
+      "refreshClaudeReviewQueue",
+      "loadManifestReviewQueue",
+      "refreshManifestReviewQueue",
+      "loadReviewQueue",
+      "refreshReviewQueue"
+    ];
+
+    for (var i = 0; i < names.length; i++) {
+      if (typeof window[names[i]] === "function") {
+        await window[names[i]]();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  async function saveClaudeExtractionToReviewQueue() {
+    var btn = getEl(BUTTON_ID);
+    var uploadIdEl = getEl("manifestUploadId");
+    var textEl = getEl("claudeManifestText");
+
+    var manifestUploadId = uploadIdEl && uploadIdEl.value ? uploadIdEl.value.trim() : "";
+    var manifestText = textEl && textEl.value ? textEl.value.trim() : "";
+
+    if (!manifestUploadId) {
+      setOutput("FAIL: Missing manifestUploadId. Create or select a manifest upload first.");
+      return;
+    }
+
+    if (!manifestText) {
+      setOutput("FAIL: Missing Claude manifest text. Run/paste Claude extraction text before saving.");
+      return;
+    }
+
+    var oldText = btn ? btn.textContent : "";
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+      }
+
+      setOutput("Saving Claude extraction to review queue...");
+
+      var res = await fetch(getApiBase() + "/api/v1/ai/claude/manifest-to-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          manifestUploadId: manifestUploadId,
+          manifestText: manifestText
+        })
+      });
+
+      var contentType = res.headers.get("content-type") || "";
+      var data = contentType.includes("application/json") ? await res.json() : await res.text();
+
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " " + JSON.stringify(data));
+      }
+
+      setOutput(
+        "PASS: Claude extraction saved to Manifest Review Queue. Final MAWB/HAWB records were not created.",
+        data
+      );
+
+      await refreshQueue();
+    } catch (err) {
+      console.error(err);
+      setOutput("FAIL: " + (err.message || String(err)));
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText || "Save Claude Extraction to Review Queue";
+      }
+    }
+  }
+
+  function findAiCard() {
+    var headings = Array.prototype.slice.call(document.querySelectorAll("h1,h2,h3,h4,b,strong"));
+    var heading = headings.find(function (el) {
+      return (el.textContent || "").includes("AI/OCR draft session");
+    });
+
+    if (heading) {
+      var node = heading;
+      for (var i = 0; i < 8 && node; i++) {
+        if (node.querySelector && node.querySelector("#manifestUploadId")) {
+          return node;
+        }
+        node = node.parentElement;
+      }
+    }
+
+    var uploadId = getEl("manifestUploadId");
+    if (uploadId) {
+      var node2 = uploadId;
+      for (var j = 0; j < 8 && node2; j++) {
+        if (node2.querySelector && node2.querySelector("button")) {
+          return node2;
+        }
+        node2 = node2.parentElement;
+      }
+    }
+
+    return document.body;
+  }
+
+  function installVisibleButton() {
+    var oldBtn = getEl(BUTTON_ID);
+    var btn;
+
+    if (oldBtn) {
+      btn = oldBtn.cloneNode(true);
+      oldBtn.replaceWith(btn);
+    } else {
+      btn = document.createElement("button");
+      btn.id = BUTTON_ID;
+      btn.type = "button";
+    }
+
+    btn.textContent = "Save Claude Extraction to Review Queue";
+    btn.disabled = false;
+    btn.dataset.phase7fWired = "1";
+    btn.dataset.phase7fVisibleWired = "1";
+    btn.style.display = "inline-block";
+    btn.style.marginLeft = "8px";
+    btn.style.marginTop = "8px";
+    btn.style.padding = "8px 12px";
+    btn.style.fontWeight = "700";
+    btn.onclick = saveClaudeExtractionToReviewQueue;
+
+    var card = findAiCard();
+
+    var buttons = Array.prototype.slice.call(card.querySelectorAll("button"));
+    var demoBtn = buttons.find(function (b) {
+      return (b.textContent || "").includes("Start + Complete Demo Extraction");
+    });
+
+    if (demoBtn && demoBtn.parentElement) {
+      demoBtn.insertAdjacentElement("afterend", btn);
+    } else {
+      var uploadId = getEl("manifestUploadId");
+      if (uploadId && uploadId.parentElement) {
+        uploadId.parentElement.insertAdjacentElement("afterend", btn);
+      } else {
+        card.appendChild(btn);
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installVisibleButton);
+  } else {
+    installVisibleButton();
+  }
+
+  setTimeout(installVisibleButton, 300);
+  setTimeout(installVisibleButton, 1000);
+})();
+</script>
+<!-- PHASE 7F VISIBLE SAVE BUTTON FIX END -->
+
 </body>
 </html>
