@@ -369,10 +369,170 @@
     return payload;
   }));
 
-  $('manifestFile').addEventListener('change', () => {
-    const file = selectedFileMetadata();
-    if (file) showWarn('Local file selected. Enter an existing file_record_id to save manifest metadata.', file);
-  });
+  $('manifestFile').addEventListener('change', () => run('Create Manifest File Record Metadata', async () => {
+    return await createManifestFileRecordFromSelectedFile();
+  }));
+
+function getManifestFileRecordInput() {
+    const preferredIds = [
+      'uploadFileId',
+      'fileRecordId',
+      'file_record_id',
+      'existingFileRecordId',
+      'existingFileRecordID',
+      'manifestFileRecordId',
+      'uploadFileRecordId'
+    ];
+
+    for (const id of preferredIds) {
+      const el = $(id);
+      if (el) return el;
+    }
+
+    const inputs = Array.from(document.querySelectorAll('input'));
+    const match = inputs.find((input) => {
+      const id = String(input.id || '').toLowerCase();
+      const name = String(input.name || '').toLowerCase();
+      const placeholder = String(input.placeholder || '').toLowerCase();
+      const aria = String(input.getAttribute('aria-label') || '').toLowerCase();
+
+      return (
+        id.includes('filerecord') ||
+        id.includes('file_record') ||
+        id.includes('uploadfile') ||
+        name.includes('filerecord') ||
+        name.includes('file_record') ||
+        name.includes('uploadfile') ||
+        placeholder.includes('file_record') ||
+        placeholder.includes('file record') ||
+        placeholder.includes('upload file') ||
+        aria.includes('file_record') ||
+        aria.includes('file record') ||
+        aria.includes('upload file')
+      );
+    });
+
+    if (match) return match;
+
+    const manifestFile = $('manifestFile');
+    const created = document.createElement('input');
+    created.id = 'uploadFileId';
+    created.placeholder = 'Auto-created file_record_id';
+    created.readOnly = true;
+    created.style.marginTop = '8px';
+
+    if (manifestFile && manifestFile.parentElement) {
+      manifestFile.parentElement.appendChild(created);
+    } else {
+      document.body.appendChild(created);
+    }
+
+    return created;
+  }
+
+  function setManifestFileRecordId(fileRecordId) {
+    const ids = [
+      'uploadFileId',
+      'fileRecordId',
+      'file_record_id',
+      'existingFileRecordId',
+      'existingFileRecordID',
+      'manifestFileRecordId',
+      'uploadFileRecordId'
+    ];
+
+    for (const id of ids) {
+      const el = $(id);
+      if (el && 'value' in el) el.value = fileRecordId;
+    }
+
+    const input = getManifestFileRecordInput();
+    if (input && 'value' in input) input.value = fileRecordId;
+  }
+
+  async function createManifestFileRecordFromSelectedFile() {
+    const fileInput = $('manifestFile');
+    const selectedFile = fileInput?.files?.[0] || null;
+
+    if (!selectedFile) {
+      throw new Error('Choose a PDF / manifest file first.');
+    }
+
+    const accessToken = window.OTTApi?.getAccessToken?.();
+    if (!accessToken) {
+      throw new Error('Login required before creating manifest file metadata.');
+    }
+
+    const apiBaseUrl = String(window.OTTApi?.API_BASE_URL || '').replace(/\/$/, '');
+    if (!apiBaseUrl) {
+      throw new Error('OTT API base URL is not configured.');
+    }
+
+    const safeName = String(selectedFile.name || 'manifest.pdf');
+    const contentType = String(selectedFile.type || 'application/pdf');
+    const fileSizeBytes = Number(selectedFile.size || 0);
+
+    showWarn('Creating file_record_id metadata for selected manifest file...', {
+      originalFilename: safeName,
+      contentType,
+      fileSizeBytes
+    });
+
+    const response = await fetch(apiBaseUrl + '/api/v1/manifest/file-records', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        originalFilename: safeName,
+        storedFilename: safeName,
+        contentType,
+        fileSizeBytes,
+        metadata: {
+          source: 'upload_manifest_review_ui',
+          phase: '7I-D',
+          selected_from_browser: true
+        }
+      })
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = payload?.error?.message || payload?.message || 'Create file record failed with HTTP ' + response.status + '.';
+      const error = new Error(message);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+
+    const data = payload?.data ?? payload;
+    const fileRecordId = data?.id || data?.fileRecordId || data?.file_record_id;
+
+    if (!fileRecordId) {
+      const error = new Error('Backend created file record response but no file_record_id was returned.');
+      error.payload = payload;
+      throw error;
+    }
+
+    setManifestFileRecordId(fileRecordId);
+
+    showOk('Manifest file_record_id created. You can now click Create Manifest Upload.', {
+      fileRecordId,
+      originalFilename: data?.original_filename || safeName,
+      bucketId: data?.bucket_id,
+      categoryKey: data?.category_key,
+      fileStatus: data?.file_status
+    });
+
+    return {
+      success: true,
+      fileRecordId,
+      fileRecord: data
+    };
+  }
+
 
   wireClaudeManifestSandboxPanel();
   wireClaudeManifestSaveToReviewButton();
