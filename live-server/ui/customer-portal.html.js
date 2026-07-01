@@ -250,4 +250,216 @@
       if (p) $('readOnlyDetail').textContent = JSON.stringify(data(p), null, 2);
     });
   });
+
+  // PHASE 10A-A CUSTOMER PORTAL CFS REPORT ACCESS
+  function phase10aRows(payload) {
+    const d = payload?.data ?? payload;
+    if (Array.isArray(d)) return d;
+    return d?.rows || [];
+  }
+
+  function phase10aMawbId(row) {
+    return row?.mawb_id || row?.id || row?.mawbs?.id || '';
+  }
+
+  function phase10aMawbNumber(row) {
+    return row?.mawb_number_display || row?.mawb_number || row?.mawbs?.mawb_number_display || row?.mawbs?.mawb_number || row?.mawb_id || '—';
+  }
+
+  function phase10aNormalize(value) {
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function phase10aMatchesMawb(row, mawb) {
+    const mawbId = phase10aNormalize(phase10aMawbId(mawb));
+    const mawbNumber = phase10aNormalize(phase10aMawbNumber(mawb));
+    const rowMawbId = phase10aNormalize(row?.mawb_id || row?.mawbs?.id || row?.mawb?.id || '');
+    const rowMawbNumber = phase10aNormalize(row?.mawb_number_display || row?.mawb_number || row?.mawbs?.mawb_number_display || row?.mawbs?.mawb_number || '');
+
+    return Boolean(
+      (mawbId && rowMawbId && mawbId === rowMawbId) ||
+      (mawbNumber && rowMawbNumber && mawbNumber === rowMawbNumber)
+    );
+  }
+
+  function phase10aCustomerReportRows() {
+    const mawbs = state.myMawbs || [];
+    const hawbs = state.myHawbs || [];
+    const releases = state.myReleases || [];
+    const damages = state.myDamage || [];
+    const files = state.myFiles || [];
+
+    state.myCfsReportRows = mawbs.map((mawb) => {
+      const relatedHawbs = hawbs.filter((row) => phase10aMatchesMawb(row, mawb));
+      const relatedReleases = releases.filter((row) => phase10aMatchesMawb(row, mawb));
+      const relatedDamage = damages.filter((row) => phase10aMatchesMawb(row, mawb));
+      const relatedFiles = files.filter((row) => phase10aMatchesMawb(row, mawb));
+
+      const release = relatedReleases[0] || null;
+
+      return {
+        mawb,
+        mawbId: phase10aMawbId(mawb),
+        mawbNumber: phase10aMawbNumber(mawb),
+        status: mawb?.cargo_status || mawb?.status || release?.release_status || '—',
+        payor: mawb?.payor_name || mawb?.payors?.display_name || mawb?.payors?.payor_name || '—',
+        airline: mawb?.airline_name || mawb?.airlines?.display_name || mawb?.airlines?.airline_name || '—',
+        hawbCount: relatedHawbs.length || mawb?.hawb_count || mawb?.total_hawbs || '—',
+        releaseStatus: release?.release_status || release?.pickup_packet_status || '—',
+        damagePhotos: relatedDamage.length ? relatedDamage.length + ' record(s)' : '—',
+        files: relatedFiles.length ? relatedFiles.length + ' file(s)' : '—',
+        hawbs: relatedHawbs,
+        releases: relatedReleases,
+        damages: relatedDamage,
+        fileRows: relatedFiles
+      };
+    });
+
+    return state.myCfsReportRows;
+  }
+
+  function phase10aUpdatePrintHeader() {
+    const rows = state.myCfsReportRows || [];
+
+    if ($('myCfsPrintDate')) $('myCfsPrintDate').textContent = new Date().toLocaleString();
+    if ($('myCfsPrintMawbs')) $('myCfsPrintMawbs').textContent = String(rows.length);
+    if ($('myCfsPrintHawbs')) {
+      const totalHawbs = rows.reduce((sum, row) => sum + Number(row.hawbCount === '—' ? 0 : row.hawbCount || 0), 0);
+      $('myCfsPrintHawbs').textContent = String(totalHawbs);
+    }
+  }
+
+  function phase10aRenderCustomerReport() {
+    const rows = phase10aCustomerReportRows();
+    const tbody = $('myCfsReportTable')?.querySelector('tbody');
+
+    if (!tbody) return;
+
+    tbody.innerHTML = rows.map((row, index) => `
+      <tr>
+        <td><strong>${escapeHtml(row.mawbNumber)}</strong></td>
+        <td>${statusPill(row.status)}</td>
+        <td>${escapeHtml(row.payor)}</td>
+        <td>${escapeHtml(row.airline)}</td>
+        <td>${escapeHtml(row.hawbCount)}</td>
+        <td>${escapeHtml(row.releaseStatus)}</td>
+        <td>${escapeHtml(row.damagePhotos)}</td>
+        <td>${escapeHtml(row.files)}</td>
+        <td><button class="mini" data-my-cfs-report-row="${index}">Details</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="9">No assigned customer cargo found for report.</td></tr>';
+
+    tbody.querySelectorAll('[data-my-cfs-report-row]').forEach((button) => {
+      button.addEventListener('click', () => phase10aShowCustomerReportDetail(Number(button.dataset.myCfsReportRow)));
+    });
+
+    phase10aUpdatePrintHeader();
+  }
+
+  function phase10aShowCustomerReportDetail(index) {
+    const row = (state.myCfsReportRows || [])[index];
+    if (!row || !$('myCfsReportDetail')) return;
+
+    $('myCfsReportDetail').textContent = JSON.stringify({
+      mawb: row.mawbNumber,
+      status: row.status,
+      releaseStatus: row.releaseStatus,
+      hawbs: row.hawbs,
+      damages: row.damages,
+      files: row.fileRows
+    }, null, 2);
+  }
+
+  async function phase10aBuildCustomerReport() {
+    const [mawbsPayload, hawbsPayload, releasesPayload, damagePayload, filesPayload] = await Promise.all([
+      window.OTTApi.myPortalMawbs({ limit: 100, offset: 0 }),
+      window.OTTApi.myPortalHawbs({ limit: 250, offset: 0 }),
+      window.OTTApi.myPortalReleaseOrders({ limit: 100, offset: 0 }),
+      window.OTTApi.myPortalDamageRecords({ limit: 250, offset: 0 }),
+      window.OTTApi.myPortalFiles({ limit: 250, offset: 0 })
+    ]);
+
+    state.myMawbs = phase10aRows(mawbsPayload);
+    state.myHawbs = phase10aRows(hawbsPayload);
+    state.myReleases = phase10aRows(releasesPayload);
+    state.myDamage = phase10aRows(damagePayload);
+    state.myFiles = phase10aRows(filesPayload);
+
+    phase10aRenderCustomerReport();
+
+    if (typeof renderReadOnly === 'function') {
+      state.myCfsReport = state.myCfsReportRows || [];
+    }
+
+    setOutput('Customer-Safe CFS Report Loaded', {
+      mawbs: state.myMawbs.length,
+      hawbs: state.myHawbs.length,
+      releases: state.myReleases.length,
+      damage: state.myDamage.length,
+      files: state.myFiles.length,
+      reportRows: (state.myCfsReportRows || []).length
+    }, true);
+  }
+
+  function phase10aCsvEscape(value) {
+    return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+  }
+
+  function phase10aExportCustomerReportCsv() {
+    const rows = state.myCfsReportRows || [];
+
+    if (!rows.length) {
+      phase10aRenderCustomerReport();
+    }
+
+    const headers = ['MAWB', 'Status', 'Payor', 'Airline', 'HAWBs', 'Release', 'Damage / Photos', 'Files'];
+    const lines = [headers.map(phase10aCsvEscape).join(',')];
+
+    (state.myCfsReportRows || []).forEach((row) => {
+      lines.push([
+        row.mawbNumber,
+        row.status,
+        row.payor,
+        row.airline,
+        row.hawbCount,
+        row.releaseStatus,
+        row.damagePhotos,
+        row.files
+      ].map(phase10aCsvEscape).join(','));
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = 'OTT_CUSTOMER_CFS_REPORT_' + new Date().toISOString().slice(0, 10) + '.csv';
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    setOutput('Exported Customer CFS Report CSV', { rows: (state.myCfsReportRows || []).length }, true);
+  }
+
+  async function phase10aPrintCustomerReport() {
+    if (!(state.myCfsReportRows || []).length) {
+      await phase10aBuildCustomerReport();
+    }
+
+    document.body.classList.add('phase10a-print-customer-report');
+    phase10aUpdatePrintHeader();
+
+    setTimeout(() => window.print(), 250);
+  }
+
+  function phase10aInitCustomerReport() {
+    $('btnMyCfsReport')?.addEventListener('click', () => run('Build My Customer-Safe CFS Report', phase10aBuildCustomerReport));
+    $('btnMyCfsCustomerSafeCsv')?.addEventListener('click', phase10aExportCustomerReportCsv);
+    $('btnMyCfsPrint')?.addEventListener('click', phase10aPrintCustomerReport);
+  }
+
+  phase10aInitCustomerReport();
+
 })();
