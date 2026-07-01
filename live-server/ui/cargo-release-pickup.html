@@ -617,6 +617,49 @@
   }
 </style>
 
+
+<style>
+  /* PHASE 8H-D LOGIN BADGE COLOR ONLY
+     Badge-only CSS. No grid/card/section/row/layout changes. */
+
+  #loginBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 24px !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  #loginBadge.badge.ok,
+  #loginBadge.ok,
+  #loginBadge.auth-ok {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
+  }
+
+  #loginBadge.auth-warn {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+
+  #loginBadge.fail,
+  #loginBadge.auth-fail,
+  #loginBadge.auth-error {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+  }
+</style>
+
 </head>
 <body data-module-key="release">
   <header>

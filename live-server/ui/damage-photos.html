@@ -5,11 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Damage Photos</title>
   <link rel="stylesheet" href="./phase3f.css" />
+
+<style>
+  /* PHASE 8H-D LOGIN BADGE COLOR ONLY
+     Badge-only CSS. No grid/card/section/row/layout changes. */
+
+  #loginBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 24px !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  #loginBadge.badge.ok,
+  #loginBadge.ok,
+  #loginBadge.auth-ok {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
+  }
+
+  #loginBadge.auth-warn {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+
+  #loginBadge.fail,
+  #loginBadge.auth-fail,
+  #loginBadge.auth-error {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+  }
+</style>
+
 </head>
 <body data-module-key="damage">
   <header>
     <h1>OTT Master — Damage Photos</h1>
     <div class="sub">Frontend integration test for damage-photo requirements, photo registration, waiver, release blocks, and damage-photo status visibility.</div>
+  
+    <!-- PHASE 8H-C2 BACK TO OPERATIONS BUTTON ONLY START -->
+    <a href="./operational-integration-dashboard.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:34px;margin-top:10px;padding:9px 13px;border-radius:10px;background:#ffffff;color:#111827;font-weight:800;font-size:13px;text-decoration:none;border:1px solid #cbd5e1;box-shadow:0 3px 10px rgba(15,23,42,0.10);white-space:nowrap;">Back to Operations Dashboard</a>
+    <!-- PHASE 8H-C2 BACK TO OPERATIONS BUTTON ONLY END -->
   </header>
 
   <main>
@@ -144,5 +191,55 @@
   <script src="../auth/ott-permissions.js"></script>
   <script src="../auth/ott-page-guard.js"></script>
   <script src="./damage-photos.js"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>
