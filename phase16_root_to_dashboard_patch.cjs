@@ -1,4 +1,20 @@
-<!doctype html>
+const fs = require("fs");
+const path = require("path");
+
+const rootIndex = path.join(process.cwd(), "live-server", "index.html");
+const backup = path.join(process.cwd(), "live-server", "index.phase16.simple-landing.bak.html");
+
+if (!fs.existsSync(rootIndex)) {
+  throw new Error("Missing live-server/index.html");
+}
+
+const current = fs.readFileSync(rootIndex, "utf8");
+
+if (!fs.existsSync(backup)) {
+  fs.writeFileSync(backup, current, "utf8");
+}
+
+const html = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -59,3 +75,9 @@
   </script>
 </body>
 </html>
+`;
+
+fs.writeFileSync(rootIndex, html, "utf8");
+
+console.log("PASS: Phase 16 root now opens real module-card dashboard.");
+console.log("Backup created: " + backup);
