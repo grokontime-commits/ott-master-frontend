@@ -1304,5 +1304,69 @@
   }
 })();
 </script>
+\n
+<!-- PHASE 12A-H2 HIDE ADMIN CARDS FIX -->
+<style>
+  .customer-mode-hide {
+    display: none !important;
+  }
+
+  #setupDetail,
+  #output,
+  #readOnlyDetail,
+  pre {
+    max-height: 90px !important;
+    overflow: auto !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  .card {
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .card h2 {
+    font-size: 15px !important;
+    margin-bottom: 6px !important;
+  }
+
+  table {
+    font-size: 11px !important;
+  }
+
+  th, td {
+    padding: 5px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function cardByHeading(text) {
+    const h = Array.from(document.querySelectorAll("h2")).find(x =>
+      (x.textContent || "").includes(text)
+    );
+    return h ? h.closest(".card") : null;
+  }
+
+  function applyCustomerCompactMode() {
+    [
+      "2. Customer Portal Dashboard",
+      "3. Create / Select Customer Portal Account",
+      "4. Link User + Assign Customer-Visible Cargo",
+      "5. Cargo source selector"
+    ].forEach(title => {
+      const card = cardByHeading(title);
+      if (card) card.classList.add("customer-mode-hide");
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyCustomerCompactMode);
+  } else {
+    applyCustomerCompactMode();
+  }
+})();
+</script>
 \n</body>
 </html>
