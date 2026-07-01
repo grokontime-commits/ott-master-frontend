@@ -1,152 +1,422 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Upload Center + Manifest Review</title>
-  <link rel="stylesheet" href="./phase3b.css" />
+  <title>OTT Master — Manifest Intake & Review</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --ink: #132033;
+      --muted: #64748b;
+      --line: #dce3ef;
+      --blue: #1d4ed8;
+      --blue-dark: #173f9f;
+      --green: #15803d;
+      --green-soft: #dcfce7;
+      --yellow: #b45309;
+      --yellow-soft: #fef3c7;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --slate: #334155;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    header {
+      background: linear-gradient(135deg, #10213f, #1d4ed8);
+      color: white;
+      padding: 22px 28px;
+      border-bottom: 4px solid #facc15;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header .sub {
+      margin-top: 6px;
+      opacity: .9;
+      color: white;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .workflow-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 800;
+      padding: 7px 11px;
+      white-space: nowrap;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .sub, .hint {
+      color: var(--muted);
+      line-height: 1.4;
+      margin: 8px 0 0;
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .step-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .step-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--blue);
+      color: white;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+      align-items: end;
+    }
+
+    .field {
+      flex: 1 1 240px;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.small {
+      flex: 0 1 140px;
+      min-width: 120px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #334155;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 14px;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-family: Consolas, monospace;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: var(--slate);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.primary, button.blue {
+      background: var(--blue);
+    }
+
+    button.primary:hover, button.blue:hover {
+      background: var(--blue-dark);
+    }
+
+    button.secondary {
+      background: #475569;
+    }
+
+    button.danger {
+      background: var(--red);
+    }
+
+    .safe-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .warning-box {
+      background: var(--yellow-soft);
+      border: 1px solid #fde68a;
+      color: var(--yellow);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #475569;
+    }
+
+    pre {
+      overflow: auto;
+      background: #0f172a;
+      color: #dbeafe;
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 120px;
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+
+    .output-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 900;
+      margin: 10px 0;
+    }
+
+    .legacy-demo {
+      border: 1px dashed #cbd5e1;
+      box-shadow: none;
+      background: #f8fafc;
+    }
+
+    .office-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    @media (max-width: 980px) {
+      .workflow-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .page-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
+
 <body data-module-key="manifest">
   <header>
-    <h1>OTT Master — Upload Center + Manifest Review</h1>
-    <div class="sub">Frontend integration test for manifest upload metadata, AI/OCR draft isolation, office approval, and Cargo Management NEW status.</div>
+    <h1>OTT Master — Manifest Intake & Office Review</h1>
+    <div class="sub">Production workflow for PDF/file intake, Claude extraction, review queue, office approval, and final Cargo Management creation.</div>
   </header>
 
   <main>
-    <div class="grid">
+    <div class="page-actions">
+      <div class="workflow-note">Safe workflow: PDF/File Intake → Claude Extraction → Review Queue → Office Approval → Final Cargo Records</div>
+      <span id="loginBadge" class="badge">Not logged in</span>
+    </div>
+
+    <section class="workflow-grid">
       <section class="card">
-        <h2>1. Login + connection</h2>
-        <div class="row">
-          <button id="btnHealth">Test /health</button>
-          <button id="btnVersion">Test /api/v1/version</button>
-          <button id="btnMe">Test /auth/me</button>
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <div>
+            <h2>Login & Connection</h2>
+            <p class="sub">Sign in once and use the same session for manifest, review, and cargo confirmation.</p>
+          </div>
         </div>
+
         <div class="row">
           <div class="field"><label>Email</label><input id="email" placeholder="Supabase Auth email" autocomplete="username" /></div>
           <div class="field"><label>Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password" /></div>
         </div>
+
         <div class="row">
           <button id="btnLogin" class="primary">Login</button>
           <button id="btnLogout">Logout</button>
-          <span id="loginBadge" class="badge">Not logged in</span>
         </div>
+
+        <details>
+          <summary>System checks</summary>
+          <div class="row">
+            <button id="btnHealth">Test /health</button>
+            <button id="btnVersion">Test /api/v1/version</button>
+            <button id="btnMe">Test /auth/me</button>
+          </div>
+        </details>
       </section>
 
       <section class="card">
-        <h2>2. Payor + file metadata</h2>
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <div>
+            <h2>File Intake</h2>
+            <p class="sub">Select payor and attach/register the manifest PDF or file before creating the Manifest Upload.</p>
+          </div>
+        </div>
+
         <div class="row">
           <button id="btnLoadPayors">Load Payors</button>
           <button id="btnManifestStats">Manifest Stats</button>
         </div>
+
         <div class="row">
           <div class="field">
             <label>Payor</label>
             <select id="payorSelect"><option value="">Load payors first</option></select>
           </div>
         </div>
+
         <div class="row">
           <div class="field">
-            <label>Choose local PDF / manifest file</label>
+            <label>Choose PDF / manifest file</label>
             <input id="manifestFile" type="file" accept="application/pdf,image/*,.pdf,.txt,.csv" />
           </div>
         </div>
+
         <div class="row">
           <div class="field">
-            <label>Existing file_record_id from staging</label>
-            <input id="fileRecordId" placeholder="UUID from public.file_records" />
+            <label>File Record ID</label>
+            <input id="fileRecordId" placeholder="Auto-created from selected file or paste UUID from public.file_records" />
           </div>
         </div>
+
         <div class="row">
           <button id="btnCreateUpload" class="primary">Create Manifest Upload</button>
           <button id="btnListUploads">List Uploads</button>
         </div>
-        <p class="sub">Use this page to upload, review, approve, or reject manifest extraction records.</p>
+
+        <div class="safe-box">File metadata is created first. No final MAWB/HAWB records are created at intake.</div>
       </section>
 
-      <section class="card">
-        <h2>3. AI/OCR draft session placeholder</h2>
+      <section class="card full">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <div>
+            <h2>Claude Manifest Extraction</h2>
+            <p class="sub">Paste manifest text or use sample text, run Claude, review the structured result, then save only to the review queue.</p>
+          </div>
+        </div>
+
         <div class="row">
           <div class="field">
             <label>Manifest Upload ID</label>
             <input id="manifestUploadId" placeholder="Created by upload step" />
           </div>
         </div>
-        <div class="row">
-          <div class="field">
-            <label>Demo MAWB</label>
-            <input id="demoMawb" />
-          </div>
-          <div class="field small">
-            <label>PCS</label>
-            <input id="demoPieces" type="number" value="10" min="1" />
-          </div>
-          <div class="field small">
-            <label>Weight KG</label>
-            <input id="demoWeight" type="number" value="1200" min="1" />
-          </div>
-        </div>
-        <div class="row">
-          <button id="btnCompleteDemoExtraction" class="primary">Start + Complete Demo Extraction</button>
-        </div>
-        <p class="sub">This saves AI/OCR output only into manifest extraction/review tables. It does not create final Cargo Management records until office approval.</p>
-      </section>
-
-      <section class="card">
-        <h2>4. Review Queue</h2>
-        <div class="row">
-          <button id="btnLoadReviewQueue">Load Review Queue</button>
-          <button id="btnLoadReviewItem">Load Selected Review Item</button>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label>Review Queue ID</label>
-            <input id="reviewQueueId" placeholder="Select from review queue" />
-          </div>
-        </div>
-        <div class="table-wrap"><table id="reviewQueueTable"><thead><tr><th>Status</th><th>Priority</th><th>MAWB</th><th>Created</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-      </section>
-
-      <section class="card">
-        <h2>5. Office Review</h2>
-        <div class="row">
-          <div class="field"><label>Extracted MAWB ID</label><input id="extractedMawbId" /></div>
-          <div class="field"><label>First Extracted HAWB ID</label><input id="extractedHawbId" /></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Office Review Notes</label><textarea id="reviewNotes">Office reviewed and approved from Upload Center.</textarea></div>
-        </div>
-        <div class="row">
-          <button id="btnSaveReviewNotes">Save Office Review Notes</button>
-          <button id="btnApproveReview" class="primary">Approve Review</button>
-          <button id="btnRejectReview" class="danger">Reject Review</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>6. Cargo Management confirmation</h2>
-        <div class="row">
-          <div class="field"><label>Final MAWB ID</label><input id="finalMawbId" /></div>
-          <div class="field"><label>Search MAWB</label><input id="cargoSearch" /></div>
-        </div>
-        <div class="row">
-          <button id="btnLoadFinalCargo" class="primary">Load Final Cargo MAWB</button>
-          <button id="btnSearchCargo">Search Cargo</button>
-        </div>
-        <p class="sub">Expected fresh approved MAWB status: <strong>NEW</strong>.</p>
-      </section>
-
-      <section class="card full">
-        <div class="output-head">
-          <h2>Output</h2>
-          <div id="status" class="status-line">Ready</div>
-        </div>
-        <pre id="output">No action run yet.</pre>
-      </section>
-    </div>
-  
-      <section class="card wide">
-        <h2>Claude Manifest Extraction Sandbox</h2>
-        <p class="sub">Paste manifest text below to test Claude extraction. Use Save Claude Extraction to Review Queue only after confirming the structured result. This saves only to manifest review holding tables; it does not create final MAWB, HAWB, warehouse, release, or billing records.</p>
 
         <div class="row">
           <button id="btnClaudeManifestSample" class="secondary">Load Sample Text</button>
@@ -155,10 +425,12 @@
           <button id="btnClaudeManifestClear">Clear Claude Test</button>
         </div>
 
-        <div class="field">
-          <label>Manifest Text for Claude Sandbox</label>
-          <textarea id="claudeManifestText" rows="10" placeholder="Paste manifest text here. Example: MAWB, HAWBs, pieces, weight, airline, origin, destination, equipment."></textarea>
-</div>
+        <div class="row">
+          <div class="field">
+            <label>Manifest Text for Claude</label>
+            <textarea id="claudeManifestText" rows="10" placeholder="Paste manifest text here. Example: MAWB, HAWBs, pieces, weight, airline, origin, destination, equipment."></textarea>
+          </div>
+        </div>
 
         <div class="field">
           <label>Claude Structured Extraction Result</label>
@@ -166,11 +438,114 @@
         </div>
 
         <details>
-          <summary>Raw Claude sandbox response</summary>
+          <summary>Raw Claude response</summary>
           <pre id="claudeExtractionRaw">No raw Claude response yet.</pre>
+        </details>
+
+        <div class="warning-box">Claude output stays in review holding tables. Office approval is required before Cargo Management records are created.</div>
+      </section>
+
+      <section class="card">
+        <div class="step-title">
+          <span class="step-num">4</span>
+          <div>
+            <h2>Review Queue</h2>
+            <p class="sub">Load pending items, select one review record, and inspect warnings before approval.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="btnLoadReviewQueue">Load Review Queue</button>
+          <button id="btnLoadReviewItem">Load Selected Review Item</button>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Review Queue ID</label>
+            <input id="reviewQueueId" placeholder="Select from review queue" />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="reviewQueueTable">
+            <thead><tr><th>Status</th><th>Priority</th><th>MAWB</th><th>Created</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="step-title">
+          <span class="step-num">5</span>
+          <div>
+            <h2>Office Approval</h2>
+            <p class="sub">Office must approve or reject the selected review item. Approval creates final cargo records.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field"><label>Extracted MAWB ID</label><input id="extractedMawbId" /></div>
+          <div class="field"><label>First Extracted HAWB ID</label><input id="extractedHawbId" /></div>
+        </div>
+
+        <div class="row">
+          <div class="field"><label>Office Review Notes</label><textarea id="reviewNotes">Office reviewed and approved from Upload Center.</textarea></div>
+        </div>
+
+        <div class="office-actions">
+          <button id="btnSaveReviewNotes">Save Office Review Notes</button>
+          <button id="btnApproveReview" class="primary">Approve Review</button>
+          <button id="btnRejectReview" class="danger">Reject Review</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="step-title">
+          <span class="step-num">6</span>
+          <div>
+            <h2>Cargo Confirmation</h2>
+            <p class="sub">After approval, confirm the MAWB exists in Cargo Management with fresh status NEW.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field"><label>Final MAWB ID</label><input id="finalMawbId" /></div>
+          <div class="field"><label>Search MAWB</label><input id="cargoSearch" /></div>
+        </div>
+
+        <div class="row">
+          <button id="btnLoadFinalCargo" class="primary">Load Final Cargo MAWB</button>
+          <button id="btnSearchCargo">Search Cargo</button>
+        </div>
+
+        <p class="sub">Expected fresh approved MAWB status: <strong>NEW</strong>.</p>
+      </section>
+
+      <section class="card legacy-demo">
+        <details>
+          <summary>Legacy demo extraction tools</summary>
+          <p class="hint">Kept for internal testing only. Production users should use Claude Manifest Extraction above.</p>
+
+          <div class="row">
+            <div class="field"><label>Demo MAWB</label><input id="demoMawb" /></div>
+            <div class="field small"><label>PCS</label><input id="demoPieces" type="number" value="10" min="1" /></div>
+            <div class="field small"><label>Weight KG</label><input id="demoWeight" type="number" value="1200" min="1" /></div>
+          </div>
+
+          <div class="row">
+            <button id="btnCompleteDemoExtraction" class="primary">Start + Complete Demo Extraction</button>
+          </div>
         </details>
       </section>
 
+      <section class="card full">
+        <div class="output-head">
+          <h2>Output / System Messages</h2>
+          <div id="status" class="status-line">Ready</div>
+        </div>
+        <pre id="output">No action run yet.</pre>
+      </section>
+    </section>
   </main>
 
   <script src="../ott-config.js"></script>
