@@ -1,0 +1,23 @@
+OTT Master — Phase 15 Go-Live Checkpoint
+
+Status:
+Phase 12B Customer Portal Final Regression: PASS
+Phase 13 Website Entry + Role Landing: PASS
+Phase 14 One Controlled MAWB Workflow Test: PASS
+Phase 15 Final Safety Lock: PASS
+
+Production URLs:
+Root Website:
+https://ott-master-frontend.onrender.com
+
+Internal Dashboard:
+https://ott-master-frontend.onrender.com/ui/operational-integration-dashboard.html
+
+Customer Portal:
+https://ott-master-frontend.onrender.com/ui/customer-portal.html
+
+Go-Live Rule:
+CFS production website is approved for controlled daily use.
+
+Known Rule:
+Future modules such as Dispatch, Containers, Accounting Reconciliation, and Employee Clock In/Out are future expansion and not blockers for CFS go-live.
