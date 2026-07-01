@@ -3,14 +3,209 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Cargo Release + Pickup Packet</title>
+  <title>OTT Master — Cargo Release / Pickup Packet</title>
   <link rel="stylesheet" href="./phase3g.css" />
+
+<style>
+/* PHASE 8E CARGO RELEASE POLISH */
+body {
+  margin: 0 !important;
+  background: #f4f6fb !important;
+  color: #132033 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+header {
+  background: linear-gradient(135deg,#10213f,#1d4ed8) !important;
+  color: white !important;
+  padding: 18px 24px !important;
+  border-bottom: 4px solid #facc15 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
+
+header h1 {
+  margin: 0 !important;
+  font-size: 24px !important;
+}
+
+header .sub,
+header p {
+  color: rgba(255,255,255,.9) !important;
+  margin: 5px 0 0 !important;
+}
+
+.phase8e-back-link {
+  color: white !important;
+  text-decoration: none !important;
+  background: rgba(255,255,255,.16) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-radius: 999px !important;
+  padding: 8px 12px !important;
+  font-weight: 800 !important;
+}
+
+main,
+.grid,
+.layout {
+  max-width: 1500px !important;
+  margin: 0 auto !important;
+  padding: 20px !important;
+}
+
+.grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  align-items: start !important;
+}
+
+.card,
+section.card {
+  background: white !important;
+  border: 1px solid #dce3ef !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  box-shadow: 0 10px 30px rgba(15,23,42,.08) !important;
+}
+
+.full,
+.span-2 {
+  grid-column: 1 / -1 !important;
+}
+
+h2 {
+  margin: 0 0 10px !important;
+  font-size: 18px !important;
+}
+
+.row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin: 8px 0 !important;
+  align-items: end !important;
+}
+
+.field,
+label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  flex: 1 1 190px !important;
+  min-width: 170px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #334155 !important;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9px !important;
+  padding: 8px 10px !important;
+  font-size: 13px !important;
+}
+
+button {
+  border: 0 !important;
+  border-radius: 9px !important;
+  padding: 8px 11px !important;
+  background: #334155 !important;
+  color: white !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+
+button.primary,
+button.blue {
+  background: #1d4ed8 !important;
+}
+
+button.green,
+button.good {
+  background: #15803d !important;
+}
+
+button.danger {
+  background: #b91c1c !important;
+}
+
+.table-wrap {
+  overflow: auto !important;
+  border: 1px solid #dce3ef !important;
+  border-radius: 12px !important;
+  background: white !important;
+  max-height: 320px !important;
+}
+
+table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  min-width: 760px !important;
+}
+
+th,
+td {
+  padding: 8px !important;
+  border-bottom: 1px solid #dce3ef !important;
+  text-align: left !important;
+  font-size: 13px !important;
+}
+
+th {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+}
+
+.status-pill,
+.badge {
+  border-radius: 999px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.badge.ok {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+pre {
+  background: #0f172a !important;
+  color: #dbeafe !important;
+  border-radius: 12px !important;
+  padding: 12px !important;
+  max-height: 260px !important;
+  overflow: auto !important;
+  white-space: pre-wrap !important;
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .full,
+  .span-2 {
+    grid-column: auto !important;
+  }
+}
+</style>
+
 </head>
 <body data-module-key="release">
   <header>
-    <h1>OTT Master — Cargo Release + Pickup Packet</h1>
+    <h1>OTT Master — Cargo Release / Pickup Packet</h1>
     <div class="sub">Cargo Release → Customer Approval → Pickup Packet → Ready for Forklift</div>
-  </header>
+    <a class="phase8e-back-link" href="./operational-integration-dashboard.html">Back to Operations Dashboard</a>
+</header>
 
   <main>
     <section class="grid">
@@ -172,5 +367,55 @@
   <script src="../auth/ott-permissions.js"></script>
   <script src="../auth/ott-page-guard.js"></script>
   <script src="./cargo-release-pickup.js"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>
