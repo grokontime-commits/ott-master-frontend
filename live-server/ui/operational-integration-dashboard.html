@@ -3,78 +3,232 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OTT Master — Operational Integration Dashboard</title>
-  <link rel="stylesheet" href="./phase3n.css?v=phase3n-operational-002" />
+  <title>OTT Master Operations Dashboard</title>
+  <link rel="stylesheet" href="./phase3n.css?v=phase8a-module-dashboard-002" />
+  <style>
+    body { margin:0; background:#f4f6fb; color:#132033; font-family:Arial, Helvetica, sans-serif; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:22px 28px; background:linear-gradient(135deg,#10213f,#1d4ed8); color:white; border-bottom:4px solid #facc15; }
+    .topbar h1 { margin:0; font-size:26px; }
+    .topbar p { margin:6px 0 0; opacity:.9; }
+    .badge { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28); color:white; border-radius:999px; padding:8px 12px; font-weight:700; white-space:nowrap; }
+    .layout { max-width:1500px; margin:0 auto; padding:24px; }
+    .hero { display:grid; grid-template-columns:1.3fr .7fr; gap:18px; margin-bottom:22px; }
+    .card, .module-card { background:white; border:1px solid #dce3ef; border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(15,23,42,.08); }
+    .card h2, .module-card h3 { margin:0 0 10px; }
+    .sub, .hint, .module-card p { color:#687386; line-height:1.4; }
+    .section-head { margin:24px 0 12px; }
+    .section-head h2 { margin:0; font-size:22px; }
+    .section-head p { margin:4px 0 0; color:#687386; }
+    .module-grid { display:grid; grid-template-columns:repeat(4,minmax(220px,1fr)); gap:16px; }
+    .module-card { min-height:155px; display:flex; flex-direction:column; justify-content:space-between; }
+    .module-card p { margin:0 0 14px; font-size:14px; }
+    .module-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .pill { border-radius:999px; padding:5px 9px; font-size:12px; font-weight:800; white-space:nowrap; }
+    .ready { background:#dcfce7; color:#15803d; }
+    .active { background:#dbeafe; color:#1d4ed8; }
+    .planned { background:#fef3c7; color:#b45309; }
+    .open-link, button { border:0; border-radius:10px; padding:9px 12px; background:#1d4ed8; color:white; font-weight:800; text-decoration:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+    .open-link.secondary, button.secondary { background:#475569; }
+    button.good { background:#15803d; }
+    .open-link.disabled { background:#94a3b8; pointer-events:none; }
+    .button-row { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .login-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    label { display:flex; flex-direction:column; gap:6px; color:#687386; font-weight:800; font-size:13px; }
+    input { border:1px solid #dce3ef; border-radius:10px; padding:10px; font-size:14px; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:14px; }
+    .kpi { background:#f8fafc; border:1px solid #dce3ef; border-radius:12px; padding:12px; text-align:center; }
+    .kpi b { display:block; font-size:22px; }
+    .kpi span { color:#687386; font-size:12px; font-weight:800; }
+    details.card { margin-top:26px; }
+    details.card summary { cursor:pointer; font-size:18px; font-weight:900; }
+    .test-grid { display:grid; grid-template-columns:repeat(4,minmax(160px,1fr)); gap:10px; margin-top:12px; }
+    .test-card { border:1px solid #dce3ef; border-radius:12px; padding:12px; background:#f8fafc; }
+    .test-card h3 { margin:0 0 8px; font-size:15px; }
+    .status-line { margin-top:8px; font-size:12px; color:#687386; }
+    pre { overflow:auto; background:#0f172a; color:#dbeafe; border-radius:12px; padding:14px; min-height:120px; white-space:pre-wrap; }
+    @media (max-width:1100px) { .hero { grid-template-columns:1fr; } .module-grid { grid-template-columns:repeat(2,minmax(220px,1fr)); } .test-grid { grid-template-columns:repeat(2,minmax(160px,1fr)); } }
+    @media (max-width:640px) { .topbar { flex-direction:column; align-items:flex-start; } .module-grid, .test-grid, .login-grid { grid-template-columns:1fr; } }
+  </style>
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>OTT Master — Operational Integration Dashboard</h1>
-      <p>Operational dashboard for validating and opening production modules.</p>
+      <h1>OTT Master Operations Dashboard</h1>
+      <p>Production module center for CFS operations, Claude manifest review, cargo workflow, and office controls.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
 
   <main class="layout">
-    <section class="card span-2">
-      <h2>1. Connection + Login</h2>
-      <div class="button-row">
-        <button id="btnHealth">Test /health</button>
-        <button id="btnVersion">Test /api/v1/version</button>
-        <button id="btnMe" class="secondary">Test /auth/me</button>
-        <button id="btnRunReadOnly" class="good">Run Read-Only Operational Test</button>
-        <button id="btnClear" class="secondary">Clear Output</button>
+    <section class="hero">
+      <div class="card">
+        <h2>Production Workflow Status</h2>
+        <p class="sub">Core deployment, Claude extraction, PDF/file intake, review queue, office approval, final cargo creation, and AI guardrails are in place.</p>
+        <div class="kpi-grid">
+          <div class="kpi"><b id="kpiPass">0</b><span>Pass</span></div>
+          <div class="kpi"><b id="kpiWarn">0</b><span>Warn</span></div>
+          <div class="kpi"><b id="kpiFail">0</b><span>Fail</span></div>
+          <div class="kpi"><b id="kpiTotal">0</b><span>Total</span></div>
+          <div class="kpi"><b id="kpiToken">No</b><span>Token</span></div>
+        </div>
       </div>
-      <div class="grid-3">
-        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin test email" /></label>
-        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+
+      <div class="card">
+        <h2>Session</h2>
+        <p class="sub">Use the same login session across production modules.</p>
+        <div class="login-grid">
+          <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin email" /></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        </div>
         <div class="button-row">
           <button id="btnLogin">Login</button>
           <button id="btnLogout" class="secondary">Logout</button>
+          <button id="btnMe" class="secondary">Test /auth/me</button>
         </div>
       </div>
-      <p class="hint">This dashboard uses the same browser token as Admin Data Center. Start with Login or keep using your existing session. Read-only checks do not create or update operational records.</p>
     </section>
 
-    <section class="card span-2">
-      <h2>2. Operational module checks</h2>
-      <div class="kpi-grid">
-        <div class="kpi"><b id="kpiPass">0</b><span>Pass</span></div>
-        <div class="kpi"><b id="kpiWarn">0</b><span>Warn</span></div>
-        <div class="kpi"><b id="kpiFail">0</b><span>Fail</span></div>
-        <div class="kpi"><b id="kpiTotal">0</b><span>Total</span></div>
-        <div class="kpi"><b id="kpiToken">No</b><span>Token</span></div>
+    <section>
+      <div class="section-head">
+        <h2>Main Operations</h2>
+        <p>CFS workflow modules used by office, drivers, warehouse, and release operations.</p>
       </div>
-      <div id="resultList" class="result-list"></div>
-    </section>
 
-    <section class="card span-2">
-      <h2>3. Read-only module buttons</h2>
       <div class="module-grid">
-        <div class="module-card"><h3>Manifest</h3><button data-check="manifest">Test Manifest</button><div id="statusManifest" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Cargo</h3><button data-check="cargo">Test Cargo</button><div id="statusCargo" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Recovery</h3><button data-check="recovery">Test Recovery</button><div id="statusRecovery" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>PTT</h3><button data-check="ptt">Test PTT</button><div id="statusPtt" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Warehouse</h3><button data-check="warehouse">Test Warehouse</button><div id="statusWarehouse" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Damage</h3><button data-check="damage">Test Damage</button><div id="statusDamage" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Release</h3><button data-check="release">Test Release</button><div id="statusRelease" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Forklift</h3><button data-check="forklift">Test Forklift</button><div id="statusForklift" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Equipment</h3><button data-check="equipment">Test Equipment</button><div id="statusEquipment" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Accounting</h3><button data-check="accounting">Test Accounting</button><div id="statusAccounting" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>Customer Portal</h3><button data-check="customerPortal">Test Customer Portal</button><div id="statusCustomerPortal" class="status-line">Not tested.</div></div>
-        <div class="module-card"><h3>All Read-Only</h3><button id="btnRunReadOnly2" class="good">Run All</button><div class="status-line">Recommended read-only check.</div></div>
+        <article class="module-card">
+          <div><h3>Upload Manifest Review</h3><p>PDF/file intake, Claude extraction, review queue, office approval, and final MAWB/HAWB creation.</p></div>
+          <div class="module-actions"><span class="pill ready">Production Ready</span><a class="open-link" href="./upload-manifest-review.html">Open</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Cargo Management</h3><p>Final MAWB/HAWB records, NEW cargo status, cargo search, and operations confirmation.</p></div>
+          <div class="module-actions"><span class="pill active">Backend Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Recovery Queue</h3><p>Driver airline recovery workflow, MAWB search, pickup status, and operational handoff.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Warehouse Operations</h3><p>Inspection workflow, pieces, weight, damage handling, photos, and warehouse status.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Cargo Release</h3><p>Office release queue, customer approval, HAWB selection, and release handoff.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Forklift Driver Board</h3><p>Forklift release jobs, pickup signature, pallet exchange, and final pickup handoff.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Equipment Return</h3><p>ULD/PMC tracking, airline return workflow, driver return confirmation, and billing support.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Damage Photos</h3><p>Damage photo tracking, customer-safe visibility, inspection linkage, and report support.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
       </div>
     </section>
 
-    <section class="card span-2">
-      <h2>4. Latest payload</h2>
-      <pre id="output">Ready.</pre>
+    <section>
+      <div class="section-head">
+        <h2>Office / Admin</h2>
+        <p>Billing, data center, access control, reports, and customer-facing support.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="module-card">
+          <div><h3>Accounting / Billing</h3><p>Billing-ready MAWBs, accessorials, QuickBooks-ready workflow, and invoice support.</p></div>
+          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Data Center</h3><p>Payors, drivers, employees, permissions, and production reference data.</p></div>
+          <div class="module-actions"><span class="pill active">Connected</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Reports</h3><p>CFS Full Report, customer report workflow, cargo status, and operational visibility.</p></div>
+          <div class="module-actions"><span class="pill planned">Polish Next</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Customer Portal</h3><p>Read-only customer-safe views for assigned cargo, damage photos, and approved files.</p></div>
+          <div class="module-actions"><span class="pill active">Read Only</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+        </article>
+      </div>
     </section>
+
+    <section>
+      <div class="section-head">
+        <h2>AI / Automation</h2>
+        <p>Claude extraction, review holding tables, office approval, and guardrail warnings.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="module-card">
+          <div><h3>Claude Manifest Extraction</h3><p>Backend-only Claude API integration with safe review queue write path.</p></div>
+          <div class="module-actions"><span class="pill ready">PASS</span><a class="open-link" href="./upload-manifest-review.html">Open</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Review Queue</h3><p>Human office review before final cargo records are created.</p></div>
+          <div class="module-actions"><span class="pill ready">PASS</span><a class="open-link" href="./upload-manifest-review.html#reviewQueueTable">Open</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>AI Guardrails</h3><p>Duplicate MAWB/HAWB warnings, missing piece/weight flags, and confidence warnings.</p></div>
+          <div class="module-actions"><span class="pill ready">PASS</span><a class="open-link" href="./upload-manifest-review.html">Open</a></div>
+        </article>
+
+        <article class="module-card">
+          <div><h3>Automatic PDF Scanning</h3><p>Planned automatic PDF-to-text/OCR extraction. Current flow supports PDF registration plus Claude text review.</p></div>
+          <div class="module-actions"><span class="pill planned">Next</span><a class="open-link disabled" href="#">Pending</a></div>
+        </article>
+      </div>
+    </section>
+
+    <details id="integrationTests" class="card">
+      <summary>Production Integration Tests</summary>
+      <p class="hint">Use these checks when validating API, auth, permissions, and read-only module access.</p>
+
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+        <button id="btnRunReadOnly" class="good">Run Read-Only Operational Test</button>
+        <button id="btnClear" class="secondary">Clear Output</button>
+      </div>
+
+      <div class="test-grid">
+        <div class="test-card"><h3>Manifest</h3><button data-check="manifest">Test Manifest</button><div id="statusManifest" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Cargo</h3><button data-check="cargo">Test Cargo</button><div id="statusCargo" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Recovery</h3><button data-check="recovery">Test Recovery</button><div id="statusRecovery" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>PTT</h3><button data-check="ptt">Test PTT</button><div id="statusPtt" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Warehouse</h3><button data-check="warehouse">Test Warehouse</button><div id="statusWarehouse" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Damage</h3><button data-check="damage">Test Damage</button><div id="statusDamage" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Release</h3><button data-check="release">Test Release</button><div id="statusRelease" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Forklift</h3><button data-check="forklift">Test Forklift</button><div id="statusForklift" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Equipment</h3><button data-check="equipment">Test Equipment</button><div id="statusEquipment" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Accounting</h3><button data-check="accounting">Test Accounting</button><div id="statusAccounting" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>Customer Portal</h3><button data-check="customerPortal">Test Customer Portal</button><div id="statusCustomerPortal" class="status-line">Not tested.</div></div>
+        <div class="test-card"><h3>All Read-Only</h3><button id="btnRunReadOnly2" class="good">Run All</button><div class="status-line">Recommended read-only check.</div></div>
+      </div>
+
+      <div id="resultList" class="result-list"></div>
+      <pre id="output">Ready.</pre>
+    </details>
   </main>
 
   <script src="../ott-config.js"></script>
-  <script src="../api/ott-api-client.js?v=phase3n-operational-002"></script>
+  <script src="../api/ott-api-client.js?v=phase8a-module-dashboard-002"></script>
   <script src="../auth/ott-auth.js"></script>
-  <script src="./operational-integration-dashboard.html.js?v=phase3n-operational-002"></script>
+  <script src="./operational-integration-dashboard.html.js?v=phase8a-module-dashboard-002"></script>
 </body>
 </html>
