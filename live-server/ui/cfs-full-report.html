@@ -309,6 +309,91 @@
       .card, .card.full { grid-column:1 / -1; }
     }
   </style>
+
+  <style>
+    /* PHASE 9A-H CFS REPORT TABLE OVERLAP FIX
+       Table-only fix. No API/auth/backend/report logic changes. */
+
+    #reportTable {
+      min-width: 1680px !important;
+      table-layout: fixed !important;
+    }
+
+    #reportTable th,
+    #reportTable td {
+      vertical-align: top !important;
+      overflow: hidden !important;
+    }
+
+    #reportTable th:nth-child(1),
+    #reportTable td:nth-child(1) {
+      width: 150px !important;
+      min-width: 150px !important;
+    }
+
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2) {
+      width: 210px !important;
+      min-width: 210px !important;
+    }
+
+    #reportTable th:nth-child(3),
+    #reportTable td:nth-child(3) {
+      width: 220px !important;
+      min-width: 220px !important;
+      white-space: normal !important;
+    }
+
+    #reportTable th:nth-child(9),
+    #reportTable td:nth-child(9) {
+      width: 190px !important;
+      min-width: 190px !important;
+      white-space: normal !important;
+    }
+
+    #reportTable th:nth-child(12),
+    #reportTable td:nth-child(12) {
+      width: 240px !important;
+      min-width: 240px !important;
+      white-space: normal !important;
+    }
+
+    .cfs-mawb-number {
+      display: block !important;
+      font-weight: 900 !important;
+      color: #132033 !important;
+      line-height: 1.2 !important;
+      margin-bottom: 4px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .cfs-row-id {
+      display: block !important;
+      width: 100% !important;
+      max-width: 190px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #64748b !important;
+      font-family: Consolas, Monaco, monospace !important;
+      font-size: 11px !important;
+      line-height: 1.25 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .cfs-release-cell,
+    .cfs-equipment-cell {
+      display: block !important;
+      white-space: normal !important;
+      line-height: 1.25 !important;
+    }
+  </style>
+
 </head>
 <body data-module-key="reports">
   <header>

@@ -230,17 +230,17 @@
     tbody.innerHTML = rows.map((row, index) => `
       <tr>
         <td>${statusPill(row.status)}</td>
-        <td><strong>${escapeHtml(row.mawbNumber)}</strong><br><span class="muted">${escapeHtml(row.id)}</span></td>
+        <td><span class="cfs-mawb-number">${escapeHtml(row.mawbNumber)}</span><span class="cfs-row-id" title="${escapeHtml(row.id)}">${escapeHtml(row.id)}</span></td>
         <td>${escapeHtml(row.payor)}</td>
         <td>${escapeHtml(row.airline)}</td>
         <td>${escapeHtml(row.pieces)}</td>
         <td>${escapeHtml(row.weight)}</td>
         <td>${escapeHtml(row.hawbCount)}</td>
         <td>${escapeHtml(row.readyHawbCount)}</td>
-        <td>${escapeHtml(row.releaseNumber)}<br>${escapeHtml(row.releaseStatus)}</td>
+        <td><span class="cfs-release-cell">${escapeHtml(row.releaseNumber)}<br>${escapeHtml(row.releaseStatus)}</span></td>
         <td>${escapeHtml(row.pickupPacket)}</td>
         <td>${escapeHtml(row.invoiceNumber)}</td>
-        <td>${escapeHtml(row.equipmentBilling)}</td>
+        <td><span class="cfs-equipment-cell">${escapeHtml(row.equipmentBilling)}</span></td>
         <td>${escapeHtml(row.statusSource)}</td>
         <td><button data-row-index="${index}">Details</button></td>
       </tr>
