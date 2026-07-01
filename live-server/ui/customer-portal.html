@@ -908,5 +908,241 @@
 })();
 </script>
 <!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
-\n</body>
+\n
+<!-- PHASE 12A-F CUSTOMER SAFE CFS REPORT SECTION -->
+<script>
+(function () {
+  const MARKER = "PHASE 12A-F CUSTOMER SAFE CFS REPORT SECTION";
+
+  function safeText(value) {
+    return String(value ?? "—")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function rows(payload) {
+    const p = payload && payload.payload ? payload.payload : payload;
+    const d = p && p.data !== undefined ? p.data : p;
+
+    if (Array.isArray(d)) return d;
+    if (Array.isArray(d?.items)) return d.items;
+    if (Array.isArray(d?.rows)) return d.rows;
+    if (Array.isArray(d?.data)) return d.data;
+    if (Array.isArray(p?.items)) return p.items;
+    if (Array.isArray(p?.rows)) return p.rows;
+
+    return [];
+  }
+
+  function mawbNumber(row) {
+    return row.mawb_number_display || row.mawbNumberDisplay || row.mawb_number || row.mawbNumber || row.mawb || row.mawb_id || row.id || "—";
+  }
+
+  function mawbId(row) {
+    return row.mawb_id || row.mawbId || row.id || "";
+  }
+
+  function statusValue(row) {
+    return row.cargo_status || row.status || row.mawb_status || row.release_status || "—";
+  }
+
+  function addCustomerReportSection() {
+    if (document.getElementById("phase12aCustomerSafeReport")) return;
+
+    const card = document.createElement("section");
+    card.id = "phase12aCustomerSafeReport";
+    card.className = "card";
+    card.style.marginTop = "18px";
+
+    card.innerHTML = `
+      <h2>8. Customer-Safe CFS Report</h2>
+      <p class="muted">
+        Read-only customer report. This view excludes invoice numbers, internal billing, equipment billing, and internal status source.
+      </p>
+
+      <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
+        <button id="btnPhase12aBuildCustomerReport" type="button">Build My CFS Report</button>
+        <button id="btnPhase12aExportCustomerReport" type="button">Export Customer-Safe CSV</button>
+        <button id="btnPhase12aPrintCustomerReport" type="button">Print / Save PDF</button>
+      </div>
+
+      <div class="table-wrap" style="overflow:auto;">
+        <table id="phase12aCustomerReportTable">
+          <thead>
+            <tr>
+              <th>MAWB</th>
+              <th>Status</th>
+              <th>Payor</th>
+              <th>Airline</th>
+              <th>PCS</th>
+              <th>Weight KG</th>
+              <th>HAWBs</th>
+              <th>Releases</th>
+              <th>Damage</th>
+              <th>Files</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="10">Click Build My CFS Report.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const output = document.getElementById("output")?.closest("section")
+      || document.querySelector("pre")?.closest("section");
+
+    if (output && output.parentNode) {
+      output.parentNode.insertBefore(card, output);
+    } else {
+      document.body.appendChild(card);
+    }
+
+    const state = {
+      rows: []
+    };
+
+    function renderReport() {
+      const body = document.querySelector("#phase12aCustomerReportTable tbody");
+      if (!body) return;
+
+      if (!state.rows.length) {
+        body.innerHTML = '<tr><td colspan="10">No assigned customer cargo found.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = state.rows.map((row) => `
+        <tr>
+          <td><b>${safeText(row.mawb)}</b></td>
+          <td>${safeText(row.status)}</td>
+          <td>${safeText(row.payor)}</td>
+          <td>${safeText(row.airline)}</td>
+          <td>${safeText(row.pieces)}</td>
+          <td>${safeText(row.weight)}</td>
+          <td>${safeText(row.hawbs)}</td>
+          <td>${safeText(row.releases)}</td>
+          <td>${safeText(row.damage)}</td>
+          <td>${safeText(row.files)}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function callApi(label, fn) {
+      try {
+        return await fn();
+      } catch (err) {
+        console.warn(label, err);
+        return [];
+      }
+    }
+
+    async function buildReport() {
+      const btn = document.getElementById("btnPhase12aBuildCustomerReport");
+      if (btn) btn.disabled = true;
+
+      try {
+        if (!window.OTTApi) throw new Error("OTTApi not loaded.");
+
+        const mawbsPayload = await callApi("myPortalMawbs", () => window.OTTApi.myPortalMawbs({ limit: 100, offset: 0 }));
+        const hawbsPayload = await callApi("myPortalHawbs", () => window.OTTApi.myPortalHawbs({ limit: 500, offset: 0 }));
+        const releasesPayload = await callApi("myPortalReleaseOrders", () => window.OTTApi.myPortalReleaseOrders({ limit: 500, offset: 0 }));
+        const damagePayload = await callApi("myPortalDamageRecords", () => window.OTTApi.myPortalDamageRecords({ limit: 500, offset: 0 }));
+        const filesPayload = await callApi("myPortalFiles", () => window.OTTApi.myPortalFiles({ limit: 500, offset: 0 }));
+
+        const mawbs = rows(mawbsPayload);
+        const hawbs = rows(hawbsPayload);
+        const releases = rows(releasesPayload);
+        const damage = rows(damagePayload);
+        const files = rows(filesPayload);
+
+        state.rows = mawbs.map((m) => {
+          const id = mawbId(m);
+          const relatedHawbs = hawbs.filter((h) => (h.mawb_id || h.mawbId) === id);
+          const relatedReleases = releases.filter((r) => (r.mawb_id || r.mawbId) === id);
+          const relatedDamage = damage.filter((d) => (d.mawb_id || d.mawbId) === id);
+          const relatedFiles = files.filter((f) => (f.mawb_id || f.mawbId) === id);
+
+          return {
+            mawb: mawbNumber(m),
+            status: statusValue(m),
+            payor: m.payor_name || m.payorName || m.customer_name || "—",
+            airline: m.airline_name || m.airlineName || m.airline_code || m.airlineCode || "—",
+            pieces: m.total_pieces_expected ?? m.totalPiecesExpected ?? m.pieces ?? "—",
+            weight: m.total_weight_kg ?? m.totalWeightKg ?? m.weight_kg ?? "—",
+            hawbs: relatedHawbs.length,
+            releases: relatedReleases.length,
+            damage: relatedDamage.length,
+            files: relatedFiles.length
+          };
+        });
+
+        renderReport();
+
+        const output = document.getElementById("output");
+        if (output) {
+          output.textContent = JSON.stringify({
+            success: true,
+            customerSafe: true,
+            rows: state.rows.length,
+            excluded: ["invoice_number", "internal_billing", "equipment_billing", "status_source"]
+          }, null, 2);
+        }
+      } catch (err) {
+        const output = document.getElementById("output");
+        if (output) output.textContent = "Customer-safe report failed: " + (err.message || err);
+        console.error(err);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function exportCsv() {
+      if (!state.rows.length) renderReport();
+
+      const headers = ["MAWB", "Status", "Payor", "Airline", "PCS", "Weight KG", "HAWBs", "Releases", "Damage", "Files"];
+      const lines = [headers.join(",")];
+
+      state.rows.forEach((row) => {
+        lines.push([
+          row.mawb,
+          row.status,
+          row.payor,
+          row.airline,
+          row.pieces,
+          row.weight,
+          row.hawbs,
+          row.releases,
+          row.damage,
+          row.files
+        ].map((v) => '"' + String(v ?? "").replaceAll('"', '""') + '"').join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "OTT_CUSTOMER_SAFE_CFS_REPORT_" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("btnPhase12aBuildCustomerReport")?.addEventListener("click", buildReport);
+    document.getElementById("btnPhase12aExportCustomerReport")?.addEventListener("click", exportCsv);
+    document.getElementById("btnPhase12aPrintCustomerReport")?.addEventListener("click", () => window.print());
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", addCustomerReportSection);
+  } else {
+    addCustomerReportSection();
+  }
+})();
+</script>
+
+</body>
 </html>
