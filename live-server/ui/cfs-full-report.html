@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OTT Master — CFS Full Report</title>
+  <link rel="stylesheet" href="./phase3e.css" />
+  <style>
+    /* PHASE 9A-B CFS FULL REPORT READ ONLY PAGE
+       Read-only frontend aggregation report. No backend/API/auth/Supabase changes. */
+
+    :root {
+      --ott-bg:#f4f6fb;
+      --ott-card:#ffffff;
+      --ott-ink:#132033;
+      --ott-muted:#64748b;
+      --ott-line:#dce3ef;
+      --ott-blue:#1d4ed8;
+      --ott-green:#15803d;
+      --ott-red:#b91c1c;
+      --ott-yellow:#f7c948;
+      --ott-shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      background:var(--ott-bg);
+      color:var(--ott-ink);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:14px;
+    }
+
+    header {
+      max-width:1440px;
+      margin:0 auto;
+      padding:22px 28px;
+      background:linear-gradient(90deg,#10213b,#1d4ed8);
+      color:#fff;
+      border-bottom:3px solid var(--ott-yellow);
+    }
+
+    h1 { margin:0; font-size:20px; line-height:1.2; }
+    .sub { margin-top:6px; font-size:12px; color:#dbeafe; }
+
+    .back-link {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:34px;
+      margin-top:10px;
+      padding:9px 13px;
+      border-radius:10px;
+      background:#fff;
+      color:#111827;
+      font-weight:800;
+      text-decoration:none;
+      border:1px solid #cbd5e1;
+      box-shadow:0 3px 10px rgba(15,23,42,.10);
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+      max-width:1440px;
+      margin:0 auto;
+      padding:24px;
+      align-items:start;
+    }
+
+    .card {
+      background:var(--ott-card);
+      border:1px solid var(--ott-line);
+      border-radius:16px;
+      box-shadow:var(--ott-shadow);
+      padding:18px;
+      overflow:hidden;
+      min-height:0;
+    }
+
+    .card.full { grid-column:1 / -1; }
+
+    h2 {
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.2;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    h2::before {
+      content:"";
+      width:7px;
+      height:19px;
+      border-radius:999px;
+      background:var(--ott-yellow);
+      flex:0 0 auto;
+    }
+
+    .row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:flex-end;
+      margin:0 0 10px;
+    }
+
+    label, .field {
+      display:block;
+      flex:1 1 220px;
+      min-width:180px;
+      margin:0;
+      color:var(--ott-ink);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .field.small, .inline-label {
+      flex:0 1 180px;
+      min-width:150px;
+    }
+
+    input, select, textarea {
+      display:block;
+      width:100%;
+      min-height:38px;
+      margin-top:5px;
+      padding:10px 11px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      background:#fff;
+      color:var(--ott-ink);
+      font-size:14px;
+      outline:none;
+    }
+
+    button {
+      min-height:38px;
+      padding:10px 13px;
+      border:1px solid #b9c7d5;
+      border-radius:10px;
+      background:#fff;
+      color:#1f2937;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    button.primary, button.blue {
+      background:var(--ott-blue);
+      border-color:var(--ott-blue);
+      color:#fff;
+    }
+
+    button.green {
+      background:var(--ott-green);
+      border-color:var(--ott-green);
+      color:#fff;
+    }
+
+    .hint, .muted {
+      margin-top:9px;
+      padding:10px 11px;
+      border:1px solid var(--ott-line);
+      border-radius:10px;
+      background:#eef3f7;
+      color:var(--ott-muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .kpis {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+      gap:12px;
+    }
+
+    .kpi {
+      min-height:76px;
+      padding:12px;
+      border:1px solid var(--ott-line);
+      border-radius:14px;
+      background:#fff;
+    }
+
+    .kpi b {
+      display:block;
+      font-size:24px;
+      line-height:1;
+      color:var(--ott-ink);
+    }
+
+    .kpi span {
+      display:block;
+      margin-top:6px;
+      color:var(--ott-muted);
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .table-wrap {
+      width:100%;
+      overflow:auto;
+      border:1px solid var(--ott-line);
+      border-radius:12px;
+      background:#fff;
+      max-height:62vh;
+    }
+
+    table {
+      width:100%;
+      min-width:1280px;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:13px;
+    }
+
+    th {
+      position:sticky;
+      top:0;
+      z-index:1;
+      padding:10px;
+      background:#edf2f7;
+      color:#334155;
+      border-bottom:1px solid var(--ott-line);
+      font-size:12px;
+      text-align:left;
+      text-transform:uppercase;
+      letter-spacing:.035em;
+      white-space:nowrap;
+    }
+
+    td {
+      padding:10px;
+      border-bottom:1px solid #edf2f7;
+      vertical-align:top;
+      font-size:13px;
+    }
+
+    tbody tr:hover { background:#f8fafc; }
+
+    td button {
+      min-height:30px;
+      padding:5px 9px;
+      font-size:12px;
+    }
+
+    .status-pill, .pill {
+      display:inline-flex;
+      align-items:center;
+      min-height:22px;
+      padding:3px 8px;
+      border:1px solid #d0d7de;
+      border-radius:999px;
+      background:#f8fafc;
+      font-size:11px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .status-new { background:#dbeafe; color:#1d4ed8; border-color:#93c5fd; }
+    .status-ready { background:#dcfce7; color:#166534; border-color:#86efac; }
+    .status-warn { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+    .status-block { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+
+    #loginBadge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:24px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid #cbd5e1;
+      background:#f1f5f9;
+      color:#334155;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    #loginBadge.ok {
+      background:#dcfce7;
+      color:#166534;
+      border-color:#86efac;
+    }
+
+    #detailBox, #output {
+      min-height:120px;
+      max-height:360px;
+      overflow:auto;
+      padding:14px;
+      border:1px solid #1f2937;
+      border-radius:12px;
+      background:#0f172a;
+      color:#e5e7eb;
+      font-family:Consolas, Monaco, monospace;
+      font-size:12px;
+      white-space:pre-wrap;
+    }
+
+    @media (max-width:980px) {
+      .grid { grid-template-columns:1fr; padding:18px; }
+      .card, .card.full { grid-column:1 / -1; }
+    }
+  </style>
+</head>
+<body data-module-key="reports">
+  <header>
+    <h1>OTT Master — CFS Full Report</h1>
+    <div class="sub">Read-only operational report across Cargo, Warehouse, Release, Equipment, Billing, and Customer-safe status.</div>
+    <a class="back-link" href="./operational-integration-dashboard.html">Back to Operations Dashboard</a>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>1. Session</h2>
+      <div class="row">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="authorized office/admin email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+      </div>
+      <div class="row">
+        <button id="btnLogin" class="primary">Login</button>
+        <button id="btnLogout">Logout</button>
+        <button id="btnMe">Test /auth/me</button>
+        <span id="loginBadge" class="badge">Not logged in</span>
+      </div>
+      <p class="hint">Use production Render URL for real auth/API testing. Local Live Server may show CORS errors.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Report Filters</h2>
+      <div class="row">
+        <label>Search MAWB / Payor / Airline<input id="q" placeholder="MAWB, payor, airline, notes" /></label>
+        <label class="field small">Cargo Status<select id="statusFilter"><option value="">All</option><option>NEW</option><option>WAREHOUSE_INSPECTION</option><option>READY_FOR_RELEASE</option><option>RELEASED</option></select></label>
+        <label class="field small">Limit<input id="limit" type="number" min="10" max="250" value="100" /></label>
+      </div>
+      <div class="row">
+        <button id="btnLoadCargo" class="blue">Load Cargo MAWBs</button>
+        <button id="btnBuildReport" class="green">Build Full Report</button>
+        <button id="btnExportCsv">Export CSV</button>
+      </div>
+      <p class="hint">Phase 9A uses existing read APIs first. A dedicated backend report endpoint can be added later if needed.</p>
+    </section>
+
+    <section class="card full">
+      <h2>3. Report KPIs</h2>
+      <div class="kpis">
+        <div class="kpi"><b id="kpiMawbs">0</b><span>MAWBs</span></div>
+        <div class="kpi"><b id="kpiHawbs">0</b><span>HAWBs</span></div>
+        <div class="kpi"><b id="kpiReady">0</b><span>Ready HAWBs</span></div>
+        <div class="kpi"><b id="kpiReleased">0</b><span>Released</span></div>
+        <div class="kpi"><b id="kpiBilling">0</b><span>Billing Items</span></div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>4. CFS Full Report</h2>
+      <div class="table-wrap">
+        <table id="reportTable">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>MAWB</th>
+              <th>Payor</th>
+              <th>Airline</th>
+              <th>PCS</th>
+              <th>Weight KG</th>
+              <th>HAWBs</th>
+              <th>Ready HAWBs</th>
+              <th>Release</th>
+              <th>Pickup Packet</th>
+              <th>Invoice #</th>
+              <th>Equipment/Billing</th>
+              <th>Status Source</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="14">No report loaded.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Selected MAWB / HAWBs</h2>
+      <div id="detailBox">Select a MAWB from the report table.</div>
+    </section>
+
+    <section class="card">
+      <h2>6. Status Reliability Notes</h2>
+      <p class="hint">
+        Status display prioritizes operational state from release/billing sources when available, while preserving Cargo Management cargo_status as the source of truth. This prevents stale labels such as Pending Arrival from overriding newer module activity.
+      </p>
+      <div id="output">Ready.</div>
+    </section>
+  </main>
+
+  <script src="./ott-api-client.js"></script>
+  <script src="./cfs-full-report.js"></script>
+</body>
+</html>
