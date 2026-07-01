@@ -1,3 +1,4 @@
+// PHASE 11B-A DASHBOARD SESSION VERIFICATION UX
 (function () {
   const $ = (id) => document.getElementById(id);
   const state = { results: [], me: null };
@@ -28,12 +29,37 @@
     el.className = `status-line ${kind}`;
   }
 
-  function setLoginBadge() {
-    const hasToken = Boolean(window.OTTApi?.getAccessToken?.());
+  function setLoginBadge(mode = null) {
     const badge = $('loginBadge');
-    badge.className = hasToken ? 'badge ok' : 'badge';
-    badge.textContent = hasToken ? 'Logged in' : 'Not logged in';
-    $('kpiToken').textContent = hasToken ? 'Yes' : 'No';
+    const hint = $('sessionHint');
+    const hasToken = Boolean(window.OTTApi?.getAccessToken?.());
+
+    if (!badge) return;
+
+    if (mode === 'verified' || state.me) {
+      badge.className = 'badge ok';
+      badge.textContent = 'Verified session';
+      if (hint) hint.textContent = 'Session verified with /auth/me. You are ready to use production modules.';
+      return;
+    }
+
+    if (mode === 'failed') {
+      badge.className = 'badge fail';
+      badge.textContent = 'Session failed';
+      if (hint) hint.textContent = 'Session could not be verified. Login again, then click Test /auth/me.';
+      return;
+    }
+
+    if (hasToken) {
+      badge.className = 'badge token';
+      badge.textContent = 'Token saved';
+      if (hint) hint.textContent = 'Token exists, but session is not verified yet. Click Test /auth/me.';
+      return;
+    }
+
+    badge.className = 'badge';
+    badge.textContent = 'Not logged in';
+    if (hint) hint.textContent = 'Not logged in. Enter credentials and click Login.';
   }
 
   function normalizeError(error) {
@@ -321,13 +347,13 @@
 
   $('btnHealth').addEventListener('click', () => run('Health', () => window.OTTApi.health()));
   $('btnVersion').addEventListener('click', () => run('Version', () => window.OTTApi.version()));
-  $('btnMe').addEventListener('click', async () => { const result = await run('Auth Me', () => window.OTTApi.me()); state.me = data(result); setLoginBadge(); applyDashboardAccess(); return result; });
+  $('btnMe').addEventListener('click', async () => { const result = await run('Auth Me', () => window.OTTApi.me()); if (result) { state.me = data(result); setLoginBadge('verified'); } else { state.me = null; setLoginBadge('failed'); } applyDashboardAccess(); return result; });
   $('btnLogin').addEventListener('click', async () => {
     const result = await run('Login', () => window.OTTAuth.loginWithPassword($('email').value.trim(), $('password').value));
     setLoginBadge();
     return result;
   });
-  $('btnLogout').addEventListener('click', () => { window.OTTAuth.logout(); state.me = null; setLoginBadge(); applyDashboardAccess(); setOutput('Logout', { success: true }); });
+  $('btnLogout').addEventListener('click', () => { window.OTTAuth.logout(); state.me = null; $('password').value = ''; setLoginBadge(); applyDashboardAccess(); setOutput('Logout', { success: true }); });
   $('btnRunReadOnly').addEventListener('click', runAllReadOnly);
   $('btnRunReadOnly2').addEventListener('click', runAllReadOnly);
   $('btnClear').addEventListener('click', () => { $('output').textContent = 'Ready.'; state.results = []; renderResults(); });
