@@ -534,6 +534,99 @@ function getManifestFileRecordInput() {
   }
 
 
+
+  // PHASE 7I-D CREATE UPLOAD GUARD START
+  function findManifestFileRecordInputForGuard() {
+    const ids = [
+      'uploadFileId',
+      'fileRecordId',
+      'file_record_id',
+      'existingFileRecordId',
+      'existingFileRecordID',
+      'manifestFileRecordId',
+      'uploadFileRecordId'
+    ];
+
+    for (const id of ids) {
+      const el = $(id);
+      if (el) return el;
+    }
+
+    const inputs = Array.from(document.querySelectorAll('input'));
+    return inputs.find((input) => {
+      const id = String(input.id || '').toLowerCase();
+      const name = String(input.name || '').toLowerCase();
+      const placeholder = String(input.placeholder || '').toLowerCase();
+      const labelText = String(input.closest('.field')?.textContent || '').toLowerCase();
+
+      return (
+        id.includes('file') ||
+        name.includes('file') ||
+        placeholder.includes('file_record') ||
+        placeholder.includes('public.file_records') ||
+        labelText.includes('existing file_record_id') ||
+        labelText.includes('file_record_id from staging')
+      );
+    }) || null;
+  }
+
+  function getManifestFileRecordIdForGuard() {
+    const input = findManifestFileRecordInputForGuard();
+    return input && 'value' in input ? String(input.value || '').trim() : '';
+  }
+
+  function installCreateManifestUploadGuard() {
+    const btn = $('btnCreateUpload');
+    if (!btn || btn.dataset.phase7idCreateGuard === '1') return;
+
+    btn.dataset.phase7idCreateGuard = '1';
+
+    btn.addEventListener('click', async (event) => {
+      if (window.__phase7idAllowCreateManifestUpload === true) {
+        window.__phase7idAllowCreateManifestUpload = false;
+        return;
+      }
+
+      const existingFileRecordId = getManifestFileRecordIdForGuard();
+      if (existingFileRecordId) return;
+
+      const selectedFile = $('manifestFile')?.files?.[0] || null;
+      if (!selectedFile) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      await run('Create File Record, then Manifest Upload', async () => {
+        const created = await createManifestFileRecordFromSelectedFile();
+
+        const newFileRecordId = getManifestFileRecordIdForGuard();
+        if (!newFileRecordId) {
+          throw new Error('file_record_id was created but the UUID field was not filled.');
+        }
+
+        showOk('file_record_id created. Continuing with Create Manifest Upload...', {
+          fileRecordId: newFileRecordId,
+          created
+        });
+
+        window.__phase7idAllowCreateManifestUpload = true;
+        setTimeout(() => btn.click(), 100);
+
+        return {
+          success: true,
+          fileRecordId: newFileRecordId,
+          next: 'Create Manifest Upload will continue automatically.'
+        };
+      });
+    }, true);
+  }
+
+  installCreateManifestUploadGuard();
+  setTimeout(installCreateManifestUploadGuard, 300);
+  setTimeout(installCreateManifestUploadGuard, 1000);
+  // PHASE 7I-D CREATE UPLOAD GUARD END
+
+
   wireClaudeManifestSandboxPanel();
   wireClaudeManifestSaveToReviewButton();
   setLoginBadge();
