@@ -42,9 +42,14 @@
     }
   }
 
-  function reportAuthLogin(email, password) {
+  // PHASE 9A-F CLEAN CFS REPORT AUTH HELPERS
+  async function reportAuthLogin(email, password) {
+    if (!email || !password) {
+      throw new Error("Enter email and password first.");
+    }
+
     if (!window.OTTAuth) {
-      throw new Error("OTTAuth is not loaded. Confirm the CFS report page uses the same script loader as Cargo Management.");
+      throw new Error("OTTAuth is not loaded. Confirm the page loads ../auth/ott-auth.js before cfs-full-report.js.");
     }
 
     if (typeof window.OTTAuth.login === "function") {
@@ -58,89 +63,13 @@
     throw new Error("OTTAuth login function was not found.");
   }
 
-  function reportAuthLogout() {
-    if (!window.OTTAuth) return Promise.resolve();
-    if (typeof window.OTTAuth.logout === "function") return reportAuthLogout();
-    if (typeof window.OTTAuth.signOut === "function") return window.OTTAuth.signOut();
-    return Promise.resolve();
-  }
-
-  function reportIsLoggedIn() {
-    if (window.OTTAuth && typeof window.OTTAuth.isLoggedIn === "function") {
-      return window.OTTAuth.isLoggedIn();
-    }
-
-    if (window.OTTApi && typeof window.OTTApi.getAccessToken === "function") {
-      return Boolean(window.OTTApi.getAccessToken());
-    }
-
-    return false;
-  }
-
-  // PHASE 9A-E CFS REPORT DIRECT LOGIN FALLBACK
-  async function reportAuthLogin(email, password) {
-    if (!email || !password) {
-      throw new Error("Enter email and password first.");
-    }
-
-    // Preferred path if the normal module auth object is available.
-    if (window.OTTAuth && typeof window.OTTAuth.login === "function") {
-      return window.OTTAuth.login(email, password);
-    }
-
-    if (window.OTTAuth && typeof window.OTTAuth.loginWithPassword === "function") {
-      return window.OTTAuth.loginWithPassword(email, password);
-    }
-
-    // Fallback path: use Supabase client exposed by ott-api-client.js/module loader.
-    const supabaseClient =
-      window.OTTSupabase ||
-      window.supabaseClient ||
-      window.supabase ||
-      window.SUPABASE_CLIENT ||
-      null;
-
-    if (supabaseClient?.auth?.signInWithPassword) {
-      const result = await supabaseClient.auth.signInWithPassword({ email, password });
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const session = result.data?.session || null;
-      const token = session?.access_token || "";
-
-      if (token) {
-        try { localStorage.setItem("ott_access_token", token); } catch {}
-        try { localStorage.setItem("OTT_ACCESS_TOKEN", token); } catch {}
-        try { sessionStorage.setItem("ott_access_token", token); } catch {}
-      }
-
-      return { user: result.data?.user || null, hasAccessToken: Boolean(token) };
-    }
-
-    // Last fallback: call existing auth endpoint if the API client exposes a request helper.
-    if (window.OTTApi && typeof window.OTTApi.login === "function") {
-      return window.OTTApi.login(email, password);
-    }
-
-    throw new Error("No compatible auth loader was found on this page. The CFS report must load the same auth stack as the other modules.");
-  }
-
   async function reportAuthLogout() {
     if (window.OTTAuth && typeof window.OTTAuth.logout === "function") {
-      return reportAuthLogout();
+      return window.OTTAuth.logout();
     }
 
-    const supabaseClient =
-      window.OTTSupabase ||
-      window.supabaseClient ||
-      window.supabase ||
-      window.SUPABASE_CLIENT ||
-      null;
-
-    if (supabaseClient?.auth?.signOut) {
-      await supabaseClient.auth.signOut();
+    if (window.OTTAuth && typeof window.OTTAuth.signOut === "function") {
+      return window.OTTAuth.signOut();
     }
 
     try { localStorage.removeItem("ott_access_token"); } catch {}
