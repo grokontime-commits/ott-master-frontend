@@ -400,7 +400,17 @@
     </section>
   </main>
 
-  <script src="./ott-api-client.js"></script>
-  <script src="./cfs-full-report.js"></script>
+  
+<!-- PHASE 9A-C2 COPY WORKING AUTH LOADER FROM CARGO START -->
+<!-- PHASE 9A-C2 COPY WORKING AUTH LOADER FROM CARGO END -->
+
+<!-- PHASE 9A-G FORCE CORRECT CFS REPORT SCRIPT STACK START -->
+  <script src="../ott-config.js?v=phase9ag"></script>
+  <script src="../api/ott-api-client.js?v=phase9ag"></script>
+  <script src="../auth/ott-auth.js?v=phase9ag"></script>
+  <script src="../auth/ott-permissions.js?v=phase9ag"></script>
+  <script src="../auth/ott-page-guard.js?v=phase9ag"></script>
+  <script src="./cfs-full-report.js?v=phase9ag"></script>
+<!-- PHASE 9A-G FORCE CORRECT CFS REPORT SCRIPT STACK END -->
 </body>
 </html>
