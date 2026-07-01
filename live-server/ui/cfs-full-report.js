@@ -246,6 +246,8 @@
       </tr>
     `).join('') || '<tr><td colspan="14">No report rows found.</td></tr>';
 
+    updatePrintHeader();
+
     tbody.querySelectorAll('[data-row-index]').forEach((button) => {
       button.addEventListener('click', () => showDetails(Number(button.dataset.rowIndex)));
     });
@@ -422,6 +424,8 @@
     $('btnCustomerSafeColumns')?.addEventListener('click', () => setColumnPreset('customer'));
     $('btnResetInternalColumns')?.addEventListener('click', () => setColumnPreset('internal'));
     $('btnExportCustomerCsv')?.addEventListener('click', () => exportCsv(true));
+    $('btnCustomerPrintView')?.addEventListener('click', enableCustomerPrintView);
+    $('btnPrintCustomerReport')?.addEventListener('click', printCustomerReport);
 
     $('btnLoadCargo')?.addEventListener('click', () => {
       setTimeout(applyColumnVisibility, 500);
@@ -455,6 +459,44 @@
 
   function csvEscape(value) {
     return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+  }
+
+  // PHASE 9C-A CFS REPORT CUSTOMER PRINT VIEW
+  function updatePrintHeader() {
+    const now = new Date();
+    const dateText = now.toLocaleString();
+
+    if ($('printReportDate')) $('printReportDate').textContent = dateText;
+    if ($('printTotalMawbs')) $('printTotalMawbs').textContent = String(state.reportRows.length);
+    if ($('printTotalHawbs')) {
+      $('printTotalHawbs').textContent = String(
+        state.reportRows.reduce((sum, row) => sum + Number(row.hawbCount || 0), 0)
+      );
+    }
+  }
+
+  function enableCustomerPrintView() {
+    if (!state.reportRows.length) renderReport();
+
+    setColumnPreset('customer');
+    updatePrintHeader();
+    document.body.classList.add('customer-print-mode');
+
+    setOutput('Customer Print View Ready', {
+      customerSafeColumns: true,
+      hiddenColumns: ['Invoice #', 'Equipment/Billing', 'Status Source', 'Action'],
+      printInstruction: 'Use Print / Save PDF. Browser print dialog should use landscape orientation.'
+    }, true);
+
+    setTimeout(applyColumnVisibility, 100);
+  }
+
+  function printCustomerReport() {
+    enableCustomerPrintView();
+
+    setTimeout(() => {
+      window.print();
+    }, 250);
   }
 
   function exportCsv(customerSafeOnly = false) {
