@@ -751,5 +751,465 @@
 })();
 </script>
 <!-- PHASE 8B FRIENDLY APPROVAL ERRORS END -->
+\n
+
+\n
+
+\n
+
+\n
+<!-- PHASE 8C FINAL AUTH BADGE ENTER FIX START -->
+<style>
+  #loginBadge {
+    background: #e5e7eb !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  #loginBadge.auth-ok {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #86efac !important;
+  }
+
+  #loginBadge.auth-warn {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+  }
+</style>
+
+<script>
+(function () {
+  if (window.__phase8cFinalAuthBadgeEnterFix) return;
+  window.__phase8cFinalAuthBadgeEnterFix = true;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setBadge(text, mode) {
+    var badge = el("loginBadge");
+    if (!badge) return;
+
+    badge.textContent = text;
+    badge.classList.remove("auth-ok", "auth-warn");
+
+    if (mode === "ok") badge.classList.add("auth-ok");
+    if (mode === "warn") badge.classList.add("auth-warn");
+  }
+
+  function getApiBase() {
+    if (window.OTTApi && window.OTTApi.API_BASE_URL) {
+      return String(window.OTTApi.API_BASE_URL).replace(/\/$/, "");
+    }
+
+    if (window.OTT_API_BASE_URL) return String(window.OTT_API_BASE_URL).replace(/\/$/, "");
+    if (window.API_BASE_URL) return String(window.API_BASE_URL).replace(/\/$/, "");
+
+    if (location.hostname.includes("onrender.com")) {
+      return "https://ott-master-backend.onrender.com";
+    }
+
+    return "https://ott-master-backend.onrender.com";
+  }
+
+  function getToken() {
+    if (window.OTTApi && typeof window.OTTApi.getAccessToken === "function") {
+      return window.OTTApi.getAccessToken();
+    }
+
+    return "";
+  }
+
+  function writeOutput(title, payload) {
+    var output = el("output");
+    var status = el("status");
+
+    if (status) status.textContent = title;
+
+    if (output) {
+      output.textContent = typeof payload === "string"
+        ? payload
+        : JSON.stringify(payload, null, 2);
+    }
+  }
+
+  function hideAccessWarning() {
+    Array.from(document.querySelectorAll("body *")).forEach(function (node) {
+      var text = String(node.textContent || "");
+
+      if (
+        text.includes("Could not verify access for Upload Manifest Review") ||
+        text.includes("Please log in again")
+      ) {
+        node.style.display = "none";
+      }
+    });
+  }
+
+  function showAccessWarning() {
+    // Do not create a new warning. Keep existing page guard warning if it is present.
+  }
+
+  function setManifestControlsEnabled(enabled) {
+    [
+      "btnLoadPayors",
+      "btnManifestStats",
+      "payorSelect",
+      "manifestFile",
+      "fileRecordId",
+      "btnCreateUpload",
+      "btnListUploads",
+      "btnLoadReviewQueue",
+      "btnLoadReviewItem",
+      "btnClaudeManifestTest",
+      "btnClaudeManifestSaveToReview",
+      "btnApproveReview",
+      "btnRejectReview"
+    ].forEach(function (id) {
+      var node = el(id);
+      if (node) node.disabled = !enabled;
+    });
+  }
+
+  async function verifyAuth() {
+    var token = getToken();
+
+    if (!token) {
+      setBadge("Not verified", "warn");
+      setManifestControlsEnabled(false);
+      return false;
+    }
+
+    try {
+      var res = await fetch(getApiBase() + "/api/v1/auth/me", {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        }
+      });
+
+      var payload = await res.json().catch(function () { return null; });
+
+      if (!res.ok) {
+        setBadge("Not verified", "warn");
+        setManifestControlsEnabled(false);
+        showAccessWarning();
+        return false;
+      }
+
+      setBadge("Logged in", "ok");
+      hideAccessWarning();
+      setManifestControlsEnabled(true);
+
+      return true;
+    } catch (err) {
+      setBadge("Not verified", "warn");
+      setManifestControlsEnabled(false);
+
+      writeOutput("Auth check failed", {
+        success: false,
+        message: "Could not verify login session. Try Login again or test from the production Render URL.",
+        error: err && err.message ? err.message : String(err)
+      });
+
+      return false;
+    }
+  }
+
+  function triggerLogin() {
+    var btn = el("btnLogin");
+
+    if (!btn || btn.disabled) return;
+
+    btn.click();
+
+    setBadge("Checking...", "warn");
+
+    setTimeout(verifyAuth, 500);
+    setTimeout(verifyAuth, 1500);
+    setTimeout(verifyAuth, 3000);
+  }
+
+  function installEnterLogin() {
+    document.addEventListener("keydown", function (event) {
+      var key = event.key || event.code || "";
+      var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+      if (!isEnter) return;
+
+      var target = event.target;
+      if (!target) return;
+
+      var id = String(target.id || "").toLowerCase();
+      var type = String(target.type || "").toLowerCase();
+
+      var isLoginField = id === "email" || id === "password" || type === "email" || type === "password";
+      if (!isLoginField) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      triggerLogin();
+    }, true);
+  }
+
+  function installLoginClickRecheck() {
+    var btn = el("btnLogin");
+
+    if (!btn || btn.dataset.phase8cFinalLoginRecheck === "1") return;
+
+    btn.dataset.phase8cFinalLoginRecheck = "1";
+
+    btn.addEventListener("click", function () {
+      setBadge("Checking...", "warn");
+      setTimeout(verifyAuth, 500);
+      setTimeout(verifyAuth, 1500);
+      setTimeout(verifyAuth, 3000);
+    });
+  }
+
+  function installProtectedButtonCheck() {
+    var loadPayors = el("btnLoadPayors");
+
+    if (!loadPayors || loadPayors.dataset.phase8cAuthCheck === "1") return;
+
+    loadPayors.dataset.phase8cAuthCheck = "1";
+
+    loadPayors.addEventListener("click", function () {
+      setTimeout(verifyAuth, 250);
+    }, true);
+  }
+
+  function init() {
+    setBadge("Not verified", "warn");
+    setManifestControlsEnabled(false);
+
+    installEnterLogin();
+    installLoginClickRecheck();
+    installProtectedButtonCheck();
+
+    setTimeout(verifyAuth, 500);
+    setTimeout(verifyAuth, 1800);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- PHASE 8C FINAL AUTH BADGE ENTER FIX END -->
+\n
+<!-- PHASE 8C FORCE VERIFY LOGIN DEBUG START -->
+<style>
+  #btnForceVerifyLogin {
+    background: #92400e !important;
+    color: #fff !important;
+  }
+  #loginBadge.auth-ok {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #86efac !important;
+  }
+  #loginBadge.auth-warn {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+  }
+</style>
+
+<script>
+(function () {
+  if (window.__phase8cForceVerifyLoginDebug) return;
+  window.__phase8cForceVerifyLoginDebug = true;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setBadge(text, mode) {
+    var badge = el("loginBadge");
+    if (!badge) return;
+    badge.textContent = text;
+    badge.classList.remove("auth-ok", "auth-warn");
+    if (mode === "ok") badge.classList.add("auth-ok");
+    if (mode === "warn") badge.classList.add("auth-warn");
+  }
+
+  function output(title, data) {
+    var out = el("output");
+    var status = el("status");
+    if (status) status.textContent = title;
+    if (out) out.textContent = JSON.stringify(data, null, 2);
+  }
+
+  function apiBase() {
+    if (window.OTTApi && window.OTTApi.API_BASE_URL) {
+      return String(window.OTTApi.API_BASE_URL).replace(/\/$/, "");
+    }
+    if (window.OTT_API_BASE_URL) return String(window.OTT_API_BASE_URL).replace(/\/$/, "");
+    if (window.API_BASE_URL) return String(window.API_BASE_URL).replace(/\/$/, "");
+    return "https://ott-master-backend.onrender.com";
+  }
+
+  function token() {
+    if (window.OTTApi && typeof window.OTTApi.getAccessToken === "function") {
+      return window.OTTApi.getAccessToken();
+    }
+
+    var keys = ["access_token", "ott_access_token", "supabase.auth.token"];
+    for (var i = 0; i < keys.length; i++) {
+      var v = localStorage.getItem(keys[i]);
+      if (v) return v;
+    }
+
+    return "";
+  }
+
+  function enableControls() {
+    [
+      "btnLoadPayors",
+      "btnManifestStats",
+      "payorSelect",
+      "manifestFile",
+      "fileRecordId",
+      "btnCreateUpload",
+      "btnListUploads",
+      "btnLoadReviewQueue",
+      "btnLoadReviewItem",
+      "btnClaudeManifestTest",
+      "btnClaudeManifestSaveToReview",
+      "btnApproveReview",
+      "btnRejectReview"
+    ].forEach(function (id) {
+      var n = el(id);
+      if (n) n.disabled = false;
+    });
+  }
+
+  function hideWarning() {
+    Array.from(document.querySelectorAll("body *")).forEach(function (node) {
+      var txt = String(node.textContent || "");
+      if (txt.includes("Could not verify access for Upload Manifest Review")) {
+        node.style.display = "none";
+      }
+    });
+  }
+
+  async function verifyNow() {
+    var t = token();
+
+    if (!t) {
+      setBadge("Not verified", "warn");
+      output("Auth verify failed", {
+        success: false,
+        reason: "NO_TOKEN",
+        message: "No access token found. Click Login, then Force Verify Login."
+      });
+      return false;
+    }
+
+    try {
+      var res = await fetch(apiBase() + "/api/v1/auth/me", {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + t,
+          "Content-Type": "application/json"
+        }
+      });
+
+      var payload = await res.json().catch(function () { return null; });
+
+      if (!res.ok) {
+        setBadge("Not verified", "warn");
+        output("Auth verify failed", {
+          success: false,
+          status: res.status,
+          apiBase: apiBase(),
+          payload: payload
+        });
+        return false;
+      }
+
+      setBadge("Logged in", "ok");
+      enableControls();
+      hideWarning();
+
+      output("Auth verified", {
+        success: true,
+        apiBase: apiBase(),
+        message: "Login session verified. Payor/file controls enabled.",
+        user: payload && payload.data ? payload.data : payload
+      });
+
+      return true;
+    } catch (err) {
+      setBadge("Not verified", "warn");
+      output("Auth verify failed", {
+        success: false,
+        apiBase: apiBase(),
+        error: err && err.message ? err.message : String(err)
+      });
+      return false;
+    }
+  }
+
+  function installButton() {
+    var loginBtn = el("btnLogin");
+    if (!loginBtn || el("btnForceVerifyLogin")) return;
+
+    var btn = document.createElement("button");
+    btn.id = "btnForceVerifyLogin";
+    btn.type = "button";
+    btn.textContent = "Force Verify Login";
+    btn.addEventListener("click", verifyNow);
+
+    loginBtn.insertAdjacentElement("afterend", btn);
+  }
+
+  function installEnter() {
+    document.addEventListener("keydown", function (event) {
+      var isEnter = event.key === "Enter" || event.keyCode === 13;
+      if (!isEnter) return;
+
+      var target = event.target;
+      if (!target) return;
+
+      var id = String(target.id || "").toLowerCase();
+      var type = String(target.type || "").toLowerCase();
+
+      if (!(id === "email" || id === "password" || type === "email" || type === "password")) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      var loginBtn = el("btnLogin");
+      if (loginBtn) loginBtn.click();
+
+      setBadge("Checking...", "warn");
+      setTimeout(verifyNow, 800);
+      setTimeout(verifyNow, 1800);
+      setTimeout(verifyNow, 3200);
+    }, true);
+  }
+
+  function init() {
+    installButton();
+    installEnter();
+    setTimeout(verifyNow, 1200);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- PHASE 8C FORCE VERIFY LOGIN DEBUG END -->
 \n</body>
 </html>
