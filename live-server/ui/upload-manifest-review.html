@@ -554,5 +554,202 @@
   <script src="../auth/ott-permissions.js"></script>
   <script src="../auth/ott-page-guard.js"></script>
   <script src="./upload-manifest-review.js"></script>
-</body>
+
+<!-- PHASE 8B FRIENDLY APPROVAL ERRORS START -->
+<script>
+(function () {
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setOutput(title, payload, statusText) {
+    var output = el("output");
+    var status = el("status");
+
+    if (status && statusText) status.textContent = statusText;
+
+    if (output) {
+      output.textContent = typeof payload === "string"
+        ? title + "\n\n" + payload
+        : title + "\n\n" + JSON.stringify(payload, null, 2);
+    }
+  }
+
+  function getApiBase() {
+    var apiBase = String(window.OTTApi && window.OTTApi.API_BASE_URL ? window.OTTApi.API_BASE_URL : "").replace(/\/$/, "");
+    if (apiBase) return apiBase;
+
+    if (window.OTT_API_BASE_URL) return String(window.OTT_API_BASE_URL).replace(/\/$/, "");
+    if (window.API_BASE_URL) return String(window.API_BASE_URL).replace(/\/$/, "");
+
+    if (location.hostname.includes("onrender.com")) {
+      return "https://ott-master-backend.onrender.com";
+    }
+
+    return "http://localhost:4000";
+  }
+
+  function getAccessToken() {
+    return window.OTTApi && typeof window.OTTApi.getAccessToken === "function"
+      ? window.OTTApi.getAccessToken()
+      : "";
+  }
+
+  function friendlyApprovalMessage(payload) {
+    var details =
+      payload && payload.error && payload.error.details ? payload.error.details :
+      payload && payload.payload && payload.payload.error && payload.payload.error.details ? payload.payload.error.details :
+      payload && payload.details ? payload.details :
+      payload && payload.message ? payload.message :
+      "";
+
+    var text = String(details || "");
+
+    if (text.toLowerCase().includes("mawb already exists")) {
+      var mawbMatch = text.match(/Cargo Management:\s*([0-9]{3}-?[0-9]+)/i);
+      var mawb = mawbMatch ? mawbMatch[1] : "";
+
+      return {
+        blocked: true,
+        reason: "DUPLICATE_FINAL_MAWB",
+        message: "Approval blocked: this MAWB already exists in Cargo Management.",
+        mawb: mawb,
+        nextStep: "Reject this review item or correct the extraction before approval.",
+        details: text
+      };
+    }
+
+    if (text.toLowerCase().includes("cannot approve extraction")) {
+      return {
+        blocked: true,
+        reason: "APPROVAL_BLOCKED",
+        message: "Approval blocked by validation guardrails.",
+        nextStep: "Review the item warnings, then reject or correct before approval.",
+        details: text
+      };
+    }
+
+    return null;
+  }
+
+  async function friendlyApproveReview() {
+    var reviewQueueId = el("reviewQueueId") && el("reviewQueueId").value ? el("reviewQueueId").value.trim() : "";
+    var notes = el("reviewNotes") && el("reviewNotes").value ? el("reviewNotes").value.trim() : "";
+
+    if (!reviewQueueId) {
+      setOutput("Approval blocked", {
+        success: false,
+        message: "Select or load a Review Queue item before approval."
+      }, "Approval needs review item");
+      return;
+    }
+
+    var token = getAccessToken();
+    if (!token) {
+      setOutput("Approval blocked", {
+        success: false,
+        message: "Login required before approving a review item."
+      }, "Login required");
+      return;
+    }
+
+    var btn = el("btnApproveReview");
+    var oldText = btn ? btn.textContent : "";
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Approving...";
+      }
+
+      setOutput("Approving review item...", {
+        reviewQueueId: reviewQueueId
+      }, "Approving");
+
+      var response = await fetch(getApiBase() + "/api/v1/manifest/review-queue/" + encodeURIComponent(reviewQueueId) + "/approve", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ notes: notes || null })
+      });
+
+      var payload = await response.json().catch(function () { return null; });
+
+      if (!response.ok) {
+        var friendly = friendlyApprovalMessage(payload);
+
+        if (friendly) {
+          setOutput("Approval blocked by guardrail", {
+            success: false,
+            approvalBlocked: true,
+            ...friendly,
+            rawStatus: response.status
+          }, "Approval blocked");
+          return;
+        }
+
+        setOutput("Approval failed", {
+          success: false,
+          message: payload && payload.error && payload.error.message ? payload.error.message : "Approval failed.",
+          status: response.status,
+          details: payload && payload.error && payload.error.details ? payload.error.details : null
+        }, "Approval failed");
+        return;
+      }
+
+      setOutput("Approval successful", payload, "Approved");
+
+      if (window.OTTApi && typeof window.OTTApi.manifestReviewQueue === "function") {
+        try {
+          var reviewPayload = await window.OTTApi.manifestReviewQueue({ status: "PENDING_REVIEW", limit: 25, offset: 0 });
+          if (typeof window.renderReviewQueue === "function") {
+            var rows = Array.isArray(reviewPayload && reviewPayload.data && reviewPayload.data.rows)
+              ? reviewPayload.data.rows
+              : [];
+            window.renderReviewQueue(rows);
+          }
+        } catch (refreshErr) {
+          console.warn("Review queue refresh skipped after approval.", refreshErr);
+        }
+      }
+    } catch (err) {
+      setOutput("Approval failed", {
+        success: false,
+        message: err && err.message ? err.message : String(err)
+      }, "Approval failed");
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText || "Approve Review";
+      }
+    }
+  }
+
+  function installFriendlyApprovalHandler() {
+    var btn = el("btnApproveReview");
+    if (!btn || btn.dataset.phase8bFriendlyApproval === "1") return;
+
+    btn.dataset.phase8bFriendlyApproval = "1";
+
+    btn.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      friendlyApproveReview();
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installFriendlyApprovalHandler);
+  } else {
+    installFriendlyApprovalHandler();
+  }
+
+  setTimeout(installFriendlyApprovalHandler, 300);
+  setTimeout(installFriendlyApprovalHandler, 1000);
+})();
+</script>
+<!-- PHASE 8B FRIENDLY APPROVAL ERRORS END -->
+\n</body>
 </html>
