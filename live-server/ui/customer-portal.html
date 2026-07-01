@@ -5,11 +5,432 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Customer Portal</title>
   <link rel="stylesheet" href="./phase3k.css" />
+
+  <style>
+    /* PHASE 8E-J CUSTOMER PORTAL UI POLISH
+       UI-only polish. No API, auth, Supabase, service role, token, password, or backend changes. */
+
+    :root {
+      --ott-bg: #f4f6f8;
+      --ott-card: #ffffff;
+      --ott-border: #d9e0e7;
+      --ott-soft: #eef3f7;
+      --ott-text: #16202a;
+      --ott-muted: #647282;
+      --ott-blue: #1769aa;
+      --ott-green: #1f7a42;
+      --ott-red: #b42318;
+      --ott-yellow: #f7c948;
+      --ott-radius: 14px;
+      --ott-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body[data-module-key="customerPortal"] {
+      margin: 0;
+      background: var(--ott-bg);
+      color: var(--ott-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    body[data-module-key="customerPortal"] .wrap,
+    body[data-module-key="customerPortal"] main,
+    body[data-module-key="customerPortal"] .page,
+    body[data-module-key="customerPortal"] .container {
+      width: min(1440px, calc(100vw - 28px));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    body[data-module-key="customerPortal"] header,
+    body[data-module-key="customerPortal"] .header {
+      padding: 14px 4px 10px;
+    }
+
+    body[data-module-key="customerPortal"] h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.1vw, 31px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    body[data-module-key="customerPortal"] header p,
+    body[data-module-key="customerPortal"] .sub {
+      margin: 5px 0 0;
+      color: var(--ott-muted);
+      font-size: 13px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 8px;
+      width: min(1440px, calc(100vw - 28px));
+      margin: 10px auto 12px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-step {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      font-weight: 800;
+      color: #344054;
+      text-align: center;
+    }
+
+    body[data-module-key="customerPortal"] .grid,
+    body[data-module-key="customerPortal"] .cards,
+    body[data-module-key="customerPortal"] .main-grid,
+    body[data-module-key="customerPortal"] .layout {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 0 auto !important;
+    }
+
+    body[data-module-key="customerPortal"] section,
+    body[data-module-key="customerPortal"] .card,
+    body[data-module-key="customerPortal"] .panel {
+      background: var(--ott-card);
+      border: 1px solid var(--ott-border);
+      border-radius: var(--ott-radius);
+      padding: 13px;
+      box-shadow: var(--ott-shadow);
+      overflow: hidden;
+      min-width: 0;
+      margin-bottom: 12px;
+    }
+
+    body[data-module-key="customerPortal"] section:has(.table-wrap),
+    body[data-module-key="customerPortal"] .card:has(.table-wrap),
+    body[data-module-key="customerPortal"] .panel:has(.table-wrap),
+    body[data-module-key="customerPortal"] section:has(#readOnlyDetail),
+    body[data-module-key="customerPortal"] section:has(#output) {
+      grid-column: 1 / -1 !important;
+    }
+
+    body[data-module-key="customerPortal"] h2 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body[data-module-key="customerPortal"] h2::before {
+      content: "";
+      width: 7px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ott-yellow);
+      flex: 0 0 auto;
+    }
+
+    body[data-module-key="customerPortal"] .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    body[data-module-key="customerPortal"] label,
+    body[data-module-key="customerPortal"] .field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      margin: 0;
+      display: block;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    body[data-module-key="customerPortal"] .inline-label,
+    body[data-module-key="customerPortal"] .field.small {
+      flex: 0 1 190px;
+      min-width: 150px;
+    }
+
+    body[data-module-key="customerPortal"] input,
+    body[data-module-key="customerPortal"] select,
+    body[data-module-key="customerPortal"] textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ott-text);
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    body[data-module-key="customerPortal"] textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    body[data-module-key="customerPortal"] input:focus,
+    body[data-module-key="customerPortal"] select:focus,
+    body[data-module-key="customerPortal"] textarea:focus {
+      border-color: var(--ott-blue);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    body[data-module-key="customerPortal"] button {
+      min-height: 34px;
+      border: 1px solid #b9c7d5;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body[data-module-key="customerPortal"] button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    body[data-module-key="customerPortal"] button.primary,
+    body[data-module-key="customerPortal"] button.blue {
+      background: var(--ott-blue);
+      border-color: var(--ott-blue);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] button.secondary,
+    body[data-module-key="customerPortal"] .secondary {
+      background: #fff;
+      border-color: #98a2b3;
+      color: #1f2937;
+    }
+
+    body[data-module-key="customerPortal"] button.green {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] button.red {
+      background: var(--ott-red);
+      border-color: var(--ott-red);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] .mini {
+      min-height: 28px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    body[data-module-key="customerPortal"] .hint,
+    body[data-module-key="customerPortal"] .help,
+    body[data-module-key="customerPortal"] .muted,
+    body[data-module-key="customerPortal"] .note {
+      margin: 7px 0 0;
+      color: var(--ott-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      background: var(--ott-soft);
+      border: 1px solid #dde7ef;
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-readonly-note {
+      border-left: 5px solid var(--ott-yellow);
+      background: #fff8db;
+      color: #3b3200;
+    }
+
+    body[data-module-key="customerPortal"] .kpis,
+    body[data-module-key="customerPortal"] .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 58px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi b,
+    body[data-module-key="customerPortal"] .kpi .value {
+      display: block;
+      font-size: 21px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi span,
+    body[data-module-key="customerPortal"] .kpi .label {
+      color: var(--ott-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    body[data-module-key="customerPortal"] .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      background: #fff;
+      max-height: 44vh;
+    }
+
+    body[data-module-key="customerPortal"] table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 920px;
+      font-size: 12.5px;
+    }
+
+    body[data-module-key="customerPortal"] th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf2f7;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      text-align: left;
+      border-bottom: 1px solid var(--ott-border);
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+
+    body[data-module-key="customerPortal"] tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    body[data-module-key="customerPortal"] .status-pill,
+    body[data-module-key="customerPortal"] .pill,
+    body[data-module-key="customerPortal"] .read-only {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] .blocked {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #fecaca;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] #readOnlyDetail,
+    body[data-module-key="customerPortal"] .detail-box,
+    body[data-module-key="customerPortal"] #setupDetail,
+    body[data-module-key="customerPortal"] #output {
+      min-height: 120px;
+      max-height: 46vh;
+      overflow: auto;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    body[data-module-key="customerPortal"] input[id*="id" i],
+    body[data-module-key="customerPortal"] input[id*="email" i],
+    body[data-module-key="customerPortal"] input[id*="mawb" i],
+    body[data-module-key="customerPortal"] input[id*="hawb" i],
+    body[data-module-key="customerPortal"] input[id*="file" i] {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      body[data-module-key="customerPortal"] .grid,
+      body[data-module-key="customerPortal"] .cards,
+      body[data-module-key="customerPortal"] .main-grid,
+      body[data-module-key="customerPortal"] .layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+        grid-template-columns: 1fr;
+      }
+
+      body[data-module-key="customerPortal"] .row {
+        display: block;
+      }
+
+      body[data-module-key="customerPortal"] label,
+      body[data-module-key="customerPortal"] .field,
+      body[data-module-key="customerPortal"] .field.small,
+      body[data-module-key="customerPortal"] .inline-label {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      body[data-module-key="customerPortal"] button {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+
 </head>
 <body data-module-key="customerPortal">
   <header class="topbar">
     <div>
-      <h1>OTT Master — Customer Portal Read-Only Integration</h1>
+      <h1>OTT Master — Customer Portal</h1>
       <p>Customer account assignment, customer-visible MAWB/HAWB/files, and access event logging.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
@@ -23,7 +444,7 @@
         <button id="btnVersion">Test /api/v1/version</button>
       </div>
       <div class="grid-3">
-        <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin or customer test email" /></label>
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="authorized office/admin or customer email" /></label>
         <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
         <div class="button-stack">
           <button id="btnLogin">Login</button>
@@ -31,11 +452,11 @@
           <button id="btnMe" class="secondary">Test /auth/me</button>
         </div>
       </div>
-      <p class="hint">Use your OFFICE/ADMIN test user to create assignments. Use a CUSTOMER portal user later to confirm read-only view.</p>
+      <p class="hint">Use an authorized OFFICE/ADMIN user to manage portal assignments. Use a CUSTOMER portal user to confirm the read-only view.</p>
     </section>
 
     <section class="card span-2">
-      <h2>2. Customer Portal dashboard</h2>
+      <h2>2. Customer Portal Dashboard</h2>
       <div class="button-row">
         <button id="btnStats">Customer Portal Stats</button>
         <button id="btnPayors">Load Payors</button>
@@ -53,7 +474,7 @@
     </section>
 
     <section class="card">
-      <h2>3. Create / select customer portal account</h2>
+      <h2>3. Create / Select Customer Portal Account</h2>
       <div class="grid-2">
         <label>Payor<select id="payorSelect"><option value="">Select Payor</option></select></label>
         <label>Account Code<input id="accountCode" /></label>
@@ -72,7 +493,7 @@
     </section>
 
     <section class="card">
-      <h2>4. Link user + assign customer-visible cargo</h2>
+      <h2>4. Link User + Assign Customer-Visible Cargo</h2>
       <div class="grid-2">
         <label>User Profile ID<input id="userProfileId" placeholder="auto from /auth/me or paste customer user profile id" /></label>
         <label>Portal Role<select id="portalRole"><option>VIEWER</option><option>MANAGER</option></select></label>
@@ -91,8 +512,8 @@
         <button id="btnAssignHawb">Assign HAWB</button>
       </div>
       <div class="grid-2">
-        <label>Customer-visible file_record_id<input id="fileRecordId" placeholder="optional public file_records.id" /></label>
-        <label>File HAWB ID optional<input id="fileHawbId" /></label>
+        <label>Customer-visible File Record ID<input id="fileRecordId" placeholder="optional public file_records.id" /></label>
+        <label>File HAWB ID Optional<input id="fileHawbId" /></label>
       </div>
       <button id="btnAssignFile">Assign File</button>
       <div class="detail-box" id="setupDetail">No assignment result yet.</div>
@@ -110,8 +531,8 @@
     </section>
 
     <section class="card span-2">
-      <h2>6. Customer read-only portal view</h2>
-      <p class="muted"><span class="read-only">READ ONLY</span> These buttons only call customer portal `/me/...` read endpoints and access-event logging.</p>
+      <h2>6. Customer Read-Only Portal View</h2>
+      <p class="muted"><span class="read-only">READ ONLY</span> These actions call customer portal read-only `/me/...` endpoints and access-event logging only.</p>
       <div class="button-row">
         <button id="btnMyAccounts">My Portal Accounts</button>
         <button id="btnMyMawbs">My MAWBs</button>
@@ -121,20 +542,20 @@
         <button id="btnMyFiles">My Files</button>
       </div>
       <div class="grid-3">
-        <label>Read-only MAWB ID<input id="myMawbId" /></label>
-        <label>Read-only HAWB ID<input id="myHawbId" /></label>
-        <label>Portal Account ID for event<input id="eventPortalAccountId" /></label>
+        <label>Read-Only MAWB ID<input id="myMawbId" /></label>
+        <label>Read-Only HAWB ID<input id="myHawbId" /></label>
+        <label>Portal Account ID for Access Event<input id="eventPortalAccountId" /></label>
       </div>
       <div class="button-row">
         <button id="btnViewMyMawb">View Selected MAWB</button>
         <button id="btnViewMyHawb">View Selected HAWB</button>
         <button id="btnLogViewEvent" class="secondary">Log VIEW_STATUS Event</button>
       </div>
-      <div id="readOnlyDetail" class="detail-box">No read-only data loaded.</div>
+      <div id="readOnlyDetail" class="detail-box">No customer read-only data loaded.</div>
     </section>
 
     <section class="card span-2">
-      <h2>7. Customer read-only results</h2>
+      <h2>7. Customer Read-Only Results</h2>
       <div class="tabs">
         <button class="mini secondary" data-render="myAccounts">Accounts</button>
         <button class="mini secondary" data-render="myMawbs">MAWBs</button>
@@ -143,7 +564,7 @@
         <button class="mini secondary" data-render="myDamage">Damage</button>
         <button class="mini secondary" data-render="myFiles">Files</button>
       </div>
-      <div class="table-wrap"><table><thead id="readOnlyHead"><tr><th>Result</th></tr></thead><tbody id="readOnlyBody"><tr><td>No read-only rows loaded.</td></tr></tbody></table></div>
+      <div class="table-wrap"><table><thead id="readOnlyHead"><tr><th>Result</th></tr></thead><tbody id="readOnlyBody"><tr><td>No customer read-only rows loaded.</td></tr></tbody></table></div>
     </section>
 
     <section class="card span-2">
@@ -156,5 +577,55 @@
   <script src="../api/ott-api-client.js"></script>
   <script src="../auth/ott-auth.js"></script>
   <script src="./customer-portal.html.js"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>

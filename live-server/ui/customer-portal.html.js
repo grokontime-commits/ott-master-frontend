@@ -1,3 +1,4 @@
+// PHASE_8E_J_CUSTOMER_PORTAL_UI_POLISH
 
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -58,7 +59,7 @@
 
   function renderCargoMawbs() {
     const body = $('cargoBody');
-    if (!state.cargoMawbs.length) { body.innerHTML = '<tr><td colspan="5">No cargo MAWBs loaded.</td></tr>'; return; }
+    if (!state.cargoMawbs.length) { body.innerHTML = '<tr><td colspan="5">No customer-visible cargo loaded.</td></tr>'; return; }
     const selected = $('selectedMawbId').value;
     body.innerHTML = state.cargoMawbs.map((m) => `
       <tr class="${m.id === selected ? 'selected' : ''}">
@@ -86,7 +87,7 @@
   function renderHawbs() {
     const body = $('hawbBody');
     const hawbs = getCurrentHawbs();
-    if (!hawbs.length) { body.innerHTML = '<tr><td colspan="5">Load a MAWB detail to see HAWBs.</td></tr>'; return; }
+    if (!hawbs.length) { body.innerHTML = '<tr><td colspan="5">Load a MAWB detail to see customer-visible HAWBs.</td></tr>'; return; }
     const selected = $('selectedHawbId').value;
     body.innerHTML = hawbs.map(({ link, hawb }) => `
       <tr class="${hawb.id === selected ? 'selected' : ''}">
@@ -147,7 +148,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     $('accountCode').value = `PH3K_${Date.now().toString(36).toUpperCase()}`;
-    $('accountName').value = `Customer Portal Test ${new Date().toISOString().slice(0,10)}`;
+    $('accountName').value = `Customer Portal Account ${new Date().toISOString().slice(0,10)}`;
     setLoginBadge();
 
     $('btnHealth').addEventListener('click', () => run('/health', () => window.OTTApi.health()));
@@ -185,7 +186,7 @@
         allowReleaseStatus: true,
         allowCustomerReports: true,
         allowReleaseDocuments: false,
-        notes: 'Created from Customer Portal.',
+        notes: 'Created from Customer Portal account setup.',
         metadata: { source: 'customer_portal' }
       };
       const p = await run('Create Portal Account', () => window.OTTApi.createCustomerPortalAccount(body));
@@ -199,7 +200,7 @@
     });
     $('btnLinkUser').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canDownloadFiles: false, notes: 'Linked from Customer Portal.', metadata: { source: 'customer_portal' } };
+      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canDownloadFiles: false, notes: 'Linked from Customer Portal account setup.', metadata: { source: 'customer_portal' } };
       const p = await run('Link User to Portal Account', () => window.OTTApi.linkCustomerPortalUser(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
@@ -216,19 +217,19 @@
     });
     $('btnAssignMawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canViewReleaseDocuments: false, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canViewReleaseDocuments: false, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign MAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalMawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
     $('btnAssignHawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign HAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalHawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
     $('btnAssignFile').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { fileRecordId: $('fileRecordId').value.trim(), mawbId: $('selectedMawbId').value.trim() || null, hawbId: $('fileHawbId').value.trim() || null, canView: true, canDownload: false, notes: 'Assigned from Customer Portal.', metadata: { source: 'customer_portal' } };
+      const body = { fileRecordId: $('fileRecordId').value.trim(), mawbId: $('selectedMawbId').value.trim() || null, hawbId: $('fileHawbId').value.trim() || null, canView: true, canDownload: false, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign File to Customer Portal', () => window.OTTApi.assignCustomerPortalFile(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });

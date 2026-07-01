@@ -5,11 +5,436 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Forklift Driver Board</title>
   <link rel="stylesheet" href="./phase3h.css" />
+
+  <style>
+    /* PHASE 8E-F FORKLIFT DRIVER BOARD UI POLISH
+       UI-only polish. No API, auth, Supabase, Claude, or backend changes. */
+
+    :root {
+      --ott-bg: #f4f6f8;
+      --ott-card: #ffffff;
+      --ott-border: #d9e0e7;
+      --ott-soft: #eef3f7;
+      --ott-text: #16202a;
+      --ott-muted: #647282;
+      --ott-blue: #1769aa;
+      --ott-green: #1f7a42;
+      --ott-red: #b42318;
+      --ott-yellow: #f7c948;
+      --ott-radius: 14px;
+      --ott-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body[data-module-key="forklift"] {
+      margin: 0;
+      background: var(--ott-bg);
+      color: var(--ott-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    body[data-module-key="forklift"] .wrap,
+    body[data-module-key="forklift"] main,
+    body[data-module-key="forklift"] .page,
+    body[data-module-key="forklift"] .container {
+      width: min(1440px, calc(100vw - 28px));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    body[data-module-key="forklift"] header,
+    body[data-module-key="forklift"] .header {
+      padding: 14px 4px 10px;
+    }
+
+    body[data-module-key="forklift"] h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.1vw, 31px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    body[data-module-key="forklift"] .sub {
+      margin-top: 5px;
+      color: var(--ott-muted);
+      font-size: 13px;
+    }
+
+    body[data-module-key="forklift"] .phase8ef-driver-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    body[data-module-key="forklift"] .phase8ef-step {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      font-weight: 700;
+      color: #344054;
+      text-align: center;
+    }
+
+    body[data-module-key="forklift"] .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    body[data-module-key="forklift"] section,
+    body[data-module-key="forklift"] .card,
+    body[data-module-key="forklift"] .panel {
+      background: var(--ott-card);
+      border: 1px solid var(--ott-border);
+      border-radius: var(--ott-radius);
+      padding: 13px;
+      box-shadow: var(--ott-shadow);
+      overflow: hidden;
+    }
+
+    body[data-module-key="forklift"] section {
+      margin-bottom: 12px;
+    }
+
+    body[data-module-key="forklift"] h2 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body[data-module-key="forklift"] h2::before {
+      content: "";
+      width: 7px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ott-yellow);
+      flex: 0 0 auto;
+    }
+
+    body[data-module-key="forklift"] .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    body[data-module-key="forklift"] .field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      margin: 0;
+    }
+
+    body[data-module-key="forklift"] .field.small {
+      flex: 0 1 180px;
+      min-width: 145px;
+    }
+
+    body[data-module-key="forklift"] label {
+      display: block;
+      margin-bottom: 4px;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    body[data-module-key="forklift"] input,
+    body[data-module-key="forklift"] select,
+    body[data-module-key="forklift"] textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ott-text);
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    body[data-module-key="forklift"] textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    body[data-module-key="forklift"] input:focus,
+    body[data-module-key="forklift"] select:focus,
+    body[data-module-key="forklift"] textarea:focus {
+      border-color: var(--ott-blue);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    body[data-module-key="forklift"] button {
+      min-height: 34px;
+      border: 1px solid #b9c7d5;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="forklift"] button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    body[data-module-key="forklift"] button.primary,
+    body[data-module-key="forklift"] button.blue {
+      background: var(--ott-blue);
+      border-color: var(--ott-blue);
+      color: #fff;
+    }
+
+    body[data-module-key="forklift"] button.green {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    body[data-module-key="forklift"] button.red {
+      background: var(--ott-red);
+      border-color: var(--ott-red);
+      color: #fff;
+    }
+
+    body[data-module-key="forklift"] #btnFinalize {
+      min-width: 170px;
+      font-size: 14px;
+    }
+
+    body[data-module-key="forklift"] #btnFinalizeBlocked {
+      display: none !important;
+    }
+
+    body[data-module-key="forklift"] .help {
+      margin: 7px 0 0;
+      color: var(--ott-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      background: var(--ott-soft);
+      border: 1px solid #dde7ef;
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    body[data-module-key="forklift"] .kpis,
+    body[data-module-key="forklift"] .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    body[data-module-key="forklift"] .kpi {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 58px;
+    }
+
+    body[data-module-key="forklift"] .kpi b,
+    body[data-module-key="forklift"] .kpi .value {
+      display: block;
+      font-size: 21px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    body[data-module-key="forklift"] .kpi span,
+    body[data-module-key="forklift"] .kpi .label {
+      color: var(--ott-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    body[data-module-key="forklift"] .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      background: #fff;
+      max-height: 50vh;
+    }
+
+    body[data-module-key="forklift"] table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 920px;
+      font-size: 12.5px;
+    }
+
+    body[data-module-key="forklift"] th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf2f7;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      text-align: left;
+      border-bottom: 1px solid var(--ott-border);
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="forklift"] td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+
+    body[data-module-key="forklift"] tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    body[data-module-key="forklift"] td button {
+      min-height: 30px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    body[data-module-key="forklift"] #jobsTable td:nth-child(3),
+    body[data-module-key="forklift"] #jobsTable td:nth-child(4),
+    body[data-module-key="forklift"] #jobsTable td:nth-child(5) {
+      font-weight: 700;
+    }
+
+    body[data-module-key="forklift"] #selectedReleaseOrderId,
+    body[data-module-key="forklift"] #selectedJobId {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      background: #f8fafc;
+    }
+
+    body[data-module-key="forklift"] #selectedJobId {
+      border-color: #98a2b3;
+    }
+
+    body[data-module-key="forklift"] #signaturePayload {
+      min-height: 54px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    body[data-module-key="forklift"] .phase8ef-signature-note {
+      border-left: 5px solid var(--ott-yellow);
+      background: #fff8db;
+      color: #3b3200;
+    }
+
+    @media (max-width: 1100px) {
+      body[data-module-key="forklift"] .phase8ef-driver-strip {
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body[data-module-key="forklift"] .phase8ef-driver-strip {
+        grid-template-columns: 1fr;
+      }
+
+      body[data-module-key="forklift"] .row {
+        display: block;
+      }
+
+      body[data-module-key="forklift"] .field,
+      body[data-module-key="forklift"] .field.small {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      body[data-module-key="forklift"] button {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+
+
+  <style>
+    /* PHASE 8E-F-B FORKLIFT LAYOUT FIX
+       Corrects Phase 8E-F card squeeze. UI-only fix. */
+
+    body[data-module-key="forklift"] .grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 0 auto !important;
+    }
+
+    body[data-module-key="forklift"] .grid > section,
+    body[data-module-key="forklift"] .grid > .card,
+    body[data-module-key="forklift"] .grid > .panel {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+
+    body[data-module-key="forklift"] .grid > section:nth-child(3),
+    body[data-module-key="forklift"] .grid > section:nth-child(6),
+    body[data-module-key="forklift"] .grid > section:nth-child(9) {
+      grid-column: 1 / -1 !important;
+    }
+
+    body[data-module-key="forklift"] .phase8ef-driver-strip {
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 10px auto 12px !important;
+      grid-template-columns: repeat(5, minmax(150px, 1fr)) !important;
+    }
+
+    body[data-module-key="forklift"] .table-wrap {
+      max-height: 42vh !important;
+    }
+
+    body[data-module-key="forklift"] button {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 980px) {
+      body[data-module-key="forklift"] .grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      body[data-module-key="forklift"] .phase8ef-driver-strip {
+        grid-template-columns: repeat(2, minmax(150px, 1fr)) !important;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body[data-module-key="forklift"] .phase8ef-driver-strip {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+
 </head>
 <body data-module-key="forklift">
   <header>
     <h1>OTT Master — Forklift Driver Board</h1>
-    <div class="sub">Ready Release Order → Forklift Job → Scan/Confirm → Pallet Exchange → Signature → Finalize</div>
+    <div class="sub">Ready Release Order → Forklift Job → HAWB Confirmation → Pallet Exchange → Signature → Finalize Pickup</div>
   </header>
 
   <main>
@@ -50,7 +475,7 @@
       </div>
 
       <div class="card wide">
-        <h2>3. Ready for Forklift Release Orders</h2>
+        <h2>3. Ready Release Orders</h2>
         <div class="row">
           <button id="btnReadyOrders" class="blue">Load READY_FOR_FORKLIFT Orders</button>
           <button id="btnOrdersAny">Load Recent Release Orders</button>
@@ -60,7 +485,7 @@
       </div>
 
       <div class="card">
-        <h2>4. Create / Select Forklift Job</h2>
+        <h2>4. Create / Select Forklift Pickup Job</h2>
         <div class="row">
           <div class="field"><label>Selected Release Order ID</label><input id="selectedReleaseOrderId" /></div>
           <div class="field"><label>Job Number</label><input id="jobNumber" placeholder="optional" /></div>
@@ -69,9 +494,9 @@
         <div class="row">
           <button id="btnCreateJob" class="primary">Create Forklift Job</button>
           <button id="btnLoadJob">Load Selected Job</button>
-          <button id="btnFinalizeBlocked" class="red">Test Finalize Block</button>
+          <button id="btnFinalizeBlocked" class="red" type="button" aria-hidden="true">Test Finalize Block</button>
         </div>
-        <p class="help">Create job only from a Release Order already READY_FOR_FORKLIFT. Existing SENT_TO_FORKLIFT orders may already have a forklift job.</p>
+        <p class="help">Create the forklift job only from a release order already marked READY_FOR_FORKLIFT. If an order is already SENT_TO_FORKLIFT, load existing jobs and select the matching job.</p>
       </div>
 
       <div class="card">
@@ -81,23 +506,23 @@
       </div>
 
       <div class="card wide">
-        <h2>6. Forklift Driver Board / Jobs</h2>
+        <h2>6. Active Forklift Pickup Jobs</h2>
         <div class="row">
           <div class="field small"><label>Job status</label><select id="jobStatusFilter"><option value="">Any</option><option value="QUEUED">QUEUED</option><option value="ASSIGNED">ASSIGNED</option><option value="IN_PROGRESS">IN_PROGRESS</option><option value="CARGO_CONFIRMED">CARGO_CONFIRMED</option><option value="SIGNATURE_CAPTURED">SIGNATURE_CAPTURED</option><option value="COMPLETED">COMPLETED</option></select></div>
           <button id="btnJobs2">Refresh Jobs</button><button id="btnOpenJobs">Open Jobs</button>
         </div>
-        <div class="table-wrap"><table id="jobsTable"><thead><tr><th>Status</th><th>Job #</th><th>MAWB</th><th>HAWBs</th><th>Cargo</th><th>Signature</th><th>Pallet</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-wrap"><table id="jobsTable"><thead><tr><th>Status</th><th>Job #</th><th>MAWB</th><th>HAWBs</th><th>Cargo / PCS</th><th>Signature</th><th>Pallet Exchange</th><th>Action</th></tr></thead><tbody></tbody></table></div>
       </div>
 
       <div class="card wide">
         <h2>7. HAWB Scan / Cargo Confirmation</h2>
         <div class="table-wrap"><table id="hawbsTable"><thead><tr><th>Confirmed</th><th>MAWB</th><th>HAWB</th><th>PCS</th><th>Line ID</th><th>Action</th></tr></thead><tbody><tr><td colspan="6">Load Job HAWBs first.</td></tr></tbody></table></div>
         <div class="row"><div class="field"><label>Manual Scan Value</label><input id="manualScanValue" placeholder="HAWB number, MAWB number, or barcode" /></div><button id="btnManualConfirm">Manual Confirm Selected HAWB</button></div>
-        <p class="help">Driver must confirm cargo before pickup can be finalized. This simulates barcode/HAWB scan confirmation.</p>
+        <p class="help">Driver must confirm the cargo/HAWB list before pickup can be finalized. Use this step as the warehouse scan/confirmation checkpoint.</p>
       </div>
 
       <div class="card">
-        <h2>8. OTT Pallet Exchange</h2>
+        <h2>8. OTT Pallet Exchange / Billing Flag</h2>
         <div class="row">
           <div class="field"><label>Exchange Status</label><select id="exchangeStatus"><option value="NO_EXCHANGE">NO_EXCHANGE</option><option value="EXCHANGED">EXCHANGED</option><option value="NOT_RETURNED_BILLABLE">NOT_RETURNED_BILLABLE</option><option value="NOT_APPLICABLE">NOT_APPLICABLE</option></select></div>
           <div class="field small"><label>OTT Pallets Out</label><input id="ottPalletsOut" type="number" min="0" value="0" /></div>
@@ -108,10 +533,10 @@
       </div>
 
       <div class="card">
-        <h2>9. Pickup Signature</h2>
-        <div class="row"><div class="field"><label>Signer Name</label><input id="signerName" value="Frontend Test Pickup Driver" /></div><div class="field"><label>Signer Company</label><input id="signerCompany" value="Frontend Test Trucker" /></div></div>
+        <h2>9. Pickup Signature / Driver Responsibility</h2>
+        <div class="row"><div class="field"><label>Signer Name</label><input id="signerName" placeholder="Driver full name" /></div><div class="field"><label>Signer Company</label><input id="signerCompany" placeholder="Trucking company" /></div></div>
         <div class="row"><div class="field"><label>Signer Phone</label><input id="signerPhone" value="555-0100" /></div></div>
-        <p class="help"><strong>Disclaimer:</strong> By signing, the driver accepts responsibility for verifying piece count, condition, and pallet integrity before cargo leaves the warehouse.</p>
+        <p class="help phase8ef-signature-note"><strong>Disclaimer:</strong> By signing below, the driver accepts full responsibility for verifying the exact piece count, condition, and pallet integrity of the cargo. The warehouse is released from all liability for shortages, damages, or discrepancies once the cargo leaves the premises.</p>
         <div class="row"><label class="check"><input id="disclaimerAccepted" type="checkbox" checked /> Disclaimer accepted</label></div>
         <div class="row"><button id="btnSignature" class="primary">Capture Signature</button><button id="btnFinalize" class="green">Finalize Pickup</button></div>
       </div>
@@ -130,5 +555,55 @@
   <script src="../auth/ott-permissions.js"></script>
   <script src="../auth/ott-page-guard.js"></script>
   <script src="./forklift-driver-board.js"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>

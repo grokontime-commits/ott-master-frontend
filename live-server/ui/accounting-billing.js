@@ -2,6 +2,13 @@
   const $ = (id) => document.getElementById(id);
   const state = { me: null, payors: [], airlines: [], mawbs: [], releases: [], equipment: [], pallets: [] };
 
+  // PHASE_8E_H_ACCOUNTING_BILLING_UI_POLISH
+  // Frontend-only invoice number helper for preview UI. Backend sequence/export can replace this later.
+  function nextAccountingInvoiceNumber() {
+    const tail = String(Date.now()).slice(-6);
+    return `41000${tail}`;
+  }
+
   function escapeHtml(value) { return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
   function setOutput(label, payload, ok = true) { $('output').textContent = `${ok ? 'PASS' : 'FAIL'} ${label}\n` + JSON.stringify(payload, null, 2); }
   async function run(label, fn) { try { const result = await fn(); setOutput(label, result, true); return result; } catch (error) { setOutput(label, { message: error.message, status: error.status, payload: error.payload }, false); return null; } }
@@ -86,7 +93,7 @@
   async function createPreview() {
     const body = {
       invoiceType: $('invoiceType').value || 'MIXED',
-      invoiceNumber: $('invoiceNumber').value.trim() || `FRONTEND-PREVIEW-${Date.now()}`,
+      invoiceNumber: $('invoiceNumber').value.trim() || nextAccountingInvoiceNumber(),
       invoiceDate: $('invoiceDate').value || null,
       payorId: $('selectedPayorId').value.trim() || $('payorFilter').value || null,
       mawbIds: textListToIds($('selectedMawbIds').value),
@@ -107,7 +114,7 @@
     const equipmentRecordId = $('billEquipmentRecordId').value.trim();
     if (!equipmentRecordId) return setOutput('Mark Equipment Billed', { message: 'Select or enter an equipment record ID first.' }, false);
     const body = {
-      invoiceNumber: $('billInvoiceNumber').value.trim() || `FRONTEND-BILL-${Date.now()}`,
+      invoiceNumber: $('billInvoiceNumber').value.trim() || nextAccountingInvoiceNumber(),
       invoiceDate: $('billInvoiceDate').value || null,
       notes: $('billNotes').value.trim() || null,
       metadata: { source: 'accounting_billing' }
@@ -136,6 +143,6 @@
   setLoginBadge();
   $('invoiceDate').value = new Date().toISOString().slice(0, 10);
   $('billInvoiceDate').value = new Date().toISOString().slice(0, 10);
-  $('invoiceNumber').value = `FRONTEND-PREVIEW-${Date.now()}`;
-  $('billInvoiceNumber').value = `FRONTEND-BILL-${Date.now()}`;
+  $('invoiceNumber').value = nextAccountingInvoiceNumber();
+  $('billInvoiceNumber').value = $('invoiceNumber').value;
 })();

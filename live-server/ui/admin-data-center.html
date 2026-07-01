@@ -5,6 +5,389 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Admin Data Center</title>
   <link rel="stylesheet" href="./phase3l.css?v=phase3l-admin-clean-003" />
+
+  <style>
+    /* PHASE 8E-I ADMIN DATA CENTER UI POLISH
+       UI-only polish. No API, auth, Supabase, service role, token, password, or backend changes. */
+
+    :root {
+      --ott-bg: #f4f6f8;
+      --ott-card: #ffffff;
+      --ott-border: #d9e0e7;
+      --ott-soft: #eef3f7;
+      --ott-text: #16202a;
+      --ott-muted: #647282;
+      --ott-blue: #1769aa;
+      --ott-green: #1f7a42;
+      --ott-red: #b42318;
+      --ott-yellow: #f7c948;
+      --ott-radius: 14px;
+      --ott-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body[data-module-key="admin"],
+    body {
+      margin: 0;
+      background: var(--ott-bg);
+      color: var(--ott-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    .wrap,
+    main,
+    .page,
+    .container {
+      width: min(1440px, calc(100vw - 28px));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    header,
+    .header {
+      padding: 14px 4px 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.1vw, 31px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    header p,
+    .sub {
+      margin: 5px 0 0;
+      color: var(--ott-muted);
+      font-size: 13px;
+    }
+
+    .phase8ei-admin-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 8px;
+      width: min(1440px, calc(100vw - 28px));
+      margin: 10px auto 12px;
+    }
+
+    .phase8ei-step {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      font-weight: 800;
+      color: #344054;
+      text-align: center;
+    }
+
+    .grid,
+    .cards,
+    .main-grid,
+    .layout {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 0 auto !important;
+    }
+
+    section,
+    .card,
+    .panel {
+      background: var(--ott-card);
+      border: 1px solid var(--ott-border);
+      border-radius: var(--ott-radius);
+      padding: 13px;
+      box-shadow: var(--ott-shadow);
+      overflow: hidden;
+      min-width: 0;
+      margin-bottom: 12px;
+    }
+
+    section:has(.table-wrap),
+    .card:has(.table-wrap),
+    .panel:has(.table-wrap),
+    section:has(table),
+    .card:has(table),
+    .panel:has(table) {
+      grid-column: 1 / -1 !important;
+    }
+
+    h2 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h2::before {
+      content: "";
+      width: 7px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ott-yellow);
+      flex: 0 0 auto;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    label,
+    .field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      margin: 0;
+      display: block;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .field.small,
+    .inline-label {
+      flex: 0 1 190px;
+      min-width: 150px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ott-text);
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--ott-blue);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    button {
+      min-height: 34px;
+      border: 1px solid #b9c7d5;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    button.primary,
+    button.blue {
+      background: var(--ott-blue);
+      border-color: var(--ott-blue);
+      color: #fff;
+    }
+
+    button.green {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    button.red {
+      background: var(--ott-red);
+      border-color: var(--ott-red);
+      color: #fff;
+    }
+
+    .hint,
+    .help,
+    .muted,
+    .note {
+      margin: 7px 0 0;
+      color: var(--ott-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      background: var(--ott-soft);
+      border: 1px solid #dde7ef;
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    .phase8ei-security-note {
+      border-left: 5px solid var(--ott-yellow);
+      background: #fff8db;
+      color: #3b3200;
+    }
+
+    .kpis,
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 58px;
+    }
+
+    .kpi b,
+    .kpi .value {
+      display: block;
+      font-size: 21px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .kpi span,
+    .kpi .label {
+      color: var(--ott-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      background: #fff;
+      max-height: 44vh;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 980px;
+      font-size: 12.5px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf2f7;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      text-align: left;
+      border-bottom: 1px solid var(--ott-border);
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    td button {
+      min-height: 30px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    .status-pill,
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #d0d7de;
+      background: #f8fafc;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    input[id*="id" i],
+    input[id*="code" i],
+    input[id*="email" i],
+    input[id*="permission" i],
+    textarea[id*="notes" i] {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .grid,
+      .cards,
+      .main-grid,
+      .layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .phase8ei-admin-strip {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .phase8ei-admin-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        display: block;
+      }
+
+      label,
+      .field,
+      .field.small,
+      .inline-label {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      button {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+
 </head>
 <body data-module-key="admin">
   <header class="topbar">
@@ -19,9 +402,9 @@
     <section class="card span-2">
       <h2>1. Connection + Login</h2>
       <div class="button-row">
-        <button id="btnHealth">Test /health</button>
-        <button id="btnVersion">Test /api/v1/version</button>
-        <button id="btnMe" class="secondary">Test /auth/me</button>
+        <button id="btnHealth">Production /health</button>
+        <button id="btnVersion">Production /api/v1/version</button>
+        <button id="btnMe" class="secondary">Production /auth/me</button>
       </div>
       <div class="grid-3">
         <label>Email<input id="email" type="email" autocomplete="username" placeholder="office/admin test email" /></label>
@@ -31,7 +414,7 @@
           <button id="btnLogout" class="secondary">Logout</button>
         </div>
       </div>
-      <p class="hint">The Create Test Payor button sends only approved API contract fields: payorCode, payorName, displayName, billingEmail, phone, isActive, and notes.</p>
+      <p class="hint">The Create Payor button sends only approved API contract fields: payorCode, payorName, displayName, billingEmail, phone, isActive, and notes.</p>
     </section>
 
     <section class="card span-2">
@@ -60,11 +443,11 @@
       <h2>3. Create / update Payor</h2>
       <div class="grid-2">
         <label>Payor Code<input id="payorCode" placeholder="Auto generated for test" /></label>
-        <label>Payor Name<input id="payorName" placeholder="OTT Test Payor" /></label>
+        <label>Payor Name<input id="payorName" placeholder="OTT Production Payor" /></label>
       </div>
       <div class="grid-2">
         <label>Display Name<input id="payorDisplayName" /></label>
-        <label>Billing Email<input id="payorBillingEmail" value="test-payor@example.com" /></label>
+        <label>Billing Email<input id="payorBillingEmail" value="" /></label>
       </div>
       <div class="grid-2">
         <label>Phone<input id="payorPhone" value="555-0100" /></label>
@@ -73,7 +456,7 @@
       <label>Notes<textarea id="payorNotes" rows="2">Created from Admin Data Center.</textarea></label>
       <div class="payload-good">Payload guard is active: forbidden keys are blocked before the request leaves the browser.</div>
       <div class="button-row">
-        <button id="btnCreatePayor" class="success">Create Test Payor Clean</button>
+        <button id="btnCreatePayor" class="success">Create Payor Clean</button>
         <button id="btnUpdatePayor" class="warning">Update Selected Payor</button>
         <button id="btnLoadPayors" class="secondary">Reload Payors</button>
       </div>
@@ -84,7 +467,7 @@
       <h2>4. Create / update Airline</h2>
       <div class="grid-2">
         <label>Airline Code<input id="airlineCode" placeholder="Auto generated for test" /></label>
-        <label>Airline Name<input id="airlineName" placeholder="OTT Test Airline" /></label>
+        <label>Airline Name<input id="airlineName" placeholder="OTT Production Airline" /></label>
       </div>
       <div class="grid-2">
         <label>MAWB Prefix<input id="airlineMawbPrefix" maxlength="3" placeholder="999" /></label>
@@ -95,7 +478,7 @@
         <label>Notes<input id="airlineNotes" value="Created from Admin Data Center." /></label>
       </div>
       <div class="button-row">
-        <button id="btnCreateAirline" class="success">Create Test Airline Clean</button>
+        <button id="btnCreateAirline" class="success">Create Production Airline Clean</button>
         <button id="btnUpdateAirline" class="warning">Update Selected Airline</button>
         <button id="btnLoadAirlines" class="secondary">Reload Airlines</button>
       </div>
@@ -106,7 +489,7 @@
       <h2>5. Employees</h2>
       <div class="grid-2">
         <label>Employee Number<input id="employeeNumber" placeholder="Auto generated for test" /></label>
-        <label>Display Name<input id="employeeDisplayName" placeholder="OTT Test Employee" /></label>
+        <label>Display Name<input id="employeeDisplayName" placeholder="OTT Production Employee" /></label>
       </div>
       <div class="grid-2">
         <label>Email<input id="employeeEmail" value="test.employee@example.com" /></label>
@@ -119,7 +502,7 @@
       </div>
       <label>Selected Employee ID<input id="selectedEmployeeId" /></label>
       <div class="button-row">
-        <button id="btnCreateEmployee" class="success">Create Test Employee</button>
+        <button id="btnCreateEmployee" class="success">Create Production Employee</button>
         <button id="btnLoadEmployees" class="secondary">Reload Employees</button>
       </div>
       <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Email</th><th>Phone</th><th>Type</th><th>Driver</th><th>Select</th></tr></thead><tbody id="employeesBody"><tr><td colspan="6">No employees loaded.</td></tr></tbody></table></div>
@@ -151,5 +534,55 @@
   <script src="../api/ott-api-client.js?v=phase3l-admin-clean-003"></script>
   <script src="../auth/ott-auth.js"></script>
   <script src="./admin-data-center.html.js?v=phase3l-admin-clean-003"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>

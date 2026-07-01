@@ -1,3 +1,4 @@
+// PHASE_8E_I_ADMIN_DATA_CENTER_UI_POLISH
 (function () {
   const $ = (id) => document.getElementById(id);
   const state = { me: null, organizations: [], payors: [], airlines: [], employees: [], users: [], roles: [], permissions: [], auditLogs: [], genericRows: [] };
@@ -43,7 +44,7 @@
     return {
       code,
       name: `OTT Test Payor ${code}`,
-      billingEmail: 'test-payor@example.com',
+      billingEmail: '',
       phone: '555-0100',
       notes: 'Created from Admin Data Center.'
     };
@@ -66,8 +67,8 @@
     if (!body.payorName) missing.push('payorName');
     if (!body.billingEmail) missing.push('billingEmail');
     if (!body.phone) missing.push('phone');
-    if (missing.length) throw new Error(`Create Test Payor Clean missing required fields: ${missing.join(', ')}`);
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.billingEmail)) throw new Error(`Create Test Payor Clean has invalid billingEmail: ${body.billingEmail}`);
+    if (missing.length) throw new Error(`Create Payor missing required fields: ${missing.join(', ')}`);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.billingEmail)) throw new Error(`Create Payor has invalid billingEmail: ${body.billingEmail}`);
     return body;
   }
 
@@ -279,7 +280,7 @@
   $('btnAuditLogs').addEventListener('click', async () => { const result = await run('Audit Logs', () => window.OTTApi.adminAuditLogs({ limit: 50, offset: 0 })); if (result) { state.auditLogs = rows(result); renderGeneric('Audit Logs', state.auditLogs); } });
 
   $('btnLoadPayors').addEventListener('click', loadPayors);
-  $('btnCreatePayor').addEventListener('click', async () => { fillDefaultPayor(); const body = buildPayorBody({ forceCreateDefaults: true }); const result = await run('Create Test Payor Clean', () => window.OTTApi.createAdminPayor(body)); if (result) { $('selectedPayorId').value = data(result).id; await loadPayors(); await loadStats(); } });
+  $('btnCreatePayor').addEventListener('click', async () => { fillDefaultPayor(); const body = buildPayorBody({ forceCreateDefaults: true }); const result = await run('Create Payor', () => window.OTTApi.createAdminPayor(body)); if (result) { $('selectedPayorId').value = data(result).id; await loadPayors(); await loadStats(); } });
   $('btnUpdatePayor').addEventListener('click', async () => { const id = $('selectedPayorId').value.trim(); if (!id) return setOutput('Update Selected Payor', { message: 'Select a payor first.' }, false); const result = await run('Update Selected Payor', () => window.OTTApi.updateAdminPayor(id, buildPayorBody())); if (result) { await loadPayors(); } });
 
   $('btnLoadAirlines').addEventListener('click', loadAirlines);

@@ -5,12 +5,422 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master — Accounting / Billing</title>
   <link rel="stylesheet" href="./phase3j.css" />
+
+  <style>
+    /* PHASE 8E-H ACCOUNTING BILLING UI POLISH
+       UI-only polish. No API, auth, Supabase, Claude, token, QuickBooks credential, or backend changes. */
+
+    :root {
+      --ott-bg: #f4f6f8;
+      --ott-card: #ffffff;
+      --ott-border: #d9e0e7;
+      --ott-soft: #eef3f7;
+      --ott-text: #16202a;
+      --ott-muted: #647282;
+      --ott-blue: #1769aa;
+      --ott-green: #1f7a42;
+      --ott-red: #b42318;
+      --ott-yellow: #f7c948;
+      --ott-radius: 14px;
+      --ott-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body[data-module-key="accounting"] {
+      margin: 0;
+      background: var(--ott-bg);
+      color: var(--ott-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    body[data-module-key="accounting"] .wrap,
+    body[data-module-key="accounting"] main,
+    body[data-module-key="accounting"] .page,
+    body[data-module-key="accounting"] .container {
+      width: min(1440px, calc(100vw - 28px));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    body[data-module-key="accounting"] header,
+    body[data-module-key="accounting"] .header {
+      padding: 14px 4px 10px;
+    }
+
+    body[data-module-key="accounting"] h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.1vw, 31px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    body[data-module-key="accounting"] header p,
+    body[data-module-key="accounting"] .sub {
+      margin: 5px 0 0;
+      color: var(--ott-muted);
+      font-size: 13px;
+    }
+
+    body[data-module-key="accounting"] .phase8eh-billing-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 8px;
+      width: min(1440px, calc(100vw - 28px));
+      margin: 10px auto 12px;
+    }
+
+    body[data-module-key="accounting"] .phase8eh-step {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      font-weight: 800;
+      color: #344054;
+      text-align: center;
+    }
+
+    body[data-module-key="accounting"] .grid,
+    body[data-module-key="accounting"] .cards,
+    body[data-module-key="accounting"] .main-grid,
+    body[data-module-key="accounting"] .layout {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 0 auto !important;
+    }
+
+    body[data-module-key="accounting"] section,
+    body[data-module-key="accounting"] .card,
+    body[data-module-key="accounting"] .panel {
+      background: var(--ott-card);
+      border: 1px solid var(--ott-border);
+      border-radius: var(--ott-radius);
+      padding: 13px;
+      box-shadow: var(--ott-shadow);
+      overflow: hidden;
+      min-width: 0;
+      margin-bottom: 12px;
+    }
+
+    body[data-module-key="accounting"] section:has(.table-wrap),
+    body[data-module-key="accounting"] .card:has(.table-wrap),
+    body[data-module-key="accounting"] .panel:has(.table-wrap),
+    body[data-module-key="accounting"] section:has(#previewBox),
+    body[data-module-key="accounting"] .card:has(#previewBox),
+    body[data-module-key="accounting"] .panel:has(#previewBox) {
+      grid-column: 1 / -1 !important;
+    }
+
+    body[data-module-key="accounting"] h2 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body[data-module-key="accounting"] h2::before {
+      content: "";
+      width: 7px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ott-yellow);
+      flex: 0 0 auto;
+    }
+
+    body[data-module-key="accounting"] .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    body[data-module-key="accounting"] label,
+    body[data-module-key="accounting"] .field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      margin: 0;
+    }
+
+    body[data-module-key="accounting"] .inline-label,
+    body[data-module-key="accounting"] .field.small {
+      flex: 0 1 190px;
+      min-width: 150px;
+    }
+
+    body[data-module-key="accounting"] label {
+      display: block;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    body[data-module-key="accounting"] input,
+    body[data-module-key="accounting"] select,
+    body[data-module-key="accounting"] textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ott-text);
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    body[data-module-key="accounting"] textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    body[data-module-key="accounting"] input:focus,
+    body[data-module-key="accounting"] select:focus,
+    body[data-module-key="accounting"] textarea:focus {
+      border-color: var(--ott-blue);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    body[data-module-key="accounting"] button {
+      min-height: 34px;
+      border: 1px solid #b9c7d5;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body[data-module-key="accounting"] button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    body[data-module-key="accounting"] button.primary,
+    body[data-module-key="accounting"] button.blue,
+    body[data-module-key="accounting"] #btnCreatePreview {
+      background: var(--ott-blue);
+      border-color: var(--ott-blue);
+      color: #fff;
+    }
+
+    body[data-module-key="accounting"] button.green {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    body[data-module-key="accounting"] button.red {
+      background: var(--ott-red);
+      border-color: var(--ott-red);
+      color: #fff;
+    }
+
+    body[data-module-key="accounting"] #btnMarkBilled {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    body[data-module-key="accounting"] .muted,
+    body[data-module-key="accounting"] .help,
+    body[data-module-key="accounting"] .hint,
+    body[data-module-key="accounting"] .note {
+      margin: 7px 0 0;
+      color: var(--ott-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      background: var(--ott-soft);
+      border: 1px solid #dde7ef;
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    body[data-module-key="accounting"] .kpis,
+    body[data-module-key="accounting"] .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    body[data-module-key="accounting"] .kpi {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 58px;
+    }
+
+    body[data-module-key="accounting"] .kpi b,
+    body[data-module-key="accounting"] .kpi .value {
+      display: block;
+      font-size: 21px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    body[data-module-key="accounting"] .kpi span,
+    body[data-module-key="accounting"] .kpi .label {
+      color: var(--ott-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    body[data-module-key="accounting"] .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      background: #fff;
+      max-height: 44vh;
+    }
+
+    body[data-module-key="accounting"] table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 980px;
+      font-size: 12.5px;
+    }
+
+    body[data-module-key="accounting"] th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf2f7;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      text-align: left;
+      border-bottom: 1px solid var(--ott-border);
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="accounting"] td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+
+    body[data-module-key="accounting"] tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    body[data-module-key="accounting"] td button {
+      min-height: 30px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    body[data-module-key="accounting"] .status-pill,
+    body[data-module-key="accounting"] .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #d0d7de;
+      background: #f8fafc;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="accounting"] #invoiceNumber,
+    body[data-module-key="accounting"] #billInvoiceNumber,
+    body[data-module-key="accounting"] #selectedMawbIds,
+    body[data-module-key="accounting"] #selectedEquipmentIds,
+    body[data-module-key="accounting"] #selectedPalletIds,
+    body[data-module-key="accounting"] #billEquipmentRecordId {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    body[data-module-key="accounting"] #previewBox,
+    body[data-module-key="accounting"] .preview-box {
+      min-height: 140px;
+      max-height: 48vh;
+      overflow: auto;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    body[data-module-key="accounting"] .phase8eh-qbd-note {
+      border-left: 5px solid var(--ott-yellow);
+      background: #fff8db;
+      color: #3b3200;
+    }
+
+    @media (max-width: 980px) {
+      body[data-module-key="accounting"] .grid,
+      body[data-module-key="accounting"] .cards,
+      body[data-module-key="accounting"] .main-grid,
+      body[data-module-key="accounting"] .layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      body[data-module-key="accounting"] .phase8eh-billing-strip {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      body[data-module-key="accounting"] .phase8eh-billing-strip {
+        grid-template-columns: 1fr;
+      }
+
+      body[data-module-key="accounting"] .row {
+        display: block;
+      }
+
+      body[data-module-key="accounting"] label,
+      body[data-module-key="accounting"] .field,
+      body[data-module-key="accounting"] .field.small,
+      body[data-module-key="accounting"] .inline-label {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      body[data-module-key="accounting"] button {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+
 </head>
 <body data-module-key="accounting">
   <header class="topbar">
     <div>
       <h1>OTT Master — Accounting / Billing API Integration</h1>
-      <p>Billing-ready MAWBs, equipment returns, pallet exchanges, and invoice preview.</p>
+      <p>Billing-ready MAWBs, equipment returns, pallet exchanges, accessorials, invoice preview, and QuickBooks-ready billing support.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
@@ -34,7 +444,7 @@
     </section>
 
     <section class="card span-2">
-      <h2>2. Accounting dashboard</h2>
+      <h2>2. Accounting Dashboard</h2>
       <div class="button-row">
         <button id="btnStats">Accounting Stats</button>
         <button id="btnPayors">Load Payors</button>
@@ -65,7 +475,7 @@
     </section>
 
     <section class="card span-2">
-      <h2>4. Billing-ready MAWBs</h2>
+      <h2>4. Billing-Ready MAWBs</h2>
       <div class="table-wrap"><table id="mawbsTable"><thead><tr><th>Status</th><th>MAWB</th><th>Payor</th><th>Airline</th><th>Pieces</th><th>Weight</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="8">No MAWBs loaded.</td></tr></tbody></table></div>
     </section>
 
@@ -75,7 +485,7 @@
     </section>
 
     <section class="card span-2">
-      <h2>6. Equipment returns ready to bill</h2>
+      <h2>6. Equipment Returns Ready to Bill</h2>
       <div class="button-row">
         <label class="inline-label">Equipment Type
           <select id="equipmentTypeKey"><option value="">All</option><option>PMC</option><option>AKE</option><option>LD7</option><option>PGA</option><option>PAG</option><option>RKN</option></select>
@@ -88,13 +498,13 @@
     </section>
 
     <section class="card span-2">
-      <h2>7. Billable pallet exchanges</h2>
+      <h2>7. Billable Pallet Exchanges</h2>
       <div class="table-wrap"><table id="palletsTable"><thead><tr><th>Status</th><th>MAWB</th><th>Billable</th><th>Pallets</th><th>Release Order</th><th>ID</th><th></th></tr></thead><tbody><tr><td colspan="7">No pallet exchanges loaded.</td></tr></tbody></table></div>
     </section>
 
     <section class="card span-2">
-      <h2>8. Invoice preview foundation</h2>
-      <p class="muted">Creates a non-posted invoice preview for office review before posting/export.</p>
+      <h2>8. Invoice Preview / Office Review</h2>
+      <p class="muted">Creates a non-posted invoice preview for office review before QuickBooks Desktop export/posting.</p>
       <div class="grid-4">
         <label>Invoice Type<select id="invoiceType"><option>MIXED</option><option>CFS_BASE</option><option>ULD_RETURN</option><option>PALLET_EXCHANGE</option><option>ACCESSORIAL</option></select></label>
         <label>Invoice Number<input id="invoiceNumber" /></label>
@@ -106,7 +516,7 @@
         <label>Selected Equipment Record IDs<textarea id="selectedEquipmentIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
         <label>Selected Pallet Exchange IDs<textarea id="selectedPalletIds" rows="3" placeholder="one UUID per line or comma-separated"></textarea></label>
       </div>
-      <label>Notes<textarea id="invoiceNotes" rows="2">Invoice preview created from Accounting / Billing.</textarea></label>
+      <label>Notes<textarea id="invoiceNotes" rows="2">Invoice preview created from Accounting / Billing for office review before QuickBooks export.</textarea></label>
       <div class="button-row">
         <button id="btnCreatePreview">Create Invoice Preview</button>
         <button id="btnClearSelections" class="secondary">Clear Selections</button>
@@ -115,14 +525,14 @@
     </section>
 
     <section class="card span-2">
-      <h2>9. Mark equipment record billed</h2>
-      <p class="muted">Use this only with staging/test equipment records. It changes billing_status to BILLED.</p>
+      <h2>9. Mark Equipment Record Billed</h2>
+      <p class="muted">Use this only after office review. This changes the equipment billing status to BILLED.</p>
       <div class="grid-3">
         <label>Equipment Record ID<input id="billEquipmentRecordId" /></label>
         <label>Invoice Number<input id="billInvoiceNumber" /></label>
         <label>Invoice Date<input id="billInvoiceDate" type="date" /></label>
       </div>
-      <label>Billing Notes<textarea id="billNotes" rows="2">Equipment return marked billed from Accounting / Billing.</textarea></label>
+      <label>Billing Notes<textarea id="billNotes" rows="2">Equipment return marked billed from Accounting / Billing after invoice review.</textarea></label>
       <button id="btnMarkBilled">Mark Equipment Billed</button>
     </section>
 
@@ -136,5 +546,55 @@
   <script src="../api/ott-api-client.js"></script>
   <script src="../auth/ott-auth.js"></script>
   <script src="./accounting-billing.js"></script>
-</body>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n</body>
 </html>
