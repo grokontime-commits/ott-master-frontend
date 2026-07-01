@@ -1,4 +1,14 @@
-<!doctype html>
+const fs = require("fs");
+const path = require("path");
+
+const rootIndex = path.join(process.cwd(), "live-server", "index.html");
+const backup = path.join(process.cwd(), "live-server", "index.phase13.bak.html");
+
+if (fs.existsSync(rootIndex) && !fs.existsSync(backup)) {
+  fs.copyFileSync(rootIndex, backup);
+}
+
+const html = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -307,3 +317,10 @@
   </script>
 </body>
 </html>
+`;
+
+fs.writeFileSync(rootIndex, html, "utf8");
+
+console.log("PASS: Phase 13 root website entry created.");
+console.log("Created: " + rootIndex);
+if (fs.existsSync(backup)) console.log("Backup: " + backup);
