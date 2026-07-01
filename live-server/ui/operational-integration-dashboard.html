@@ -4,23 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OTT Master Operations Dashboard</title>
-  <link rel="stylesheet" href="./phase3n.css?v=phase8a-module-dashboard-002" />
   <style>
     body { margin:0; background:#f4f6fb; color:#132033; font-family:Arial, Helvetica, sans-serif; }
     .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:22px 28px; background:linear-gradient(135deg,#10213f,#1d4ed8); color:white; border-bottom:4px solid #facc15; }
     .topbar h1 { margin:0; font-size:26px; }
     .topbar p { margin:6px 0 0; opacity:.9; }
     .badge { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28); color:white; border-radius:999px; padding:8px 12px; font-weight:700; white-space:nowrap; }
-    .layout { max-width:1500px; margin:0 auto; padding:24px; }
-    .hero { display:grid; grid-template-columns:1.3fr .7fr; gap:18px; margin-bottom:22px; }
+    .layout { display:block !important; max-width:1500px; margin:0 auto; padding:24px; }
+    .hero { display:grid !important; grid-template-columns:1.4fr .6fr; gap:18px; margin-bottom:22px; }
     .card, .module-card { background:white; border:1px solid #dce3ef; border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(15,23,42,.08); }
     .card h2, .module-card h3 { margin:0 0 10px; }
     .sub, .hint, .module-card p { color:#687386; line-height:1.4; }
-    .section-head { margin:24px 0 12px; }
+    .section-head { margin:28px 0 12px; clear:both; }
     .section-head h2 { margin:0; font-size:22px; }
     .section-head p { margin:4px 0 0; color:#687386; }
-    .module-grid { display:grid; grid-template-columns:repeat(4,minmax(220px,1fr)); gap:16px; }
-    .module-card { min-height:155px; display:flex; flex-direction:column; justify-content:space-between; }
+    .module-grid { display:grid !important; grid-template-columns:repeat(4,minmax(240px,1fr)); gap:16px; width:100%; }
+    .module-card { min-height:140px; display:flex; flex-direction:column; justify-content:space-between; }
     .module-card p { margin:0 0 14px; font-size:14px; }
     .module-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; }
     .pill { border-radius:999px; padding:5px 9px; font-size:12px; font-weight:800; white-space:nowrap; }
@@ -48,18 +47,180 @@
     pre { overflow:auto; background:#0f172a; color:#dbeafe; border-radius:12px; padding:14px; min-height:120px; white-space:pre-wrap; }
     @media (max-width:1100px) { .hero { grid-template-columns:1fr; } .module-grid { grid-template-columns:repeat(2,minmax(220px,1fr)); } .test-grid { grid-template-columns:repeat(2,minmax(160px,1fr)); } }
     @media (max-width:640px) { .topbar { flex-direction:column; align-items:flex-start; } .module-grid, .test-grid, .login-grid { grid-template-columns:1fr; } }
+  
+    /* PHASE 8A SECTION OVERLAP FIX START */
+    main.layout {
+      display: block !important;
+      width: 100% !important;
+      max-width: 1500px !important;
+      box-sizing: border-box !important;
+    }
+
+    main.layout > section,
+    main.layout > details {
+      display: block !important;
+      width: 100% !important;
+      clear: both !important;
+      grid-column: 1 / -1 !important;
+      box-sizing: border-box !important;
+      margin-bottom: 30px !important;
+    }
+
+    main.layout > section.hero {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr) !important;
+      gap: 18px !important;
+    }
+
+    .module-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      gap: 16px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .module-card {
+      min-width: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .section-head {
+      clear: both !important;
+      width: 100% !important;
+      margin-top: 34px !important;
+    }
+
+    #integrationTests {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-top: 34px !important;
+    }
+
+    @media (max-width: 900px) {
+      main.layout > section.hero {
+        grid-template-columns: 1fr !important;
+      }
+
+      .module-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    /* PHASE 8A SECTION OVERLAP FIX END */
+
+  
+    /* PHASE 8A FINAL DASHBOARD LAYOUT FIX START */
+    .ott-dashboard-layout {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 30px !important;
+      width: 100% !important;
+      max-width: 1500px !important;
+      margin: 0 auto !important;
+      padding: 24px !important;
+      box-sizing: border-box !important;
+    }
+
+    .ott-dashboard-layout > section,
+    .ott-dashboard-layout > details {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: block !important;
+      clear: both !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+    }
+
+    .ott-dashboard-layout .hero {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr) !important;
+      gap: 18px !important;
+    }
+
+    .ott-dashboard-layout .module-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      gap: 16px !important;
+      width: 100% !important;
+    }
+
+    .ott-dashboard-layout .module-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    @media (max-width: 900px) {
+      .ott-dashboard-layout .hero {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    /* PHASE 8A FINAL DASHBOARD LAYOUT FIX END */
+
+  
+    /* PHASE 8A FORCE SINGLE COLUMN DASHBOARD START */
+    #ottDashboardMain {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 34px !important;
+      max-width: 1500px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      padding: 24px !important;
+      box-sizing: border-box !important;
+    }
+
+    #ottDashboardMain > section,
+    #ottDashboardMain > details {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      clear: both !important;
+      grid-column: 1 / -1 !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+    }
+
+    #ottDashboardMain .hero {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr) !important;
+      gap: 18px !important;
+      width: 100% !important;
+    }
+
+    #ottDashboardMain .module-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)) !important;
+      gap: 16px !important;
+      width: 100% !important;
+    }
+
+    #ottDashboardMain .module-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    @media (max-width: 900px) {
+      #ottDashboardMain .hero {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    /* PHASE 8A FORCE SINGLE COLUMN DASHBOARD END */
+
   </style>
 </head>
 <body>
   <header class="topbar">
     <div>
       <h1>OTT Master Operations Dashboard</h1>
-      <p>Production module center for CFS operations, Claude manifest review, cargo workflow, and office controls.</p>
+      <p>Production module center for CFS operations, Claude manifest review, cargo workflow, office controls, and connected module pages.</p>
     </div>
     <span id="loginBadge" class="badge">Not logged in</span>
   </header>
 
-  <main class="layout">
+  <main id="ottDashboardMain" class="ott-dashboard-layout">
     <section class="hero">
       <div class="card">
         <h2>Production Workflow Status</h2>
@@ -102,37 +263,37 @@
 
         <article class="module-card">
           <div><h3>Cargo Management</h3><p>Final MAWB/HAWB records, NEW cargo status, cargo search, and operations confirmation.</p></div>
-          <div class="module-actions"><span class="pill active">Backend Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./cargo-management.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Recovery Queue</h3><p>Driver airline recovery workflow, MAWB search, pickup status, and operational handoff.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./recovery-queue.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Warehouse Operations</h3><p>Inspection workflow, pieces, weight, damage handling, photos, and warehouse status.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./warehouse-inspection.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Cargo Release</h3><p>Office release queue, customer approval, HAWB selection, and release handoff.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./cargo-release-pickup.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Forklift Driver Board</h3><p>Forklift release jobs, pickup signature, pallet exchange, and final pickup handoff.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./forklift-driver-board.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Equipment Return</h3><p>ULD/PMC tracking, airline return workflow, driver return confirmation, and billing support.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./equipment-return.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Damage Photos</h3><p>Damage photo tracking, customer-safe visibility, inspection linkage, and report support.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./damage-photos.html">Open</a></div>
         </article>
       </div>
     </section>
@@ -146,22 +307,22 @@
       <div class="module-grid">
         <article class="module-card">
           <div><h3>Accounting / Billing</h3><p>Billing-ready MAWBs, accessorials, QuickBooks-ready workflow, and invoice support.</p></div>
-          <div class="module-actions"><span class="pill active">API Ready</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./accounting-billing.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Data Center</h3><p>Payors, drivers, employees, permissions, and production reference data.</p></div>
-          <div class="module-actions"><span class="pill active">Connected</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./admin-data-center.html">Open</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Reports</h3><p>CFS Full Report, customer report workflow, cargo status, and operational visibility.</p></div>
-          <div class="module-actions"><span class="pill planned">Polish Next</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill planned">Coming Next</span><a class="open-link disabled" href="#">Pending</a></div>
         </article>
 
         <article class="module-card">
           <div><h3>Customer Portal</h3><p>Read-only customer-safe views for assigned cargo, damage photos, and approved files.</p></div>
-          <div class="module-actions"><span class="pill active">Read Only</span><a class="open-link secondary" href="#integrationTests">Check</a></div>
+          <div class="module-actions"><span class="pill ready">Open</span><a class="open-link" href="./customer-portal.html">Open</a></div>
         </article>
       </div>
     </section>
