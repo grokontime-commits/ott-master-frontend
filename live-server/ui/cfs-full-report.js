@@ -329,29 +329,164 @@
     };
   }
 
-  function exportCsv() {
+  // PHASE 9B-A CFS REPORT COLUMN CONTROLS CUSTOMER SAFE EXPORT
+  const reportColumns = [
+    { key: 'status', label: 'Status', index: 1, customerSafe: true },
+    { key: 'mawb', label: 'MAWB', index: 2, customerSafe: true },
+    { key: 'payor', label: 'Payor', index: 3, customerSafe: true },
+    { key: 'airline', label: 'Airline', index: 4, customerSafe: true },
+    { key: 'pieces', label: 'PCS', index: 5, customerSafe: true },
+    { key: 'weight', label: 'Weight KG', index: 6, customerSafe: true },
+    { key: 'hawbs', label: 'HAWBs', index: 7, customerSafe: true },
+    { key: 'readyHawbs', label: 'Ready HAWBs', index: 8, customerSafe: true },
+    { key: 'release', label: 'Release', index: 9, customerSafe: true },
+    { key: 'pickupPacket', label: 'Pickup Packet', index: 10, customerSafe: true },
+    { key: 'invoice', label: 'Invoice #', index: 11, customerSafe: false },
+    { key: 'equipment', label: 'Equipment/Billing', index: 12, customerSafe: false },
+    { key: 'source', label: 'Status Source', index: 13, customerSafe: false },
+    { key: 'action', label: 'Action', index: 14, customerSafe: false }
+  ];
+
+  function selectedColumnKeys(customerSafeOnly) {
+    if (customerSafeOnly) {
+      return reportColumns.filter((column) => column.customerSafe && column.key !== 'action').map((column) => column.key);
+    }
+
+    const controls = document.querySelectorAll('[data-report-column]');
+    if (!controls.length) {
+      return reportColumns.filter((column) => column.key !== 'action').map((column) => column.key);
+    }
+
+    return Array.from(controls)
+      .filter((input) => input.checked)
+      .map((input) => input.getAttribute('data-report-column'))
+      .filter((key) => key && key !== 'action');
+  }
+
+  function columnByKey(key) {
+    return reportColumns.find((column) => column.key === key);
+  }
+
+  function applyColumnVisibility() {
+    const controls = document.querySelectorAll('[data-report-column]');
+    if (!controls.length) return;
+
+    const visible = new Set(
+      Array.from(controls)
+        .filter((input) => input.checked)
+        .map((input) => input.getAttribute('data-report-column'))
+    );
+
+    reportColumns.forEach((column) => {
+      const display = visible.has(column.key) ? '' : 'none';
+      document.querySelectorAll('#reportTable tr > *:nth-child(' + column.index + ')').forEach((cell) => {
+        cell.style.display = display;
+      });
+    });
+  }
+
+  function setColumnPreset(mode) {
+    const tools = $('columnTools');
+    if (tools) tools.classList.toggle('customer-safe-active', mode === 'customer');
+
+    document.querySelectorAll('[data-report-column]').forEach((input) => {
+      const key = input.getAttribute('data-report-column');
+      const column = columnByKey(key);
+
+      if (!column) return;
+
+      if (mode === 'all') input.checked = true;
+      if (mode === 'customer') input.checked = Boolean(column.customerSafe);
+      if (mode === 'internal') input.checked = key !== 'action';
+    });
+
+    applyColumnVisibility();
+  }
+
+  function initColumnControls() {
+    const grid = $('columnControlsGrid');
+    if (!grid || grid.dataset.ready === '1') return;
+
+    grid.dataset.ready = '1';
+
+    grid.innerHTML = reportColumns.map((column) => {
+      const checked = column.key === 'action' ? '' : ' checked';
+      return '<label class="column-option"><input type="checkbox" data-report-column="' + escapeHtml(column.key) + '"' + checked + ' /> ' + escapeHtml(column.label) + '</label>';
+    }).join('');
+
+    grid.querySelectorAll('[data-report-column]').forEach((input) => {
+      input.addEventListener('change', applyColumnVisibility);
+    });
+
+    $('btnShowAllColumns')?.addEventListener('click', () => setColumnPreset('all'));
+    $('btnCustomerSafeColumns')?.addEventListener('click', () => setColumnPreset('customer'));
+    $('btnResetInternalColumns')?.addEventListener('click', () => setColumnPreset('internal'));
+    $('btnExportCustomerCsv')?.addEventListener('click', () => exportCsv(true));
+
+    $('btnLoadCargo')?.addEventListener('click', () => {
+      setTimeout(applyColumnVisibility, 500);
+      setTimeout(applyColumnVisibility, 1200);
+    });
+
+    $('btnBuildReport')?.addEventListener('click', () => {
+      setTimeout(applyColumnVisibility, 500);
+      setTimeout(applyColumnVisibility, 1200);
+    });
+  }
+
+  function reportCellValue(row, key) {
+    switch (key) {
+      case 'status': return row.status;
+      case 'mawb': return row.mawbNumber;
+      case 'payor': return row.payor;
+      case 'airline': return row.airline;
+      case 'pieces': return row.pieces;
+      case 'weight': return row.weight;
+      case 'hawbs': return row.hawbCount;
+      case 'readyHawbs': return row.readyHawbCount;
+      case 'release': return (row.releaseNumber || '—') + ' ' + (row.releaseStatus || '—');
+      case 'pickupPacket': return row.pickupPacket;
+      case 'invoice': return row.invoiceNumber;
+      case 'equipment': return row.equipmentBilling;
+      case 'source': return row.statusSource;
+      default: return '';
+    }
+  }
+
+  function csvEscape(value) {
+    return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+  }
+
+  function exportCsv(customerSafeOnly = false) {
     if (!state.reportRows.length) renderReport();
-    const headers = ['Status','MAWB','Payor','Airline','PCS','Weight KG','HAWBs','Ready HAWBs','Release','Pickup Packet','Invoice #','Equipment/Billing','Status Source'];
-    const lines = [headers.join(',')];
+
+    const keys = selectedColumnKeys(customerSafeOnly);
+    const columns = keys.map(columnByKey).filter(Boolean);
+    const headers = columns.map((column) => column.label);
+
+    const lines = [headers.map(csvEscape).join(',')];
 
     state.reportRows.forEach((row) => {
-      const values = [
-        row.status, row.mawbNumber, row.payor, row.airline, row.pieces, row.weight, row.hawbCount,
-        row.readyHawbCount, row.releaseNumber + ' ' + row.releaseStatus, row.pickupPacket,
-        row.invoiceNumber, row.equipmentBilling, row.statusSource
-      ].map((v) => '"' + String(v ?? '').replace(/"/g, '""') + '"');
-      lines.push(values.join(','));
+      lines.push(columns.map((column) => csvEscape(reportCellValue(row, column.key))).join(','));
     });
 
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+
     a.href = url;
-    a.download = 'OTT_CFS_FULL_REPORT_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.download = (customerSafeOnly ? 'OTT_CFS_CUSTOMER_SAFE_REPORT_' : 'OTT_CFS_FULL_REPORT_') + new Date().toISOString().slice(0, 10) + '.csv';
+
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+
+    setOutput(customerSafeOnly ? 'Exported Customer-Safe CSV' : 'Exported CSV', {
+      rows: state.reportRows.length,
+      columns: headers,
+      customerSafe: customerSafeOnly
+    }, true);
   }
 
   $('btnLogin').addEventListener('click', async () => {
@@ -380,4 +515,6 @@
   $('btnExportCsv').addEventListener('click', exportCsv);
 
   setLoginBadge();
+  initColumnControls();
+  applyColumnVisibility();
 })();

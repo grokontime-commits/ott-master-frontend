@@ -394,6 +394,74 @@
     }
   </style>
 
+
+  <style>
+    /* PHASE 9B-A CFS REPORT COLUMN CONTROLS CUSTOMER SAFE EXPORT
+       Column controls/export only. No API/auth/backend/report logic changes. */
+
+    .column-tools {
+      margin-top: 12px;
+      border: 1px solid var(--ott-line);
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 12px;
+    }
+
+    .column-tools-title {
+      margin: 0 0 8px;
+      color: var(--ott-ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .column-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 7px;
+      margin: 8px 0 10px;
+    }
+
+    .column-option {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 7px;
+      min-width: 0 !important;
+      min-height: 30px;
+      padding: 6px 8px;
+      border: 1px solid #dce3ef;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .column-option input[type="checkbox"] {
+      width: 16px !important;
+      height: 16px !important;
+      min-height: 16px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .column-safe-note {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .customer-safe-active {
+      outline: 3px solid rgba(21, 128, 61, 0.18);
+    }
+  </style>
+
 </head>
 <body data-module-key="reports">
   <header>
@@ -431,6 +499,20 @@
         <button id="btnExportCsv">Export CSV</button>
       </div>
       <p class="hint">Phase 9A uses existing read APIs first. A dedicated backend report endpoint can be added later if needed.</p>
+
+      <div class="column-tools" id="columnTools">
+        <div class="column-tools-title">Column Controls / Export View</div>
+        <div id="columnControlsGrid" class="column-controls-grid"></div>
+        <div class="row">
+          <button id="btnShowAllColumns" type="button">Show All Columns</button>
+          <button id="btnCustomerSafeColumns" type="button" class="green">Customer-Safe Columns</button>
+          <button id="btnResetInternalColumns" type="button">Reset Internal View</button>
+          <button id="btnExportCustomerCsv" type="button" class="primary">Export Customer-Safe CSV</button>
+        </div>
+        <div class="column-safe-note">
+          Customer-safe export hides internal billing/equipment/source columns and excludes action controls.
+        </div>
+      </div>
     </section>
 
     <section class="card full">
