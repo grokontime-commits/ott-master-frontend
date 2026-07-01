@@ -294,6 +294,44 @@
   }
 </style>
 
+
+<style>
+  /* PHASE 11B-B DASHBOARD SESSION OVERLAY FIX
+     Dashboard session badge only. No layout/card/grid/module changes. */
+
+  #loginBadge.ott-session-out {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  #loginBadge.ott-session-token {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+
+  #loginBadge.ott-session-verified {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
+  }
+
+  #loginBadge.ott-session-failed {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+  }
+
+  #sessionHint {
+    display: block;
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+</style>
+
 </head>
 <body>
   <header class="topbar">
@@ -525,5 +563,208 @@
 })();
 </script>
 <!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
-\n</body>
+\n
+<script>
+(function () {
+  if (window.__phase11bDashboardSessionOverlayFix) return;
+  window.__phase11bDashboardSessionOverlayFix = true;
+
+  var verifiedThisPage = false;
+  var lastMode = "";
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function tokenExists() {
+    try {
+      if (window.OTTApi && typeof window.OTTApi.getAccessToken === "function") {
+        return Boolean(window.OTTApi.getAccessToken());
+      }
+
+      return Boolean(
+        localStorage.getItem("ott_access_token") ||
+        localStorage.getItem("OTT_ACCESS_TOKEN") ||
+        sessionStorage.getItem("ott_access_token")
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function setBadge(mode, message) {
+    var badge = el("loginBadge");
+    var hint = el("sessionHint");
+
+    if (!badge) return;
+
+    badge.classList.remove(
+      "ok",
+      "fail",
+      "token",
+      "ott-session-out",
+      "ott-session-token",
+      "ott-session-verified",
+      "ott-session-failed"
+    );
+
+    if (mode === "verified") {
+      badge.classList.add("ott-session-verified");
+      badge.textContent = "Verified session";
+      lastMode = mode;
+      if (hint) hint.textContent = message || "Session verified with /auth/me. You are ready to use production modules.";
+      return;
+    }
+
+    if (mode === "failed") {
+      badge.classList.add("ott-session-failed");
+      badge.textContent = "Session failed";
+      lastMode = mode;
+      if (hint) hint.textContent = message || "Session could not be verified. Login again, then click Test /auth/me.";
+      return;
+    }
+
+    if (mode === "token") {
+      badge.classList.add("ott-session-token");
+      badge.textContent = "Token saved";
+      lastMode = mode;
+      if (hint) hint.textContent = message || "A token exists, but this page has not verified /auth/me yet.";
+      return;
+    }
+
+    badge.classList.add("ott-session-out");
+    badge.textContent = "Not logged in";
+    lastMode = "out";
+    if (hint) hint.textContent = message || "Not logged in. Enter credentials and click Login.";
+  }
+
+  async function verifySession(source) {
+    if (!window.OTTApi || typeof window.OTTApi.me !== "function") {
+      if (tokenExists()) {
+        setBadge("token", "Token exists, but /auth/me is not available on this page yet.");
+      } else {
+        setBadge("out");
+      }
+      return false;
+    }
+
+    try {
+      var result = await window.OTTApi.me();
+
+      if (result) {
+        verifiedThisPage = true;
+        setBadge("verified", "Session verified with /auth/me" + (source ? " after " + source : "") + ".");
+        return true;
+      }
+
+      verifiedThisPage = false;
+      setBadge("failed");
+      return false;
+    } catch (error) {
+      verifiedThisPage = false;
+      setBadge("failed", "Session check failed. Login again, then click Test /auth/me.");
+      return false;
+    }
+  }
+
+  function clearPasswordSoon() {
+    setTimeout(function () {
+      var password = el("password");
+      if (password) password.value = "";
+    }, 250);
+  }
+
+  function installHint() {
+    if (el("sessionHint")) return;
+
+    var btnMe = el("btnMe");
+    if (!btnMe || !btnMe.parentElement) return;
+
+    var hint = document.createElement("div");
+    hint.id = "sessionHint";
+    hint.textContent = "Session not verified yet. Click Test /auth/me or login again.";
+
+    btnMe.parentElement.appendChild(hint);
+  }
+
+  function refreshPassiveState() {
+    if (verifiedThisPage) {
+      setBadge("verified");
+      return;
+    }
+
+    if (lastMode === "failed") {
+      setBadge("failed");
+      return;
+    }
+
+    if (tokenExists()) {
+      setBadge("token");
+    } else {
+      setBadge("out");
+    }
+  }
+
+  function init() {
+    installHint();
+    refreshPassiveState();
+
+    var loginBtn = el("btnLogin");
+    var logoutBtn = el("btnLogout");
+    var meBtn = el("btnMe");
+
+    if (loginBtn && loginBtn.dataset.phase11bSessionOverlay !== "1") {
+      loginBtn.dataset.phase11bSessionOverlay = "1";
+      loginBtn.addEventListener("click", function () {
+        clearPasswordSoon();
+        setBadge("token", "Login submitted. Verifying session...");
+        setTimeout(function () { verifySession("login"); }, 900);
+        setTimeout(function () { verifySession("login"); }, 1800);
+      });
+    }
+
+    if (meBtn && meBtn.dataset.phase11bSessionOverlay !== "1") {
+      meBtn.dataset.phase11bSessionOverlay = "1";
+      meBtn.addEventListener("click", function () {
+        setBadge("token", "Checking /auth/me...");
+        setTimeout(function () { verifySession("/auth/me"); }, 350);
+      });
+    }
+
+    if (logoutBtn && logoutBtn.dataset.phase11bSessionOverlay !== "1") {
+      logoutBtn.dataset.phase11bSessionOverlay = "1";
+      logoutBtn.addEventListener("click", function () {
+        verifiedThisPage = false;
+        clearPasswordSoon();
+        setTimeout(function () { setBadge("out", "Logged out. Password cleared."); }, 350);
+      });
+    }
+
+    setInterval(function () {
+      var badge = el("loginBadge");
+      if (!badge) return;
+
+      var text = String(badge.textContent || "").trim();
+
+      // Existing dashboard JS may overwrite the badge with the old text.
+      // Put our clearer session state back without touching layout.
+      if (text === "Logged in" && !verifiedThisPage) {
+        refreshPassiveState();
+      }
+
+      if (text === "Verified session") {
+        verifiedThisPage = true;
+      }
+    }, 900);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
 </html>
