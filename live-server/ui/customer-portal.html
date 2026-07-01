@@ -1144,5 +1144,78 @@
 })();
 </script>
 
-</body>
+
+<!-- PHASE 12A-G1 MOVE CUSTOMER REPORT UP -->
+<style>
+  #phase12aCustomerSafeReport {
+    margin: 10px 0 14px 0 !important;
+    padding: 10px !important;
+  }
+
+  #phase12aCustomerSafeReport h2 {
+    font-size: 16px !important;
+    margin: 0 0 6px 0 !important;
+  }
+
+  #phase12aCustomerSafeReport p {
+    font-size: 12px !important;
+    margin: 0 0 8px 0 !important;
+  }
+
+  #phase12aCustomerSafeReport .table-wrap {
+    max-height: 220px !important;
+    overflow: auto !important;
+  }
+
+  #phase12aCustomerSafeReport table {
+    font-size: 12px !important;
+  }
+
+  #phase12aCustomerSafeReport th,
+  #phase12aCustomerSafeReport td {
+    padding: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  pre,
+  #output,
+  #setupDetail,
+  #readOnlyDetail {
+    max-height: 170px !important;
+    overflow: auto !important;
+    font-size: 11px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function moveReportUp() {
+    const report = document.getElementById("phase12aCustomerSafeReport");
+    if (!report) {
+      setTimeout(moveReportUp, 300);
+      return;
+    }
+
+    const headings = Array.from(document.querySelectorAll("h2,h3"));
+    const readOnlyHeading = headings.find((h) =>
+      /Customer Read-Only Portal View/i.test(h.textContent || "")
+    );
+
+    const readOnlyCard = readOnlyHeading
+      ? readOnlyHeading.closest("section,.card,div")
+      : null;
+
+    if (readOnlyCard && readOnlyCard.parentNode) {
+      readOnlyCard.parentNode.insertBefore(report, readOnlyCard);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", moveReportUp);
+  } else {
+    moveReportUp();
+  }
+})();
+</script>
+\n</body>
 </html>
