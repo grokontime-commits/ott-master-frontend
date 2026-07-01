@@ -1217,5 +1217,92 @@
   }
 })();
 </script>
+\n
+<!-- PHASE 12A-H COMPACT CUSTOMER PORTAL -->
+<style>
+  .phase12a-hidden-admin {
+    display: none !important;
+  }
+
+  #phase12aCustomerPortalToolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #d7e3f3;
+    background: #f8fbff;
+    border-radius: 10px;
+  }
+
+  #phase12aCustomerPortalToolbar button {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  section.card,
+  .card {
+    margin-bottom: 10px !important;
+  }
+
+  pre,
+  #output,
+  #setupDetail,
+  #readOnlyDetail {
+    max-height: 160px !important;
+    overflow: auto !important;
+    font-size: 11px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function getCardByHeading(text) {
+    const h = Array.from(document.querySelectorAll("h2")).find((x) =>
+      (x.textContent || "").includes(text)
+    );
+    return h ? h.closest("section,.card,div") : null;
+  }
+
+  function setAdminVisible(show) {
+    ["2. Customer Portal Dashboard", "3. Create / Select Customer Portal Account", "4. Link User + Assign Customer-Visible Cargo", "5. Cargo source selector"]
+      .forEach((title) => {
+        const card = getCardByHeading(title);
+        if (card) card.classList.toggle("phase12a-hidden-admin", !show);
+      });
+  }
+
+  function initCompactPortal() {
+    if (document.getElementById("phase12aCustomerPortalToolbar")) return;
+
+    const firstCard = getCardByHeading("1. Connection + Login");
+    const toolbar = document.createElement("div");
+    toolbar.id = "phase12aCustomerPortalToolbar";
+    toolbar.innerHTML = `
+      <button type="button" id="phase12aShowCustomerView">Customer View</button>
+      <button type="button" id="phase12aShowAdminSetup">Show Admin Setup</button>
+      <button type="button" id="phase12aHideAdminSetup">Hide Admin Setup</button>
+    `;
+
+    if (firstCard && firstCard.parentNode) {
+      firstCard.parentNode.insertBefore(toolbar, firstCard.nextSibling);
+    } else {
+      document.body.insertBefore(toolbar, document.body.firstChild);
+    }
+
+    document.getElementById("phase12aShowCustomerView").onclick = () => setAdminVisible(false);
+    document.getElementById("phase12aHideAdminSetup").onclick = () => setAdminVisible(false);
+    document.getElementById("phase12aShowAdminSetup").onclick = () => setAdminVisible(true);
+
+    setAdminVisible(false);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCompactPortal);
+  } else {
+    initCompactPortal();
+  }
+})();
+</script>
 \n</body>
 </html>
