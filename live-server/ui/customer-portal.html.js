@@ -200,7 +200,7 @@
     });
     $('btnLinkUser').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canDownloadFiles: false, notes: 'Linked from Customer Portal account setup.', metadata: { source: 'customer_portal' } };
+      const body = { userProfileId: $('userProfileId').value.trim(), portalRole: $('portalRole').value, portalUserStatus: 'ACTIVE', canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: phase10bReportAccessEnabled(), canDownloadFiles: false, notes: 'Linked from Customer Portal account setup.', metadata: { source: 'customer_portal' } };
       const p = await run('Link User to Portal Account', () => window.OTTApi.linkCustomerPortalUser(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
@@ -217,13 +217,13 @@
     });
     $('btnAssignMawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, canViewReleaseDocuments: false, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), canViewStatus: true, canViewHawbs: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: phase10bReportAccessEnabled(), canViewReleaseDocuments: false, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign MAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalMawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
     $('btnAssignHawb').addEventListener('click', async () => {
       const accountId = $('selectedAccountId').value.trim();
-      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: true, notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
+      const body = { mawbId: $('selectedMawbId').value.trim(), hawbId: $('selectedHawbId').value.trim(), canViewStatus: true, canViewDamagePhotos: true, canViewReleaseStatus: true, canViewCustomerReports: phase10bReportAccessEnabled(), notes: 'Assigned from Customer Portal assignment workflow.', metadata: { source: 'customer_portal' } };
       const p = await run('Assign HAWB to Customer Portal', () => window.OTTApi.assignCustomerPortalHawb(accountId, body));
       if (p) $('setupDetail').textContent = JSON.stringify(data(p), null, 2);
     });
@@ -461,5 +461,67 @@
   }
 
   phase10aInitCustomerReport();
+
+
+  // PHASE 10B-A CUSTOMER PORTAL ASSIGNMENT WORKFLOW POLISH
+  function phase10bValue(id) {
+    const el = $(id);
+    return el && "value" in el ? String(el.value || "").trim() : "";
+  }
+
+  function phase10bAssignmentSummary() {
+    const reportAccess = phase10bValue("phase10bReportAccess") || "ENABLED";
+    const lines = [
+      "Customer Report Assignment Checklist",
+      "------------------------------------",
+      "Portal Account ID: " + (phase10bValue("selectedAccountId") || "not selected"),
+      "User Profile ID: " + (phase10bValue("userProfileId") || "not selected"),
+      "Selected MAWB ID: " + (phase10bValue("selectedMawbId") || "not selected"),
+      "Selected HAWB ID: " + (phase10bValue("selectedHawbId") || "optional / not selected"),
+      "File Record ID: " + (phase10bValue("fileRecordId") || "optional / not selected"),
+      "Report Access: " + reportAccess,
+      "",
+      "Customer-safe requirements:",
+      "- Assigned cargo only",
+      "- No invoice number",
+      "- No internal billing",
+      "- No equipment billing",
+      "- No internal status source",
+      "- Read-only customer view"
+    ];
+
+    const box = $("phase10bAssignmentStatus");
+    if (box) box.textContent = lines.join("\n");
+  }
+
+  function phase10bReportAccessEnabled() {
+    return phase10bValue("phase10bReportAccess") !== "DISABLED";
+  }
+
+  function phase10bInitAssignmentWorkflow() {
+    [
+      "selectedAccountId",
+      "userProfileId",
+      "selectedMawbId",
+      "selectedHawbId",
+      "fileRecordId",
+      "phase10bReportAccess"
+    ].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        el.addEventListener("input", phase10bAssignmentSummary);
+        el.addEventListener("change", phase10bAssignmentSummary);
+      }
+    });
+
+    document.addEventListener("click", () => {
+      setTimeout(phase10bAssignmentSummary, 150);
+      setTimeout(phase10bAssignmentSummary, 700);
+    });
+
+    phase10bAssignmentSummary();
+  }
+
+  phase10bInitAssignmentWorkflow();
 
 })();

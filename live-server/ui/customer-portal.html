@@ -607,6 +607,97 @@
     }
   </style>
 
+
+  <style>
+    /* PHASE 10B-A CUSTOMER PORTAL ASSIGNMENT WORKFLOW POLISH
+       Customer Portal workflow polish only.
+       No API/auth/backend/Supabase changes. */
+
+    .phase10b-workflow-card {
+      border-left: 5px solid #1d4ed8 !important;
+    }
+
+    .phase10b-customer-card {
+      border-left: 5px solid #15803d !important;
+    }
+
+    .phase10b-checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .phase10b-step {
+      border: 1px solid #dce3ef;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 10px 11px;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .phase10b-step b {
+      display: block;
+      color: #132033;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .phase10b-safe {
+      border-color: #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .phase10b-warn {
+      border-color: #fde68a;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    #phase10bAssignmentStatus {
+      margin-top: 12px;
+      padding: 10px 11px;
+      border: 1px solid #dce3ef;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .phase10b-customer-note {
+      margin-top: 9px;
+      padding: 10px 11px;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .phase10b-inline-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+  </style>
+
 </head>
 <body data-module-key="customerPortal">
   <header class="topbar">
@@ -682,6 +773,7 @@
       <div class="grid-2">
         <label>User Profile ID<input id="userProfileId" placeholder="auto from /auth/me or paste customer user profile id" /></label>
         <label>Portal Role<select id="portalRole"><option>VIEWER</option><option>MANAGER</option></select></label>
+        <label class="field small">Report Access<select id="phase10bReportAccess"><option value="ENABLED">Customer Reports Enabled</option><option value="DISABLED">Customer Reports Disabled</option></select></label>
       </div>
       <div class="button-row">
         <button id="btnLinkUser">Link User to Portal</button>
