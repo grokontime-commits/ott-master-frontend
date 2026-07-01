@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OTT Master — Customer Portal</title>
+  <link rel="stylesheet" href="./phase3k.css" />
+
+  <style>
+    /* PHASE 8E-J CUSTOMER PORTAL UI POLISH
+       UI-only polish. No API, auth, Supabase, service role, token, password, or backend changes. */
+
+    :root {
+      --ott-bg: #f4f6f8;
+      --ott-card: #ffffff;
+      --ott-border: #d9e0e7;
+      --ott-soft: #eef3f7;
+      --ott-text: #16202a;
+      --ott-muted: #647282;
+      --ott-blue: #1769aa;
+      --ott-green: #1f7a42;
+      --ott-red: #b42318;
+      --ott-yellow: #f7c948;
+      --ott-radius: 14px;
+      --ott-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body[data-module-key="customerPortal"] {
+      margin: 0;
+      background: var(--ott-bg);
+      color: var(--ott-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    body[data-module-key="customerPortal"] .wrap,
+    body[data-module-key="customerPortal"] main,
+    body[data-module-key="customerPortal"] .page,
+    body[data-module-key="customerPortal"] .container {
+      width: min(1440px, calc(100vw - 28px));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    body[data-module-key="customerPortal"] header,
+    body[data-module-key="customerPortal"] .header {
+      padding: 14px 4px 10px;
+    }
+
+    body[data-module-key="customerPortal"] h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.1vw, 31px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    body[data-module-key="customerPortal"] header p,
+    body[data-module-key="customerPortal"] .sub {
+      margin: 5px 0 0;
+      color: var(--ott-muted);
+      font-size: 13px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 8px;
+      width: min(1440px, calc(100vw - 28px));
+      margin: 10px auto 12px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-step {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      font-weight: 800;
+      color: #344054;
+      text-align: center;
+    }
+
+    body[data-module-key="customerPortal"] .grid,
+    body[data-module-key="customerPortal"] .cards,
+    body[data-module-key="customerPortal"] .main-grid,
+    body[data-module-key="customerPortal"] .layout {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+      width: min(1440px, calc(100vw - 28px)) !important;
+      margin: 0 auto !important;
+    }
+
+    body[data-module-key="customerPortal"] section,
+    body[data-module-key="customerPortal"] .card,
+    body[data-module-key="customerPortal"] .panel {
+      background: var(--ott-card);
+      border: 1px solid var(--ott-border);
+      border-radius: var(--ott-radius);
+      padding: 13px;
+      box-shadow: var(--ott-shadow);
+      overflow: hidden;
+      min-width: 0;
+      margin-bottom: 12px;
+    }
+
+    body[data-module-key="customerPortal"] section:has(.table-wrap),
+    body[data-module-key="customerPortal"] .card:has(.table-wrap),
+    body[data-module-key="customerPortal"] .panel:has(.table-wrap),
+    body[data-module-key="customerPortal"] section:has(#readOnlyDetail),
+    body[data-module-key="customerPortal"] section:has(#output) {
+      grid-column: 1 / -1 !important;
+    }
+
+    body[data-module-key="customerPortal"] h2 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body[data-module-key="customerPortal"] h2::before {
+      content: "";
+      width: 7px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ott-yellow);
+      flex: 0 0 auto;
+    }
+
+    body[data-module-key="customerPortal"] .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    body[data-module-key="customerPortal"] label,
+    body[data-module-key="customerPortal"] .field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      margin: 0;
+      display: block;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    body[data-module-key="customerPortal"] .inline-label,
+    body[data-module-key="customerPortal"] .field.small {
+      flex: 0 1 190px;
+      min-width: 150px;
+    }
+
+    body[data-module-key="customerPortal"] input,
+    body[data-module-key="customerPortal"] select,
+    body[data-module-key="customerPortal"] textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ott-text);
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    body[data-module-key="customerPortal"] textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    body[data-module-key="customerPortal"] input:focus,
+    body[data-module-key="customerPortal"] select:focus,
+    body[data-module-key="customerPortal"] textarea:focus {
+      border-color: var(--ott-blue);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    body[data-module-key="customerPortal"] button {
+      min-height: 34px;
+      border: 1px solid #b9c7d5;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body[data-module-key="customerPortal"] button:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    body[data-module-key="customerPortal"] button.primary,
+    body[data-module-key="customerPortal"] button.blue {
+      background: var(--ott-blue);
+      border-color: var(--ott-blue);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] button.secondary,
+    body[data-module-key="customerPortal"] .secondary {
+      background: #fff;
+      border-color: #98a2b3;
+      color: #1f2937;
+    }
+
+    body[data-module-key="customerPortal"] button.green {
+      background: var(--ott-green);
+      border-color: var(--ott-green);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] button.red {
+      background: var(--ott-red);
+      border-color: var(--ott-red);
+      color: #fff;
+    }
+
+    body[data-module-key="customerPortal"] .mini {
+      min-height: 28px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    body[data-module-key="customerPortal"] .hint,
+    body[data-module-key="customerPortal"] .help,
+    body[data-module-key="customerPortal"] .muted,
+    body[data-module-key="customerPortal"] .note {
+      margin: 7px 0 0;
+      color: var(--ott-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      background: var(--ott-soft);
+      border: 1px solid #dde7ef;
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    body[data-module-key="customerPortal"] .phase8ej-readonly-note {
+      border-left: 5px solid var(--ott-yellow);
+      background: #fff8db;
+      color: #3b3200;
+    }
+
+    body[data-module-key="customerPortal"] .kpis,
+    body[data-module-key="customerPortal"] .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi {
+      background: #fff;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 58px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi b,
+    body[data-module-key="customerPortal"] .kpi .value {
+      display: block;
+      font-size: 21px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    body[data-module-key="customerPortal"] .kpi span,
+    body[data-module-key="customerPortal"] .kpi .label {
+      color: var(--ott-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    body[data-module-key="customerPortal"] .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--ott-border);
+      border-radius: 12px;
+      background: #fff;
+      max-height: 44vh;
+    }
+
+    body[data-module-key="customerPortal"] table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 920px;
+      font-size: 12.5px;
+    }
+
+    body[data-module-key="customerPortal"] th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf2f7;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      text-align: left;
+      border-bottom: 1px solid var(--ott-border);
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 9px;
+      vertical-align: top;
+    }
+
+    body[data-module-key="customerPortal"] tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    body[data-module-key="customerPortal"] .status-pill,
+    body[data-module-key="customerPortal"] .pill,
+    body[data-module-key="customerPortal"] .read-only {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] .blocked {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 999px;
+      border: 1px solid #fecaca;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    body[data-module-key="customerPortal"] #readOnlyDetail,
+    body[data-module-key="customerPortal"] .detail-box,
+    body[data-module-key="customerPortal"] #setupDetail,
+    body[data-module-key="customerPortal"] #output {
+      min-height: 120px;
+      max-height: 46vh;
+      overflow: auto;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    body[data-module-key="customerPortal"] input[id*="id" i],
+    body[data-module-key="customerPortal"] input[id*="email" i],
+    body[data-module-key="customerPortal"] input[id*="mawb" i],
+    body[data-module-key="customerPortal"] input[id*="hawb" i],
+    body[data-module-key="customerPortal"] input[id*="file" i] {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      body[data-module-key="customerPortal"] .grid,
+      body[data-module-key="customerPortal"] .cards,
+      body[data-module-key="customerPortal"] .main-grid,
+      body[data-module-key="customerPortal"] .layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      body[data-module-key="customerPortal"] .phase8ej-customer-strip {
+        grid-template-columns: 1fr;
+      }
+
+      body[data-module-key="customerPortal"] .row {
+        display: block;
+      }
+
+      body[data-module-key="customerPortal"] label,
+      body[data-module-key="customerPortal"] .field,
+      body[data-module-key="customerPortal"] .field.small,
+      body[data-module-key="customerPortal"] .inline-label {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      body[data-module-key="customerPortal"] button {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+
+
+<style>
+  /* PHASE 8H-D LOGIN BADGE COLOR ONLY
+     Badge-only CSS. No grid/card/section/row/layout changes. */
+
+  #loginBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 24px !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  #loginBadge.badge.ok,
+  #loginBadge.ok,
+  #loginBadge.auth-ok {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
+  }
+
+  #loginBadge.auth-warn {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+  }
+
+  #loginBadge.fail,
+  #loginBadge.auth-fail,
+  #loginBadge.auth-error {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+  }
+</style>
+
+
+  <style>
+    /* PHASE 10A-A CUSTOMER PORTAL CFS REPORT ACCESS
+       Customer Portal report access UI only.
+       No backend/API/auth/Supabase changes. */
+
+    .phase10a-report-card {
+      border-left: 5px solid #f7c948 !important;
+    }
+
+    .phase10a-safe-note {
+      margin-top: 9px;
+      padding: 10px 11px;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    #myCfsReportTable {
+      min-width: 980px;
+    }
+
+    #myCfsReportDetail {
+      margin-top: 12px;
+      min-height: 110px;
+      max-height: 320px;
+      overflow: auto;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .phase10a-report-header {
+      display: none;
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border: 1px solid #dce3ef;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #132033;
+    }
+
+    .phase10a-report-header h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      color: #132033;
+    }
+
+    .phase10a-report-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    .phase10a-report-meta div {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f8fafc;
+    }
+
+    .phase10a-report-meta b {
+      display: block;
+      margin-bottom: 3px;
+      color: #64748b;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    body.phase10a-print-customer-report .phase10a-report-header {
+      display: block;
+    }
+
+    @media print {
+      body.phase10a-print-customer-report {
+        background: #ffffff !important;
+        color: #111827 !important;
+      }
+
+      body.phase10a-print-customer-report header,
+      body.phase10a-print-customer-report section:not(.phase10a-report-card),
+      body.phase10a-print-customer-report #myCfsReportDetail,
+      body.phase10a-print-customer-report button {
+        display: none !important;
+      }
+
+      body.phase10a-print-customer-report .phase10a-report-card {
+        display: block !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      body.phase10a-print-customer-report .phase10a-report-header {
+        display: block !important;
+        border: 0 !important;
+        border-bottom: 2px solid #111827 !important;
+        border-radius: 0 !important;
+        margin-bottom: 10px !important;
+      }
+
+      body.phase10a-print-customer-report .table-wrap {
+        overflow: visible !important;
+        border: 0 !important;
+      }
+
+      body.phase10a-print-customer-report #myCfsReportTable {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+        font-size: 9px !important;
+      }
+
+      body.phase10a-print-customer-report #myCfsReportTable th,
+      body.phase10a-print-customer-report #myCfsReportTable td {
+        padding: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        white-space: normal !important;
+        line-height: 1.2 !important;
+      }
+    }
+  </style>
+
+
+  <style>
+    /* PHASE 10B-A CUSTOMER PORTAL ASSIGNMENT WORKFLOW POLISH
+       Customer Portal workflow polish only.
+       No API/auth/backend/Supabase changes. */
+
+    .phase10b-workflow-card {
+      border-left: 5px solid #1d4ed8 !important;
+    }
+
+    .phase10b-customer-card {
+      border-left: 5px solid #15803d !important;
+    }
+
+    .phase10b-checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .phase10b-step {
+      border: 1px solid #dce3ef;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 10px 11px;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .phase10b-step b {
+      display: block;
+      color: #132033;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .phase10b-safe {
+      border-color: #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .phase10b-warn {
+      border-color: #fde68a;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    #phase10bAssignmentStatus {
+      margin-top: 12px;
+      padding: 10px 11px;
+      border: 1px solid #dce3ef;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .phase10b-customer-note {
+      margin-top: 9px;
+      padding: 10px 11px;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .phase10b-inline-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+  </style>
+
+</head>
+<body data-module-key="customerPortal">
+  <header class="topbar">
+    <div>
+      <h1>OTT Master — Customer Portal</h1>
+      <p>Customer account assignment, customer-visible MAWB/HAWB/files, and access event logging.</p>
+    </div>
+    <span id="loginBadge" class="badge">Not logged in</span>
+  
+    <!-- PHASE 8H-C2 BACK TO OPERATIONS BUTTON ONLY START -->
+    <a href="./operational-integration-dashboard.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:34px;margin-top:10px;padding:9px 13px;border-radius:10px;background:#ffffff;color:#111827;font-weight:800;font-size:13px;text-decoration:none;border:1px solid #cbd5e1;box-shadow:0 3px 10px rgba(15,23,42,0.10);white-space:nowrap;">Back to Operations Dashboard</a>
+    <!-- PHASE 8H-C2 BACK TO OPERATIONS BUTTON ONLY END -->
+  </header>
+
+  <main class="layout">
+    <section class="card span-2">
+      <h2>1. Connection + Login</h2>
+      <div class="button-row">
+        <button id="btnHealth">Test /health</button>
+        <button id="btnVersion">Test /api/v1/version</button>
+      </div>
+      <div class="grid-3">
+        <label>Email<input id="email" type="email" autocomplete="username" placeholder="authorized office/admin or customer email" /></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" /></label>
+        <div class="button-stack">
+          <button id="btnLogin">Login</button>
+          <button id="btnLogout" class="secondary">Logout</button>
+          <button id="btnMe" class="secondary">Test /auth/me</button>
+        </div>
+      </div>
+      <p class="hint">Use an authorized OFFICE/ADMIN user to manage portal assignments. Use a CUSTOMER portal user to confirm the read-only view.</p>
+    </section>
+
+    <section class="card span-2">
+      <h2>2. Customer Portal Dashboard</h2>
+      <div class="button-row">
+        <button id="btnStats">Customer Portal Stats</button>
+        <button id="btnPayors">Load Payors</button>
+        <button id="btnAccounts">Load Portal Accounts</button>
+        <button id="btnCargoMawbs">Load Cargo MAWBs</button>
+        <button id="btnAudit">Load Portal Audit Events</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><b id="kpiAccounts">—</b><span>Portal accounts</span></div>
+        <div class="kpi"><b id="kpiUsers">—</b><span>Portal users</span></div>
+        <div class="kpi"><b id="kpiMawbs">—</b><span>MAWB assignments</span></div>
+        <div class="kpi"><b id="kpiFiles">—</b><span>File assignments</span></div>
+        <div class="kpi"><b id="kpiEvents">—</b><span>Access events</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Create / Select Customer Portal Account</h2>
+      <div class="grid-2">
+        <label>Payor<select id="payorSelect"><option value="">Select Payor</option></select></label>
+        <label>Account Code<input id="accountCode" /></label>
+      </div>
+      <label>Account Name<input id="accountName" placeholder="Customer portal account name" /></label>
+      <div class="grid-2">
+        <label>Visibility Level<select id="visibilityLevel"><option>STANDARD</option><option>REPORTS_ONLY</option><option>CFS_FULL</option></select></label>
+        <label>Status Filter<select id="accountStatusFilter"><option value="">All</option><option>ACTIVE</option><option>SUSPENDED</option><option>INACTIVE</option></select></label>
+      </div>
+      <div class="button-row">
+        <button id="btnCreateAccount">Create Portal Account</button>
+        <button id="btnReloadAccounts" class="secondary">Reload Accounts</button>
+      </div>
+      <label>Selected Portal Account ID<input id="selectedAccountId" /></label>
+      <div class="table-wrap"><table><thead><tr><th>Account</th><th>Status</th><th>Payor</th><th>Visibility</th><th>Select</th></tr></thead><tbody id="accountsBody"><tr><td colspan="5">No accounts loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Link User + Assign Customer-Visible Cargo</h2>
+      <div class="grid-2">
+        <label>User Profile ID<input id="userProfileId" placeholder="auto from /auth/me or paste customer user profile id" /></label>
+        <label>Portal Role<select id="portalRole"><option>VIEWER</option><option>MANAGER</option></select></label>
+        <label class="field small">Report Access<select id="phase10bReportAccess"><option value="ENABLED">Customer Reports Enabled</option><option value="DISABLED">Customer Reports Disabled</option></select></label>
+      </div>
+      <div class="button-row">
+        <button id="btnLinkUser">Link User to Portal</button>
+        <button id="btnLoadUsers" class="secondary">Load Account Users</button>
+      </div>
+      <div class="grid-2">
+        <label>Selected MAWB ID<input id="selectedMawbId" /></label>
+        <label>Selected HAWB ID<input id="selectedHawbId" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnAssignMawb">Assign MAWB</button>
+        <button id="btnLoadMawbDetail" class="secondary">Load MAWB Detail / HAWBs</button>
+        <button id="btnAssignHawb">Assign HAWB</button>
+      </div>
+      <div class="grid-2">
+        <label>Customer-visible File Record ID<input id="fileRecordId" placeholder="optional public file_records.id" /></label>
+        <label>File HAWB ID Optional<input id="fileHawbId" /></label>
+      </div>
+      <button id="btnAssignFile">Assign File</button>
+
+      <p class="hint phase10a-assignment-note">
+        Report access is included when MAWB/HAWB is assigned with Customer Reports enabled.
+      </p>
+      <div class="detail-box" id="setupDetail">No assignment result yet.</div>
+    </section>
+
+    <section class="card span-2">
+      <h2>5. Cargo source selector</h2>
+      <div class="button-row">
+        <label class="inline-label">Search / MAWB<input id="cargoQ" placeholder="MAWB or description" /></label>
+        <label class="inline-label">Status<select id="cargoStatus"><option value="">All</option><option>NEW</option><option>READY_FOR_RELEASE</option><option>RELEASED</option></select></label>
+        <button id="btnCargoSearch">Load Cargo MAWBs</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>MAWB</th><th>Status</th><th>Payor</th><th>Airline</th><th>Select</th></tr></thead><tbody id="cargoBody"><tr><td colspan="5">No cargo loaded.</td></tr></tbody></table></div>
+      <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>HAWB</th><th>Status</th><th>PCS</th><th>Weight</th><th>Select</th></tr></thead><tbody id="hawbBody"><tr><td colspan="5">Load a MAWB detail to see HAWBs.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>6. Customer Read-Only Portal View</h2>
+      <p class="muted"><span class="read-only">READ ONLY</span> These actions call customer portal read-only `/me/...` endpoints and access-event logging only.</p>
+      <div class="button-row">
+        <button id="btnMyAccounts">My Portal Accounts</button>
+        <button id="btnMyMawbs">My MAWBs</button>
+        <button id="btnMyHawbs">My HAWBs</button>
+        <button id="btnMyReleases">My Release Orders</button>
+        <button id="btnMyDamage">My Damage Records</button>
+        <button id="btnMyFiles">My Files</button>
+      </div>
+      <div class="grid-3">
+        <label>Read-Only MAWB ID<input id="myMawbId" /></label>
+        <label>Read-Only HAWB ID<input id="myHawbId" /></label>
+        <label>Portal Account ID for Access Event<input id="eventPortalAccountId" /></label>
+      </div>
+      <div class="button-row">
+        <button id="btnViewMyMawb">View Selected MAWB</button>
+        <button id="btnViewMyHawb">View Selected HAWB</button>
+        <button id="btnLogViewEvent" class="secondary">Log VIEW_STATUS Event</button>
+      </div>
+      <div id="readOnlyDetail" class="detail-box">No customer read-only data loaded.</div>
+    </section>
+
+    <section class="card span-2">
+      <h2>7. Customer Read-Only Results</h2>
+      <div class="tabs">
+        <button class="mini secondary" data-render="myAccounts">Accounts</button>
+        <button class="mini secondary" data-render="myMawbs">MAWBs</button>
+        <button class="mini secondary" data-render="myHawbs">HAWBs</button>
+        <button class="mini secondary" data-render="myReleases">Releases</button>
+        <button class="mini secondary" data-render="myDamage">Damage</button>
+        <button class="mini secondary" data-render="myFiles">Files</button>
+      </div>
+      <div class="table-wrap"><table><thead id="readOnlyHead"><tr><th>Result</th></tr></thead><tbody id="readOnlyBody"><tr><td>No customer read-only rows loaded.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card span-2">
+      <h2>Output</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script src="../ott-config.js"></script>
+  <script src="../api/ott-api-client.js"></script>
+  <script src="../auth/ott-auth.js"></script>
+  <script src="./customer-portal.html.js"></script>
+
+
+\n
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL START -->
+<script>
+(function () {
+  if (window.__phase8cEnterLoginFinalInstalled) return;
+  window.__phase8cEnterLoginFinalInstalled = true;
+
+  function isLoginInput(target) {
+    if (!target) return false;
+
+    var id = String(target.id || "").toLowerCase();
+    var type = String(target.type || "").toLowerCase();
+
+    return id === "email" || id === "password" || type === "email" || type === "password";
+  }
+
+  function clickLoginButton() {
+    var loginBtn = document.getElementById("btnLogin");
+    if (!loginBtn || loginBtn.disabled) return false;
+
+    loginBtn.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+
+    return true;
+  }
+
+  function handleEnter(event) {
+    var key = event.key || event.code || "";
+    var isEnter = key === "Enter" || key === "NumpadEnter" || event.keyCode === 13;
+
+    if (!isEnter) return;
+    if (!isLoginInput(event.target)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    clickLoginButton();
+  }
+
+  document.addEventListener("keydown", handleEnter, true);
+  document.addEventListener("keypress", handleEnter, true);
+})();
+</script>
+<!-- PHASE 8C ENTER LOGIN SHORTCUT FINAL END -->
+\n
+<!-- PHASE 12A-F CUSTOMER SAFE CFS REPORT SECTION -->
+<script>
+(function () {
+  const MARKER = "PHASE 12A-F CUSTOMER SAFE CFS REPORT SECTION";
+
+  function safeText(value) {
+    return String(value ?? "—")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function rows(payload) {
+    const p = payload && payload.payload ? payload.payload : payload;
+    const d = p && p.data !== undefined ? p.data : p;
+
+    if (Array.isArray(d)) return d;
+    if (Array.isArray(d?.items)) return d.items;
+    if (Array.isArray(d?.rows)) return d.rows;
+    if (Array.isArray(d?.data)) return d.data;
+    if (Array.isArray(p?.items)) return p.items;
+    if (Array.isArray(p?.rows)) return p.rows;
+
+    return [];
+  }
+
+  function mawbNumber(row) {
+    return row.mawb_number_display || row.mawbNumberDisplay || row.mawb_number || row.mawbNumber || row.mawb || row.mawb_id || row.id || "—";
+  }
+
+  function mawbId(row) {
+    return row.mawb_id || row.mawbId || row.id || "";
+  }
+
+  function statusValue(row) {
+    return row.cargo_status || row.status || row.mawb_status || row.release_status || "—";
+  }
+
+  function addCustomerReportSection() {
+    if (document.getElementById("phase12aCustomerSafeReport")) return;
+
+    const card = document.createElement("section");
+    card.id = "phase12aCustomerSafeReport";
+    card.className = "card";
+    card.style.marginTop = "18px";
+
+    card.innerHTML = `
+      <h2>8. Customer-Safe CFS Report</h2>
+      <p class="muted">
+        Read-only customer report. This view excludes invoice numbers, internal billing, equipment billing, and internal status source.
+      </p>
+
+      <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
+        <button id="btnPhase12aBuildCustomerReport" type="button">Build My CFS Report</button>
+        <button id="btnPhase12aExportCustomerReport" type="button">Export Customer-Safe CSV</button>
+        <button id="btnPhase12aPrintCustomerReport" type="button">Print / Save PDF</button>
+      </div>
+
+      <div class="table-wrap" style="overflow:auto;">
+        <table id="phase12aCustomerReportTable">
+          <thead>
+            <tr>
+              <th>MAWB</th>
+              <th>Status</th>
+              <th>Payor</th>
+              <th>Airline</th>
+              <th>PCS</th>
+              <th>Weight KG</th>
+              <th>HAWBs</th>
+              <th>Releases</th>
+              <th>Damage</th>
+              <th>Files</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="10">Click Build My CFS Report.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const output = document.getElementById("output")?.closest("section")
+      || document.querySelector("pre")?.closest("section");
+
+    if (output && output.parentNode) {
+      output.parentNode.insertBefore(card, output);
+    } else {
+      document.body.appendChild(card);
+    }
+
+    const state = {
+      rows: []
+    };
+
+    function renderReport() {
+      const body = document.querySelector("#phase12aCustomerReportTable tbody");
+      if (!body) return;
+
+      if (!state.rows.length) {
+        body.innerHTML = '<tr><td colspan="10">No assigned customer cargo found.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = state.rows.map((row) => `
+        <tr>
+          <td><b>${safeText(row.mawb)}</b></td>
+          <td>${safeText(row.status)}</td>
+          <td>${safeText(row.payor)}</td>
+          <td>${safeText(row.airline)}</td>
+          <td>${safeText(row.pieces)}</td>
+          <td>${safeText(row.weight)}</td>
+          <td>${safeText(row.hawbs)}</td>
+          <td>${safeText(row.releases)}</td>
+          <td>${safeText(row.damage)}</td>
+          <td>${safeText(row.files)}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function callApi(label, fn) {
+      try {
+        return await fn();
+      } catch (err) {
+        console.warn(label, err);
+        return [];
+      }
+    }
+
+    async function buildReport() {
+      const btn = document.getElementById("btnPhase12aBuildCustomerReport");
+      if (btn) btn.disabled = true;
+
+      try {
+        if (!window.OTTApi) throw new Error("OTTApi not loaded.");
+
+        const mawbsPayload = await callApi("myPortalMawbs", () => window.OTTApi.myPortalMawbs({ limit: 100, offset: 0 }));
+        const hawbsPayload = await callApi("myPortalHawbs", () => window.OTTApi.myPortalHawbs({ limit: 500, offset: 0 }));
+        const releasesPayload = await callApi("myPortalReleaseOrders", () => window.OTTApi.myPortalReleaseOrders({ limit: 500, offset: 0 }));
+        const damagePayload = await callApi("myPortalDamageRecords", () => window.OTTApi.myPortalDamageRecords({ limit: 500, offset: 0 }));
+        const filesPayload = await callApi("myPortalFiles", () => window.OTTApi.myPortalFiles({ limit: 500, offset: 0 }));
+
+        const mawbs = rows(mawbsPayload);
+        const hawbs = rows(hawbsPayload);
+        const releases = rows(releasesPayload);
+        const damage = rows(damagePayload);
+        const files = rows(filesPayload);
+
+        state.rows = mawbs.map((m) => {
+          const id = mawbId(m);
+          const relatedHawbs = hawbs.filter((h) => (h.mawb_id || h.mawbId) === id);
+          const relatedReleases = releases.filter((r) => (r.mawb_id || r.mawbId) === id);
+          const relatedDamage = damage.filter((d) => (d.mawb_id || d.mawbId) === id);
+          const relatedFiles = files.filter((f) => (f.mawb_id || f.mawbId) === id);
+
+          return {
+            mawb: mawbNumber(m),
+            status: statusValue(m),
+            payor: m.payor_name || m.payorName || m.customer_name || "—",
+            airline: m.airline_name || m.airlineName || m.airline_code || m.airlineCode || "—",
+            pieces: m.total_pieces_expected ?? m.totalPiecesExpected ?? m.pieces ?? "—",
+            weight: m.total_weight_kg ?? m.totalWeightKg ?? m.weight_kg ?? "—",
+            hawbs: relatedHawbs.length,
+            releases: relatedReleases.length,
+            damage: relatedDamage.length,
+            files: relatedFiles.length
+          };
+        });
+
+        renderReport();
+
+        const output = document.getElementById("output");
+        if (output) {
+          output.textContent = JSON.stringify({
+            success: true,
+            customerSafe: true,
+            rows: state.rows.length,
+            excluded: ["invoice_number", "internal_billing", "equipment_billing", "status_source"]
+          }, null, 2);
+        }
+      } catch (err) {
+        const output = document.getElementById("output");
+        if (output) output.textContent = "Customer-safe report failed: " + (err.message || err);
+        console.error(err);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function exportCsv() {
+      if (!state.rows.length) renderReport();
+
+      const headers = ["MAWB", "Status", "Payor", "Airline", "PCS", "Weight KG", "HAWBs", "Releases", "Damage", "Files"];
+      const lines = [headers.join(",")];
+
+      state.rows.forEach((row) => {
+        lines.push([
+          row.mawb,
+          row.status,
+          row.payor,
+          row.airline,
+          row.pieces,
+          row.weight,
+          row.hawbs,
+          row.releases,
+          row.damage,
+          row.files
+        ].map((v) => '"' + String(v ?? "").replaceAll('"', '""') + '"').join(","));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "OTT_CUSTOMER_SAFE_CFS_REPORT_" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("btnPhase12aBuildCustomerReport")?.addEventListener("click", buildReport);
+    document.getElementById("btnPhase12aExportCustomerReport")?.addEventListener("click", exportCsv);
+    document.getElementById("btnPhase12aPrintCustomerReport")?.addEventListener("click", () => window.print());
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", addCustomerReportSection);
+  } else {
+    addCustomerReportSection();
+  }
+})();
+</script>
+
+
+<!-- PHASE 12A-G1 MOVE CUSTOMER REPORT UP -->
+<style>
+  #phase12aCustomerSafeReport {
+    margin: 10px 0 14px 0 !important;
+    padding: 10px !important;
+  }
+
+  #phase12aCustomerSafeReport h2 {
+    font-size: 16px !important;
+    margin: 0 0 6px 0 !important;
+  }
+
+  #phase12aCustomerSafeReport p {
+    font-size: 12px !important;
+    margin: 0 0 8px 0 !important;
+  }
+
+  #phase12aCustomerSafeReport .table-wrap {
+    max-height: 220px !important;
+    overflow: auto !important;
+  }
+
+  #phase12aCustomerSafeReport table {
+    font-size: 12px !important;
+  }
+
+  #phase12aCustomerSafeReport th,
+  #phase12aCustomerSafeReport td {
+    padding: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  pre,
+  #output,
+  #setupDetail,
+  #readOnlyDetail {
+    max-height: 170px !important;
+    overflow: auto !important;
+    font-size: 11px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function moveReportUp() {
+    const report = document.getElementById("phase12aCustomerSafeReport");
+    if (!report) {
+      setTimeout(moveReportUp, 300);
+      return;
+    }
+
+    const headings = Array.from(document.querySelectorAll("h2,h3"));
+    const readOnlyHeading = headings.find((h) =>
+      /Customer Read-Only Portal View/i.test(h.textContent || "")
+    );
+
+    const readOnlyCard = readOnlyHeading
+      ? readOnlyHeading.closest("section,.card,div")
+      : null;
+
+    if (readOnlyCard && readOnlyCard.parentNode) {
+      readOnlyCard.parentNode.insertBefore(report, readOnlyCard);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", moveReportUp);
+  } else {
+    moveReportUp();
+  }
+})();
+</script>
+\n
+<!-- PHASE 12A-H COMPACT CUSTOMER PORTAL -->
+<style>
+  .phase12a-hidden-admin {
+    display: none !important;
+  }
+
+  #phase12aCustomerPortalToolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #d7e3f3;
+    background: #f8fbff;
+    border-radius: 10px;
+  }
+
+  #phase12aCustomerPortalToolbar button {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  section.card,
+  .card {
+    margin-bottom: 10px !important;
+  }
+
+  pre,
+  #output,
+  #setupDetail,
+  #readOnlyDetail {
+    max-height: 160px !important;
+    overflow: auto !important;
+    font-size: 11px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function getCardByHeading(text) {
+    const h = Array.from(document.querySelectorAll("h2")).find((x) =>
+      (x.textContent || "").includes(text)
+    );
+    return h ? h.closest("section,.card,div") : null;
+  }
+
+  function setAdminVisible(show) {
+    ["2. Customer Portal Dashboard", "3. Create / Select Customer Portal Account", "4. Link User + Assign Customer-Visible Cargo", "5. Cargo source selector"]
+      .forEach((title) => {
+        const card = getCardByHeading(title);
+        if (card) card.classList.toggle("phase12a-hidden-admin", !show);
+      });
+  }
+
+  function initCompactPortal() {
+    if (document.getElementById("phase12aCustomerPortalToolbar")) return;
+
+    const firstCard = getCardByHeading("1. Connection + Login");
+    const toolbar = document.createElement("div");
+    toolbar.id = "phase12aCustomerPortalToolbar";
+    toolbar.innerHTML = `
+      <button type="button" id="phase12aShowCustomerView">Customer View</button>
+      <button type="button" id="phase12aShowAdminSetup">Show Admin Setup</button>
+      <button type="button" id="phase12aHideAdminSetup">Hide Admin Setup</button>
+    `;
+
+    if (firstCard && firstCard.parentNode) {
+      firstCard.parentNode.insertBefore(toolbar, firstCard.nextSibling);
+    } else {
+      document.body.insertBefore(toolbar, document.body.firstChild);
+    }
+
+    document.getElementById("phase12aShowCustomerView").onclick = () => setAdminVisible(false);
+    document.getElementById("phase12aHideAdminSetup").onclick = () => setAdminVisible(false);
+    document.getElementById("phase12aShowAdminSetup").onclick = () => setAdminVisible(true);
+
+    setAdminVisible(false);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCompactPortal);
+  } else {
+    initCompactPortal();
+  }
+})();
+</script>
+\n
+<!-- PHASE 12A-H2 HIDE ADMIN CARDS FIX -->
+<style>
+  .customer-mode-hide {
+    display: none !important;
+  }
+
+  #setupDetail,
+  #output,
+  #readOnlyDetail,
+  pre {
+    max-height: 90px !important;
+    overflow: auto !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  .card {
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .card h2 {
+    font-size: 15px !important;
+    margin-bottom: 6px !important;
+  }
+
+  table {
+    font-size: 11px !important;
+  }
+
+  th, td {
+    padding: 5px !important;
+  }
+</style>
+
+<script>
+(function () {
+  function cardByHeading(text) {
+    const h = Array.from(document.querySelectorAll("h2")).find(x =>
+      (x.textContent || "").includes(text)
+    );
+    return h ? h.closest(".card") : null;
+  }
+
+  function applyCustomerCompactMode() {
+    [
+      "2. Customer Portal Dashboard",
+      "3. Create / Select Customer Portal Account",
+      "4. Link User + Assign Customer-Visible Cargo",
+      "5. Cargo source selector"
+    ].forEach(title => {
+      const card = cardByHeading(title);
+      if (card) card.classList.add("customer-mode-hide");
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyCustomerCompactMode);
+  } else {
+    applyCustomerCompactMode();
+  }
+})();
+</script>
+\n</body>
+</html>
