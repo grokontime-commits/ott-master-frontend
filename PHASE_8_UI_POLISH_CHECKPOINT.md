@@ -10,6 +10,7 @@
 - Phase 8E-K — Final Production UI Regression PASS
 - Phase 8F-D — Warehouse Inspection CSS reset to Cargo Management style PASS
 - Phase 8G-B — Recovery Queue card internal stretch fix PASS
+- Phase 8H-A/B — Cargo Release / Pickup Packet layout reset + compact card order PASS
 
 ## Important fixes
 
@@ -19,7 +20,8 @@
 - Admin Data Center compact layout completed.
 - Customer Portal compact read-only layout completed.
 - Warehouse Inspection old stacked CSS was reset to one clean Cargo Management-style layout.
-- Recovery Queue old stacked CSS was reset/fixed so card internals no longer stretch vertically.
+- Recovery Queue card internals no longer stretch vertically.
+- Cargo Release cards no longer take excessive vertical space; workflow cards now follow compact two-column order.
 
 ## Current production stack
 
